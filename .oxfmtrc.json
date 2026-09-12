@@ -1,0 +1,13 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"useTabs": true,
+	"tabWidth": 2,
+	"printWidth": 100,
+	"ignorePatterns": [
+		".agents/**",
+		".claude/**",
+		"emdash-env.d.ts",
+		"worker-configuration.d.ts",
+		"pnpm-lock.yaml"
+	]
+}

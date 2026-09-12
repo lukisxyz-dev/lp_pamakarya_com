@@ -1,0 +1,20 @@
+# Format staged files on commit and re-stage the result, so the formatted
+# output lands in the same commit even when it was not staged beforehand.
+#
+# Two formatters by necessity: oxfmt does not parse .astro yet, so .astro
+# files go through Prettier + prettier-plugin-astro. Both configs use the
+# same indent/width so the two never fight over shared files.
+#
+# Skip with: LEFTHOOK=0 git commit ...
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxfmt
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,json,jsonc,css,scss,less,md,mdx,yaml,yml,toml,html,vue,hbs,handlebars,graphql}"
+      run: node_modules/.bin/oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    - name: prettier (astro)
+      glob: "*.astro"
+      run: node_modules/.bin/prettier --write {staged_files}
+      stage_fixed: true
