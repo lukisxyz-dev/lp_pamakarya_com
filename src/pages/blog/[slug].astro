@@ -1,0 +1,137 @@
+---
+/**
+ * Single blog post.
+ *
+ * Server-rendered by slug -- no getStaticPaths, EmDash content is dynamic.
+ */
+import { getEmDashEntry, getSeoMeta } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect("/blog");
+
+const { entry: post, cacheHint } = await getEmDashEntry("posts", slug);
+if (!post) return Astro.redirect("/404");
+
+Astro.cache.set(cacheHint);
+
+const seo = getSeoMeta(post, {
+	siteTitle: "Pamakarya",
+	siteUrl: Astro.url.origin,
+	path: `/blog/${slug}`,
+});
+
+const image = post.data.featured_image;
+---
+
+<Base title={seo.title} description={seo.description ?? undefined}>
+	<article class="post">
+		<h1 {...post.edit.title}>{post.data.title}</h1>
+
+		{post.data.publishedAt && (
+			<time class="post-date" datetime={post.data.publishedAt.toISOString()}>
+				{post.data.publishedAt.toLocaleDateString("id-ID", {
+					day: "numeric",
+					month: "long",
+					year: "numeric",
+				})}
+			</time>
+		)}
+
+		{image && (
+			<div class="post-image" {...post.edit.featured_image}>
+				<Image image={image} />
+			</div>
+		)}
+
+		{post.data.content && (
+			<div class="post-body">
+				<PortableText value={post.data.content} />
+			</div>
+		)}
+
+		<a href="/blog" class="post-back">
+			← Semua artikel
+		</a>
+	</article>
+</Base>
+
+<style>
+	.post {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: var(--spacing-2xl) var(--spacing-lg);
+	}
+
+	.post h1 {
+		font-size: var(--font-size-3xl);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: var(--tracking-snug);
+		line-height: var(--leading-snug);
+		margin: 0 0 var(--spacing-md);
+	}
+
+	.post-date {
+		display: block;
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
+		margin-bottom: var(--spacing-xl);
+	}
+
+	.post-image {
+		margin: 0 0 var(--spacing-xl);
+	}
+
+	.post-image :global(img) {
+		width: 100%;
+		height: auto;
+		border-radius: var(--radius);
+	}
+
+	.post-body {
+		line-height: var(--leading-relaxed);
+	}
+
+	.post-body :global(h2) {
+		font-size: var(--font-size-xl);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: var(--tracking-snug);
+		margin: var(--spacing-2xl) 0 var(--spacing-md);
+	}
+
+	.post-body :global(h3) {
+		font-size: var(--font-size-lg);
+		font-weight: var(--font-weight-heading);
+		margin: var(--spacing-xl) 0 var(--spacing-sm);
+	}
+
+	.post-body :global(p) {
+		margin: 0 0 var(--spacing-lg);
+	}
+
+	.post-body :global(blockquote) {
+		margin: var(--spacing-xl) 0;
+		padding-left: var(--spacing-lg);
+		border-left: 2px solid var(--color-border);
+		color: var(--color-muted);
+	}
+
+	.post-body :global(a) {
+		color: var(--color-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.post-back {
+		display: inline-block;
+		margin-top: var(--spacing-3xl);
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
+		text-decoration: none;
+	}
+
+	.post-back:hover {
+		color: var(--color-text);
+	}
+</style>

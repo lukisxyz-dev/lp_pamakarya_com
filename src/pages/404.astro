@@ -2,72 +2,44 @@
 import Base from "../layouts/Base.astro";
 ---
 
-<Base title="Page not found">
-	<div class="not-found">
-		<div class="not-found-code">404</div>
-		<h1>Page not found</h1>
-		<p>The page you're looking for doesn't exist or has been moved.</p>
-		<div class="not-found-actions">
-			<a href="/" class="btn btn-primary btn-lg">
-				Go home
-			</a>
-			<a href="/contact" class="btn btn-secondary btn-lg">
-				Contact us
-			</a>
-		</div>
-	</div>
+<Base title="Halaman tidak ditemukan">
+	<section class="not-found">
+		<h1>404</h1>
+		<p>Halaman yang Anda cari tidak ada.</p>
+		<a href="/" class="not-found-link">
+			Kembali ke beranda
+		</a>
+	</section>
 </Base>
 
 <style>
 	.not-found {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-lg);
+		min-height: 60vh;
+		padding: var(--spacing-2xl) var(--spacing-lg);
 		text-align: center;
-		padding: var(--spacing-5xl) var(--spacing-lg);
-		max-width: var(--max-width);
-		margin: 0 auto;
-	}
-
-	.not-found-code {
-		font-size: 10rem;
-		font-weight: var(--font-weight-display);
-		line-height: 1;
-		letter-spacing: -0.05em;
-		background: var(--gradient-brand);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-		opacity: 0.3;
-		margin-bottom: var(--spacing-lg);
 	}
 
 	.not-found h1 {
-		font-size: var(--font-size-3xl);
-		margin-bottom: var(--spacing-md);
+		font-size: var(--font-size-5xl);
+		font-weight: var(--font-weight-display);
+		letter-spacing: var(--tracking-tight);
+		margin: 0;
 	}
 
 	.not-found p {
-		font-size: var(--font-size-lg);
 		color: var(--color-muted);
-		margin-bottom: var(--spacing-2xl);
+		margin: 0;
 	}
 
-	.not-found-actions {
-		display: flex;
-		gap: var(--spacing-md);
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	@media (max-width: 480px) {
-		.not-found-code {
-			font-size: 6rem;
-		}
-
-		.not-found-actions {
-			flex-direction: column;
-		}
-
-		.not-found-actions .btn {
-			width: 100%;
-		}
+	.not-found-link {
+		font-size: var(--font-size-sm);
+		color: var(--color-text);
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 </style>

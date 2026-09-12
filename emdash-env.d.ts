@@ -5,11 +5,13 @@
 
 import type { ContentBylineCredit, TaxonomyTerm, PortableTextBlock } from "emdash";
 
-export interface Page {
+export interface Post {
   id: string;
   slug: string | null;
   status: string;
   title: string;
+  excerpt?: string;
+  featured_image?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; provider?: string; previewUrl?: string; meta?: Record<string, unknown>; darkVariant?: { id: string; src?: string; alt?: string; width?: number; height?: number; filename?: string; mimeType?: string; blurhash?: string; dominantColor?: string; provider?: string; previewUrl?: string; meta?: Record<string, unknown> } };
   content?: PortableTextBlock[];
   createdAt: Date;
   updatedAt: Date;
@@ -20,6 +22,6 @@ export interface Page {
 
 declare module "emdash" {
   interface EmDashCollections {
-    pages: Page;
+    posts: Post;
   }
 }

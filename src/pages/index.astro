@@ -1,47 +1,59 @@
 ---
-import { getEmDashEntry } from "emdash";
+/**
+ * Landing page.
+ *
+ * Intentionally plain: the site name and one action into the blog.
+ * Content lives entirely in the blog collection.
+ */
 import Base from "../layouts/Base.astro";
-import MarketingBlocks from "../components/MarketingBlocks.astro";
-
-const { entry: page, cacheHint } = await getEmDashEntry("pages", "home");
-
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
-
-const pageTitle = page?.data.title;
-const pageContent = page?.data.content;
 ---
 
-<Base
-	title={pageTitle !== "Home" ? pageTitle : undefined}
-	description="Build products people actually want. The all-in-one platform for modern teams."
->
-	{pageContent ? (
-		<MarketingBlocks value={pageContent} />
-	) : (
-		<div class="empty-state">
-			<h1>Welcome to Acme</h1>
-			<p>Edit the home page content in the admin to get started.</p>
-			<a href="/_emdash/admin" class="btn btn-primary">
-				Open Admin
-			</a>
-		</div>
-	)}
+<Base>
+	<section class="landing">
+		<h1>Pamakarya</h1>
+		<a href="/blog" class="landing-cta">
+			Baca Blog
+		</a>
+	</section>
 </Base>
 
 <style>
-	.empty-state {
+	.landing {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-2xl);
+		min-height: 70vh;
+		padding: var(--spacing-2xl) var(--spacing-lg);
 		text-align: center;
-		padding: var(--spacing-5xl) var(--spacing-lg);
-		max-width: var(--max-width);
-		margin: 0 auto;
 	}
 
-	.empty-state h1 {
-		margin-bottom: var(--spacing-md);
+	.landing h1 {
+		font-size: var(--font-size-5xl);
+		font-weight: var(--font-weight-display);
+		letter-spacing: var(--tracking-tight);
+		line-height: var(--leading-tight);
+		margin: 0;
 	}
 
-	.empty-state p {
-		color: var(--color-muted);
-		margin-bottom: var(--spacing-xl);
+	.landing-cta {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--spacing-md) var(--spacing-xl);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-full);
+		font-size: var(--font-size-base);
+		font-weight: 500;
+		color: var(--color-text);
+		text-decoration: none;
+		transition:
+			background-color var(--transition-fast),
+			border-color var(--transition-fast);
+	}
+
+	.landing-cta:hover {
+		background-color: var(--color-surface);
+		border-color: var(--color-text);
 	}
 </style>

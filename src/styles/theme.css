@@ -1,32 +1,28 @@
 /*
-  theme.css -- your theme overrides. This is the file to edit to
-  retheme the site.
+  theme.css -- Pamakarya theme overrides.
 
-  Every design token lives in src/styles/tokens.css (colors, gradients,
-  type scale, spacing, layout, shadows) with its default value. Override
-  any of them here: declarations in this file are unlayered, so they
-  always beat the @layer base defaults in tokens.css.
+  Landing page is deliberately plain: white background, dark text, one
+  brand colour for the primary action. The template's gradient defaults
+  are flattened to solid brand so nothing inherits a gradient by
+  accident -- this site does not use them.
 
-  Colors are defined with light-dark(). Overriding with a plain color
-  changes light and dark mode at once; use light-dark(<light>, <dark>)
-  to set different values per mode.
-
-  Rebranding usually only needs --color-brand-* and --color-accent-* --
-  the gradient tokens follow automatically. For a flat, gradient-free
-  brand, set the --gradient-* tokens to solid colors.
-
-  Webfonts are loaded in astro.config.mjs (--font-body). Swap the loaded
-  font there; use overrides here for system fonts or a separate heading
-  face.
-
-  Example:
-
-  :root {
-    --color-brand: light-dark(#0d9488, #2dd4bf);
-    --color-accent: #f59e0b;
-    --font-weight-display: 700;
-  }
+  Colors use light-dark() from tokens.css. Overriding with a plain
+  colour changes light and dark at once; use light-dark(<light>, <dark>)
+  to keep them distinct.
 */
 
 :root {
+	--color-brand: light-dark(#1a1a1a, #f5f5f5);
+	--color-brand-strong: light-dark(#000000, #ffffff);
+	--color-brand-soft: light-dark(#6b6b6b, #a3a3a3);
+	--color-on-brand: light-dark(#ffffff, #111111);
+
+	/* No gradients on this site -- flatten the template's brand tokens. */
+	--gradient-brand: var(--color-brand);
+	--gradient-brand-strong: var(--color-brand-strong);
+	--gradient-brand-soft: var(--color-brand-soft);
+	--gradient-headline: var(--color-text);
+
+	--font-weight-display: 700;
+	--max-width: 640px;
 }
