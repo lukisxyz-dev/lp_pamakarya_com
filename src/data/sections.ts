@@ -43,9 +43,10 @@ export const sectionIds = {
 export type SectionId = (typeof sectionIds)[keyof typeof sectionIds];
 
 /**
- * Build an in-page href. Use this rather than writing `#faq` by hand: a bare
- * `href="#"` scrolls to the top and is a dead end of exactly the kind the
- * current site is built from, and the type keeps a typo out of the markup.
+ * Build an in-page href. Use this rather than writing the fragment by hand: a
+ * bare hash with no target scrolls to the top and is a dead end of exactly the
+ * kind the current site is built from, and the type keeps a typo out of the
+ * markup.
  */
 export const anchor = (id: SectionId): `#${SectionId}` => `#${id}`;
 

@@ -239,13 +239,12 @@ const waHref = whatsappLink(footerIntent);
 	}
 
 	/* Revealed on focus, instantly -- no transition, because a delayed focus
-	   indicator is itself an accessibility defect. */
+	   indicator is itself an accessibility defect. The focus ring itself comes
+	   from the global `:focus` rule in tokens.css; only the reveal is set
+	   here, so there is no second copy of the indicator to keep in step. */
 	.skip:focus,
 	.skip:focus-visible {
 		transform: translateY(0);
-		outline: 3px solid var(--ink);
-		outline-offset: 2px;
-		box-shadow: 0 0 0 6px var(--signal);
 	}
 
 	/* -- Header --------------------------------------------------------- */
