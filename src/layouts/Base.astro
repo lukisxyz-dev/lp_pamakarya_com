@@ -330,9 +330,14 @@ const waHref = whatsappLink(footerIntent);
 	/* Every contact row is a full-width tap target at 48px minimum, not a
 	   48px-tall text link: the number and the address are tappable across
 	   their whole row, which is what makes them usable one-handed. */
+	/* Label above value on narrow screens, side by side from 480px up. A fixed
+	   7rem label column would take 112px of a 288px content box at 320px and
+	   leave the address cramped; the stack gives the value the full width,
+	   which is what 1.4.10 reflow needs. */
 	.contact-row {
 		display: flex;
-		gap: var(--space-12);
+		flex-wrap: wrap;
+		gap: var(--space-8) var(--space-12);
 		align-items: center;
 		min-height: 48px;
 		padding: var(--space-12) 0;
@@ -346,8 +351,7 @@ const waHref = whatsappLink(footerIntent);
 	}
 
 	.contact-label {
-		flex: none;
-		width: 7rem;
+		flex: 0 0 100%;
 		color: var(--ink-3);
 		font-family: var(--font-mono);
 		font-size: var(--fs-label);
@@ -372,6 +376,15 @@ const waHref = whatsappLink(footerIntent);
 		margin: 0;
 		color: var(--ink-3);
 		font-size: var(--fs-caption);
+	}
+
+	/* Side by side once there is room for a label column without squeezing
+	   the value. */
+	@media (min-width: 480px) {
+		.contact-label {
+			flex: none;
+			width: 8rem;
+		}
 	}
 
 	/* -- Sticky action bar ---------------------------------------------- */

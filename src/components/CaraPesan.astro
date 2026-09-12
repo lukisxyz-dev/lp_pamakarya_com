@@ -121,32 +121,37 @@ const template = [
 	// must trigger itself (the API requires a user gesture). Everything else
 	// on this page -- the sticky bar, the FAQ, the anchors -- is native.
 	//
-	// Plain JS, not TypeScript: a `<script>` without `lang="ts"` is parsed as
-	// JavaScript by the bundler, so type annotations here are a syntax error
-	// even though `astro check` accepts them.
-	for (const button of document.querySelectorAll("[data-copy-target]")) {
+	// Written with `textContent` and an `instanceof` guard rather than
+	// `<textarea>.value`: the textarea is `readonly`, so its text cannot
+	// diverge from the markup, and these two forms are what both the bundler
+	// (which parses a bare script tag as JavaScript) and `astro check` (which
+	// type-checks it as TypeScript) accept without a cast.
+	const buttons = document.querySelectorAll("[data-copy-target]");
+	buttons.forEach((button) => {
 		button.addEventListener("click", async () => {
-			const targetId = button.dataset.copyTarget;
+			const targetId = button.getAttribute("data-copy-target");
 			if (!targetId) return;
 			const source = document.getElementById(targetId);
 			const status = button.parentElement?.querySelector("[data-copy-status]");
 			if (!source) return;
 
 			try {
-				await navigator.clipboard.writeText(source.value);
+				await navigator.clipboard.writeText(source.textContent || "");
 				if (status) status.textContent = "Templat tersalin. Tinggal diisi dan dikirim.";
 			} catch {
 				// Clipboard is unavailable (insecure context, permission denied).
 				// Select the text so the buyer can copy it by hand rather than
 				// being left with a button that silently does nothing.
-				source.focus();
-				source.select();
+				if (source instanceof HTMLTextAreaElement) {
+					source.focus();
+					source.select();
+				}
 				if (status) {
 					status.textContent = "Tidak bisa menyalin otomatis. Teks sudah dipilih — tekan Ctrl+C.";
 				}
 			}
 		});
-	}
+	});
 </script>
 
 <style>
