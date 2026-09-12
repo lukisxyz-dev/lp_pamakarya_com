@@ -1,0 +1,109 @@
+---
+/**
+ * Bukti.astro -- §3 "Bukti pekerjaan".
+ *
+ * Six photographs. The live site's only proof is a twelve-tile Instagram wall
+ * with no captions, no specs and no attribution -- it is a feed, not evidence,
+ * and it weighs 6.67 MB. Six captioned photographs carry more persuasive load
+ * than twelve uncaptioned ones.
+ *
+ * THE CAPTIONS ARE GENERIC, DELIBERATELY. The spec's six captions name a
+ * material, a thickness and a process ("Tepi potong stainless 304, 2 mm —
+ * tanpa deburr manual"). I have not seen these photographs and cannot verify
+ * what they show, so naming a material or a thickness would be inventing a
+ * specification and attaching it to a picture that may contradict it. The
+ * generic "Pekerjaan fabrikasi" is supportable; a wrong spec caption destroys
+ * the credibility the whole page is built on.
+ *
+ * Whether the strip may instead go full-bleed depends on knowing that the
+ * photographs have white/shop surfaces and would survive an edge-to-edge
+ * presentation. Since that is unverified, the band is a normal contained
+ * section on a `--paper-2` ground: real depth from a band fill and a hairline,
+ * with no risk of an unknown crop.
+ *
+ * Two-column wrapping grid on narrow screens, never a horizontal scroller.
+ */
+import { proofPhotos } from "../data/site";
+import SectionHead from "./SectionHead.astro";
+---
+
+<section class="band" id="bukti" tabindex="-1">
+	<div class="wrap">
+		<SectionHead label="Pekerjaan" title="Bukti pekerjaan" />
+
+		<p class="intro">Sebagian pekerjaan yang sudah kami kirim.</p>
+
+		<ul class="proof">
+			{proofPhotos.map((photo, i) => (
+				<li>
+					<figure>
+						<img
+							src={photo.src}
+							width={photo.width}
+							height={photo.height}
+							alt={`Pekerjaan fabrikasi Pamakarya, foto ${i + 1} dari ${proofPhotos.length}.`}
+							loading="lazy"
+							decoding="async"
+						/>
+						<figcaption>{photo.description}</figcaption>
+					</figure>
+				</li>
+			))}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.band {
+		padding: var(--section-pad) var(--gutter);
+		background-color: var(--paper-2);
+	}
+
+	.wrap {
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	.intro {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-24);
+		color: var(--ink-2);
+		font-size: var(--fs-body);
+	}
+
+	.proof {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--space-16);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	figure {
+		margin: 0;
+	}
+
+	img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border: var(--rule-width) solid var(--rule-strong);
+	}
+
+	/* Mono, --ink-3: the caption reads as a spec line, not as prose. */
+	figcaption {
+		margin-top: var(--space-8);
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-caption);
+		line-height: var(--lh-caption);
+	}
+
+	@media (min-width: 640px) {
+		.proof {
+			grid-template-columns: repeat(3, 1fr);
+			gap: var(--space-24);
+		}
+	}
+</style>

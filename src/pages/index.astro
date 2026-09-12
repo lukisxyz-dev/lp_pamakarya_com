@@ -2,20 +2,36 @@
 /**
  * Landing page.
  *
- * Sections §1-§2 (this step) and §3-§6 (Step 5), in the spec's order and
- * reading order. DOM order is the visual order at every breakpoint: no `order`,
- * no `row-reverse`, no grid placement that decouples reading order.
+ * The five content sections in the spec's order, plus the shell's header,
+ * footer and sticky bar in Base.astro. DOM order is the visual order at every
+ * breakpoint: no `order`, no `row-reverse`, no grid placement that decouples
+ * reading order from the source.
  *
  * Nothing here links to /blog or to any other route. The nav is four same-page
- * anchors, and the section ids come from src/data/sections.ts so a header link
- * and its target cannot drift apart.
+ * anchors, and section ids come from src/data/sections.ts so a header link and
+ * its target cannot drift apart.
+ *
+ * Heading outline:
+ *   h1  Hero
+ *    h2  Layanan dan material
+ *     h3   (each service on narrow screens, each subsection)
+ *    h2  Bukti pekerjaan
+ *    h2  Cara pesan
+ *    h2  Pertanyaan yang sering ditanyakan
+ *    h2  Hubungi kami      (in the footer)
  */
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import MateriLayanan from "../components/MateriLayanan.astro";
+import Bukti from "../components/Bukti.astro";
+import CaraPesan from "../components/CaraPesan.astro";
+import Faq from "../components/Faq.astro";
 ---
 
 <Base>
 	<Hero />
 	<MateriLayanan />
+	<Bukti />
+	<CaraPesan />
+	<Faq />
 </Base>

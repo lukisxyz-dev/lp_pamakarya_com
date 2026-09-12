@@ -1,0 +1,300 @@
+---
+/**
+ * CaraPesan.astro -- §4 "Cara pesan".
+ *
+ * Removes the friction that currently eats the most WhatsApp time: incomplete
+ * enquiries that need three round trips before a quote is possible. The live
+ * site's five FAQ steps are rendered as an `<ol>`, plus the file checklist and
+ * a copyable message template.
+ *
+ * THE PRICING PARAGRAPH PUBLISHES NO NUMBER. The spec's version states a
+ * pricing unit ("per luas potong (mm²) atau per menit mesin"), a minimum order
+ * and DP 50 % terms. None of those is confirmed -- they are the spec author's
+ * inference from competitor sites, not Pamakarya's published terms -- so the
+ * paragraph is reduced to what is certainly true for this kind of work: price
+ * depends on a list of variables, and a quote follows a file review. Naming a
+ * unit the client has not agreed to would be the most expensive kind of
+ * invention on the page, because it anchors a number before a quote exists.
+ *
+ * The clipboard write is triggered by the button itself, which is the user
+ * gesture the API requires, and success is announced through `role="status"`
+ * so a screen reader hears it. The textarea is a real, labelled, read-only
+ * field -- not a `display: none` copy source -- so the message can also be
+ * selected by hand if the clipboard API is unavailable.
+ */
+import { companyName, enquiryChecklist, orderingSteps, pricingCostVariables } from "../data/site";
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+
+/**
+ * The template the button copies. Written from the same checklist the section
+ * renders above it, so the two cannot disagree, and left with blanks for the
+ * buyer to fill in: a prefilled message that arrives complete is the whole
+ * point. The buyer pastes it into WhatsApp themselves, so this section needs
+ * no `wa.me` link of its own.
+ */
+const template = [
+	`Halo ${companyName}, saya mau minta penawaran.`,
+	"",
+	"Desain: (file saya kirim di chat ini)",
+	"Material: ____",
+	"Ukuran: ____ x ____ mm",
+	"Jumlah: ____ pcs",
+	"Lingkup: potong saja / termasuk perakitan dan pemasangan",
+].join("\n");
+---
+
+<section class="section" id="cara-pesan" tabindex="-1">
+	<div class="wrap">
+		<SectionHead label="Proses" title="Cara pesan" />
+
+		<ol class="steps">
+			{orderingSteps.map((step, i) => (
+				<li>
+					<span class="step-num">{String(i + 1).padStart(2, "0")}</span>
+					<span class="step-text">{step}</span>
+				</li>
+			))}
+		</ol>
+
+		<h3 class="sub">Yang perlu disiapkan</h3>
+
+		<ul class="checklist">
+			{enquiryChecklist.map((item) => (
+				<li>
+					<span class="check-label">{item.label}</span>
+					<span class="check-detail">{item.detail}</span>
+				</li>
+			))}
+		</ul>
+
+		<h3 class="sub">Kirim pesan yang lengkap</h3>
+
+		<p class="note">
+			Salin templat di bawah, isi bagian yang kosong, lalu kirim ke WhatsApp kami. Pesan yang sudah
+			lengkap mempercepat penawaran.
+		</p>
+
+		<label class="template-label" for="template-pesan">
+			Templat pesan WhatsApp
+		</label>
+		<textarea id="template-pesan" class="template" rows="8" readonly>{template}</textarea>
+
+		<div class="template-actions">
+			{/* "Salin templat" is a clipboard action, not a WhatsApp CTA. The
+			    page ships exactly five wa.me links -- hero, end of §2, footer,
+			    plus the header and the sticky bar -- and adding a sixth here
+			    would put two competing actions side by side at the same step.
+			    The sticky bar is always on screen for the send itself. */}
+			<button class="btn btn-primary" type="button" data-copy-target="template-pesan">
+				<Icon name="copy" />
+				<span class="btn-label">Salin templat</span>
+			</button>
+			{/* The announcement target. Empty until the button is pressed, and
+			    never a visual-only change. */}
+			<p class="copy-status" role="status" aria-live="polite" data-copy-status></p>
+		</div>
+
+		<h3 class="sub">Soal harga</h3>
+
+		<p class="pricing">
+			Harga dihitung dari pekerjaannya, bukan dari daftar harga tetap. Yang menentukan harga:
+			{pricingCostVariables.map((v, i) => (
+				<>
+					{v.toLowerCase()}
+					{i < pricingCostVariables.length - 2
+						? ", "
+						: i === pricingCostVariables.length - 2
+							? ", dan "
+							: ""}
+				</>
+			))}
+			. Kami kirim penawaran setelah file desain diperiksa, supaya harga yang kami berikan sesuai
+			dengan pekerjaan Anda.
+		</p>
+	</div>
+</section>
+
+<script>
+	// The only JavaScript on the landing page. It exists for one affordance,
+	// the clipboard write, which cannot be done in CSS and which the button
+	// must trigger itself (the API requires a user gesture). Everything else
+	// on this page -- the sticky bar, the FAQ, the anchors -- is native.
+	//
+	// Plain JS, not TypeScript: a `<script>` without `lang="ts"` is parsed as
+	// JavaScript by the bundler, so type annotations here are a syntax error
+	// even though `astro check` accepts them.
+	for (const button of document.querySelectorAll("[data-copy-target]")) {
+		button.addEventListener("click", async () => {
+			const targetId = button.dataset.copyTarget;
+			if (!targetId) return;
+			const source = document.getElementById(targetId);
+			const status = button.parentElement?.querySelector("[data-copy-status]");
+			if (!source) return;
+
+			try {
+				await navigator.clipboard.writeText(source.value);
+				if (status) status.textContent = "Templat tersalin. Tinggal diisi dan dikirim.";
+			} catch {
+				// Clipboard is unavailable (insecure context, permission denied).
+				// Select the text so the buyer can copy it by hand rather than
+				// being left with a button that silently does nothing.
+				source.focus();
+				source.select();
+				if (status) {
+					status.textContent = "Tidak bisa menyalin otomatis. Teks sudah dipilih — tekan Ctrl+C.";
+				}
+			}
+		});
+	}
+</script>
+
+<style>
+	.section {
+		padding: var(--section-pad) var(--gutter);
+	}
+
+	.wrap {
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	/* -- numbered steps ------------------------------------------------ */
+	.steps {
+		margin: 0 0 var(--space-32);
+		padding: 0;
+		list-style: none;
+	}
+
+	.steps li {
+		display: flex;
+		gap: var(--space-12);
+		align-items: baseline;
+		padding: var(--space-12) 0;
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.steps li:first-child {
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.step-num {
+		flex: none;
+		color: var(--signal-deep);
+		font-family: var(--font-mono);
+		font-size: var(--fs-caption);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.step-text {
+		font-size: var(--fs-body);
+	}
+
+	.sub {
+		margin: var(--space-32) 0 var(--space-12);
+		font-size: var(--fs-h3);
+		font-weight: var(--font-weight-heading);
+		line-height: var(--lh-h3);
+	}
+
+	/* -- checklist ----------------------------------------------------- */
+	.checklist {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.checklist li {
+		display: grid;
+		gap: 2px;
+		padding: var(--space-12) 0;
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.checklist li:first-child {
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.check-label {
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.check-detail {
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	/* -- template ------------------------------------------------------ */
+	.note {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-16);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	.template-label {
+		display: block;
+		margin-bottom: var(--space-8);
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.template {
+		display: block;
+		width: 100%;
+		max-width: var(--prose-max);
+		padding: var(--space-12);
+		border: var(--rule-width) solid var(--rule-strong);
+		border-radius: 0;
+		background-color: var(--paper-2);
+		color: var(--ink);
+		font-family: var(--font-mono);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+		resize: vertical;
+	}
+
+	.template-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-12);
+		align-items: center;
+		margin-top: var(--space-16);
+	}
+
+	/* The status line is a live region, so it must be in the layout (not
+	   `display: none`) for assistive tech to announce updates. */
+	.copy-status {
+		flex: 1 1 100%;
+		margin: 0;
+		color: var(--ok);
+		font-size: var(--fs-body-s);
+	}
+
+	.copy-status:empty {
+		display: none;
+	}
+
+	.pricing {
+		max-width: var(--prose-max);
+		margin: 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body);
+	}
+
+	@media (min-width: 640px) {
+		.checklist li {
+			grid-template-columns: 8rem 1fr;
+			gap: var(--space-16);
+			align-items: baseline;
+		}
+	}
+</style>

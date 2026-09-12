@@ -28,7 +28,7 @@ import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
 import { navItems, sectionHref, sectionIds } from "../data/sections";
-import { companyName } from "../data/site";
+import { companyName, contact, whatsappLink } from "../data/site";
 import Button from "../components/Button.astro";
 import Icon from "../components/Icon.astro";
 import "../styles/tokens.css";
@@ -78,6 +78,10 @@ const headerIntent = `Halo ${siteTitle}, saya mau tanya soal jasa laser cutting 
 
 /** The sticky bar's intent, phrased for someone who has read the capacity table. */
 const barIntent = `Halo ${siteTitle}, saya mau minta penawaran. Saya sudah lihat daftar layanan dan material di situs.`;
+
+/** The footer intent: the visitor has read the whole page and is ready to talk. */
+const footerIntent = `Halo ${siteTitle}, saya sudah lihat layanan, material, dan cara pesannya. Saya mau mulai dari konsultasi.`;
+const waHref = whatsappLink(footerIntent);
 ---
 
 <!doctype html>
@@ -141,12 +145,64 @@ const barIntent = `Halo ${siteTitle}, saya mau minta penawaran. Saya sudah lihat
 			<slot />
 		</main>
 
-		{/* Completed into the contact band in Step 5. Until then it carries
-		    the copyright only: no placeholder rows, no "coming soon". */}
+		{/* §6 -- the `<footer>` IS the contact section: one band, not two.
+		    Address, opening hours and a map are deliberately absent: the live
+		    site publishes none of them, and Pamakarya's location is not
+		    published anywhere, so the spec's "Alamat & jam" row and its maps
+		    link have nothing to carry. Only the four published contact
+		    details appear. */}
 		<footer class="site-footer">
-			<p class="copyright">
-				&copy; {new Date().getFullYear()} {siteTitle}.
-			</p>
+			<div class="footer-inner">
+				<h2>Hubungi kami</h2>
+
+				<ul class="contact-list">
+					<li>
+						<a class="contact-row" href={waHref} target="_blank" rel="noopener noreferrer">
+							<span class="contact-label">WhatsApp</span>
+							<span class="contact-value">{contact.whatsappDisplay}</span>
+							<span class="visually-hidden"> (buka di tab baru)</span>
+							<Icon name="arrow-right" />
+						</a>
+					</li>
+					<li>
+						<a class="contact-row" href={`mailto:${contact.email}`}>
+							<span class="contact-label">Email</span>
+							<span class="contact-value">{contact.email}</span>
+							<Icon name="arrow-right" />
+						</a>
+					</li>
+					<li>
+						<a
+							class="contact-row"
+							href={contact.instagramUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span class="contact-label">Instagram</span>
+							<span class="contact-value">{contact.instagramHandle}</span>
+							<span class="visually-hidden"> (buka di tab baru)</span>
+							<Icon name="external-link" />
+						</a>
+					</li>
+					<li>
+						<a
+							class="contact-row"
+							href={contact.tokopediaUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span class="contact-label">Tokopedia</span>
+							<span class="contact-value">{contact.tokopediaHandle}</span>
+							<span class="visually-hidden"> (buka di tab baru)</span>
+							<Icon name="external-link" />
+						</a>
+					</li>
+				</ul>
+
+				<p class="copyright">
+					&copy; {new Date().getFullYear()} {siteTitle}.
+				</p>
+			</div>
 		</footer>
 
 		{/* Mobile only, always present from first paint: no scroll listener,
@@ -241,12 +297,80 @@ const barIntent = `Halo ${siteTitle}, saya mau minta penawaran. Saya sudah lihat
 	.site-footer {
 		margin-top: var(--section-pad);
 		padding: var(--section-pad-tight) var(--gutter);
+		border-top: 2px solid var(--ink);
+	}
+
+	.footer-inner {
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	.site-footer h2 {
+		margin: 0 0 var(--space-24);
+		font-size: var(--fs-h2);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: -0.01em;
+		line-height: var(--lh-h2);
+	}
+
+	.contact-list {
+		max-width: 34rem;
+		margin: 0 0 var(--space-32);
+		padding: 0;
+		list-style: none;
+	}
+
+	.contact-list li {
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.contact-list li:first-child {
 		border-top: var(--rule-width) solid var(--rule-strong);
 	}
 
+	/* Every contact row is a full-width tap target at 48px minimum, not a
+	   48px-tall text link: the number and the address are tappable across
+	   their whole row, which is what makes them usable one-handed. */
+	.contact-row {
+		display: flex;
+		gap: var(--space-12);
+		align-items: center;
+		min-height: 48px;
+		padding: var(--space-12) 0;
+		color: var(--ink);
+		text-decoration: none;
+		transition: background-color var(--dur-hover) var(--ease-hover);
+	}
+
+	.contact-row:hover {
+		background-color: var(--paper-2);
+	}
+
+	.contact-label {
+		flex: none;
+		width: 7rem;
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.contact-value {
+		flex: 1 1 auto;
+		font-size: var(--fs-body-s);
+		/* Long emails must not force a horizontal scroll on a 320px screen. */
+		overflow-wrap: anywhere;
+	}
+
+	.contact-row :global(.icon) {
+		flex: none;
+		color: var(--ink-3);
+	}
+
 	.copyright {
-		max-width: var(--content-max);
-		margin: 0 auto;
+		margin: 0;
 		color: var(--ink-3);
 		font-size: var(--fs-caption);
 	}

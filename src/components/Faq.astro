@@ -1,0 +1,211 @@
+---
+/**
+ * Faq.astro -- §5.
+ *
+ * Native `<details>`/`<summary>`: keyboard support, screen-reader support and
+ * `aria-expanded` for free, with zero JavaScript. Nothing animates -- a height
+ * animation on a low-end Android is a layout-thrash risk for an affordance
+ * nobody notices -- and the chevron rotates instantly rather than transitioned.
+ *
+ * Question set, and what is deliberately absent:
+ *   - "Apa saja layanan yang ditawarkan" and "Material apa saja yang bisa
+ *     diproses" are DROPPED: §2 already answers both with the materials and
+ *     the lead times attached, and an FAQ that re-lists them is the same
+ *     content in weaker form for a tap.
+ *   - "Bagaimana cara memesan" is kept as a one-line pointer to §4, not a
+ *     repeat of the five steps.
+ *   - "Kenapa memilih Pamakarya" is DELETED. Its answer was a list of
+ *     adjectives ("hasil presisi tinggi, harga terjangkau, tim profesional")
+ *     that any competitor could paste.
+ *   - The spec's three new commercial questions (minimum order, PO/invoice,
+ *     out-of-town shipping) are NOT here either: the client has confirmed
+ *     nothing about any of them, so each would have to be answered with an
+ *     invented term. A question the page cannot answer truthfully is not
+ *     shipped.
+ *
+ * All items are collapsed by default: auto-opening the first one fights the
+ * user and adds scroll.
+ *
+ * Answers are plain strings in the frontmatter, not JSX: `.astro` frontmatter
+ * is TypeScript, so element syntax there is a parse error. Anything needing
+ * markup beyond a paragraph is rendered from the flags below.
+ */
+import { companyName } from "../data/site";
+import { leadTimeTiers } from "../data/services";
+import { sectionIds } from "../data/sections";
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+
+interface FaqItem {
+	/** Anchor id, so a question can be deep-linked. */
+	id: string;
+	question: string;
+	/** Answer paragraphs, in order. */
+	answer: string[];
+	/** Optional trailing in-page link. */
+	link?: { href: string; label: string };
+}
+
+const leadTimeAnswer = leadTimeTiers
+	.map((tier) => `${tier.label} untuk ${tier.qualifier}`)
+	.join(", ");
+
+const faqs: FaqItem[] = [
+	{
+		id: "faq-lama-pengerjaan",
+		question: "Berapa lama waktu pengerjaan?",
+		answer: [
+			`Lama pengerjaan tergantung skala pesanan: ${leadTimeAnswer}. Waktu dihitung setelah desain disetujui, dan bisa lebih panjang kalau jumlah part bertambah atau ada revisi desain di tengah pengerjaan.`,
+		],
+	},
+	{
+		id: "faq-kualitas-berkas",
+		question: "Format desain apa yang bisa saya kirim?",
+		answer: [
+			"Kami menerima file AI, DXF, SVG, dan PDF. Kalau Anda tidak punya file desain, kirim foto sketsa dengan ukuran yang tertulis — kami bantu terjemahkan ke gambar kerja sebelum produksi.",
+		],
+	},
+	{
+		id: "faq-memesan",
+		question: "Bagaimana cara memesan?",
+		answer: [
+			"Hubungi kami lewat WhatsApp atau email, kirim desain, lalu kami konsultasikan dan revisi sebelum produksi dimulai.",
+		],
+		link: { href: `#${sectionIds.caraPesan}`, label: "Lihat langkah lengkap di bagian Cara pesan" },
+	},
+	{
+		id: "faq-konsultasi",
+		question: "Apakah bisa konsultasi dulu sebelum memesan?",
+		answer: [
+			"Bisa. Konsultasi gratis — kirim saja desain atau sketsanya lewat WhatsApp dan kami periksa apakah bisa dikerjakan. Kalau ada bagian yang tidak bisa dipotong pada material atau ukuran yang Anda pilih, kami kabari sebelum produksi.",
+		],
+	},
+];
+---
+
+<section class="section" id={sectionIds.faq} tabindex="-1">
+	<div class="wrap">
+		<SectionHead label="Pertanyaan" title="Pertanyaan yang sering ditanyakan" />
+
+		<div class="faq">
+			{faqs.map((faq) => (
+				<details id={faq.id}>
+					<summary>
+						<span class="q">{faq.question}</span>
+						<Icon name="chevron-down" />
+					</summary>
+					<div class="a">
+						{faq.answer.map((paragraph) => (
+							<p>{paragraph}</p>
+						))}
+						{faq.link && (
+							<p>
+								<a href={faq.link.href}>{faq.link.label}</a>
+							</p>
+						)}
+					</div>
+				</details>
+			))}
+		</div>
+
+		<p class="contact-hint">
+			Pertanyaan lain? Kirim langsung ke WhatsApp {companyName} — kami jawab sesuai pekerjaan Anda.
+		</p>
+	</div>
+</section>
+
+<style>
+	.section {
+		padding: var(--section-pad) var(--gutter);
+		background-color: var(--paper-2);
+	}
+
+	.wrap {
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	.faq {
+		max-width: 48rem;
+	}
+
+	details {
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	details:first-of-type {
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	/* 56px minimum, and the whole row is the hit area -- not just the text. */
+	summary {
+		display: flex;
+		gap: var(--space-16);
+		align-items: center;
+		justify-content: space-between;
+		min-height: 56px;
+		padding: var(--space-12) 0;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	/* Replace the native marker with the chevron, which is the only thing
+	   that changes on open. */
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	summary::marker {
+		content: "";
+	}
+
+	.q {
+		font-size: var(--fs-body);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--lh-label);
+	}
+
+	summary :global(.icon) {
+		flex: none;
+		color: var(--ink-3);
+	}
+
+	/* Instant, not transitioned: this is the one exception the spec allows to
+	   "nothing animates", and it must still respect reduced motion, so it is
+	   simply instantaneous. */
+	details[open] > summary :global(.icon) {
+		transform: rotate(180deg);
+	}
+
+	/* Answer at 15px/1.65 in --ink-2, no left indent: a 16px indent wastes
+	   about 5% of a 328px column and buys nothing. */
+	.a {
+		max-width: var(--prose-max);
+		padding-bottom: var(--space-24);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	.a :global(p) {
+		margin: 0 0 var(--space-12);
+	}
+
+	.a :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.a :global(a) {
+		color: var(--ink);
+		text-decoration: underline;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.15em;
+		padding: var(--space-4) 2px;
+	}
+
+	.contact-hint {
+		max-width: var(--prose-max);
+		margin: var(--space-32) 0 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+</style>
