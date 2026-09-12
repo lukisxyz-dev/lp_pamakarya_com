@@ -1,7 +1,9 @@
 This is an EmDash site -- a CMS built on Astro with a full admin UI.
 
-A landing page plus a blog. The landing page is deliberately plain: the site
-name and one link into the blog. All content lives in the `posts` collection.
+One landing page at `/`, plus a 404. No blog in scope. `src/pages/blog/` still
+exists in the repo and still renders, but nothing links to it: it is
+deliberately out of scope, must not be deleted, and the landing page must never
+gain a link to it.
 
 ## Commands
 
@@ -20,14 +22,93 @@ The admin UI is at `http://localhost:4321/_emdash/admin`.
 
 ## Key Files
 
-| File                     | Purpose                                                           |
-| ------------------------ | ----------------------------------------------------------------- |
-| `astro.config.mjs`       | Astro config with `emdash()` integration, database, and storage   |
-| `src/live.config.ts`     | EmDash loader registration (boilerplate -- don't modify)          |
-| `seed/seed.json`         | Schema only: `posts` collection + `category` taxonomy, no content |
-| `.emdash/seed.json`      | Authored articles (gitignored). Wins over `seed/seed.json`        |
-| `emdash-env.d.ts`        | Generated types for collections (auto-regenerated on dev start)   |
-| `src/layouts/Base.astro` | Site layout: site name, Blog/Admin nav, footer                    |
+| File                     | Purpose                                                                   |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `astro.config.mjs`       | Astro config: `emdash()` integration, D1 database, R2 storage, fonts      |
+| `src/live.config.ts`     | EmDash loader registration (boilerplate -- don't modify)                  |
+| `seed/seed.json`         | Schema only: `posts` collection + `category` taxonomy, no content         |
+| `.emdash/seed.json`      | Authored articles (gitignored). Wins over `seed/seed.json`                |
+| `emdash-env.d.ts`        | Generated types for collections (auto-regenerated on dev start)           |
+| `src/layouts/Base.astro` | Site shell: skip link, header, `<main>`, footer, mobile sticky action bar |
+| `src/data/services.ts`   | The 6 services, 3 material groups, 3 lead-time tiers, 6 sectors           |
+| `src/data/site.ts`       | Company facts: contact, design formats, ordering steps, pricing variables |
+| `src/data/sections.ts`   | Section ids and the header nav, so a link and its target share one source |
+
+## Pages
+
+| Page    | Path   | What it shows                              |
+| ------- | ------ | ------------------------------------------ |
+| Landing | `/`    | Hero, services, proof, ordering, FAQ       |
+| 404     | `/404` | Not-found shell: one heading, one way back |
+
+`/_emdash/admin` and `/_emdash/api/*` are injected by the `emdash()`
+integration from `node_modules` -- they are not files in `src/pages/`.
+
+`src/components/` holds Hero, MateriLayanan, Bukti, CaraPesan, Faq,
+SectionHead, Button and Icon. `index.astro` composes Hero → MateriLayanan →
+Bukti → CaraPesan → Faq.
+
+`Base.astro` holds the header, footer and the mobile-only sticky action bar.
+The header nav is four same-page anchors -- Layanan, Material, Cara pesan, FAQ
+-- whose ids come from `src/data/sections.ts`, so a header link and its target
+cannot drift apart. There is no Blog link and no Admin link in the public nav.
+The skip link is the first focusable element; the landmarks are
+`<main id="main">`, `<header>`, `<nav aria-label="Utama">` and `<footer>`.
+
+## Data layer
+
+`src/data/` is the single source of truth for page content, and rendering reads
+from it -- never a second hand-maintained copy of the same data in markup.
+`services.ts` owns the 6 services, the 3 material groups, the 3 lead-time tiers
+and the 6 sectors; `site.ts` owns the company-level facts; `sections.ts` owns
+the section ids.
+
+## Design
+
+The system is "Gambar Kerja": white paper ground, near-black ink, hairline
+rules, monospaced spec labels, mm-first numerals, and exactly one accent
+(`--signal`, machine-guard yellow). The accent is used only as a filled surface
+or a focus halo, never as text on white -- #FFC300 on #FFFFFF is 1.61:1 and
+fails. `--rule` is decorative only; `--rule-strong` carries every structural
+boundary (3.47:1, passes WCAG 1.4.11). Radius 0, 2px maximum on buttons. No
+shadows.
+
+`src/styles/tokens.css` is the source of truth and `src/styles/theme.css` is a
+small override surface on top of it. The template's indigo/pink brand tokens
+and the entire `--gradient-*` family were deleted, not overridden -- there are
+no gradients and no brand colours in the token set, and nothing can inherit one
+by accident. What `theme.css` still holds is a bounded legacy bridge of old
+token names, needed only because the out-of-scope blog routes still consume
+them; that block disappears when the blog routes do.
+
+Fonts are configured in `astro.config.mjs`: **IBM Plex Sans** as `--font-body`
+(400/500/600/700) and **IBM Plex Mono** as `--font-mono` (400/500/600), Google
+provider, `latin` subset. Nothing on the site is heavier than weight 700.
+
+## Images
+
+The `sharp` build script is deliberately blocked in `pnpm-workspace.yaml`.
+Astro's `<Image>` optimisation and the `emdash/ui` `Image` component therefore
+MUST NOT be used. Images are pre-optimised WebP files in `public/foto/`
+(`hero.webp`, `hero-mobile.webp`, `proof-1.webp` ... `proof-6.webp`), used via
+plain `<img>` with explicit `width`, `height`, `loading` and `decoding`
+attributes. If an image needs to change it is re-exported by hand, not generated
+at build time.
+
+## The content rule
+
+The client has confirmed almost none of their own numbers. The live
+pamakarya.com publishes no tolerance, no machine wattage or bed size, no maximum
+thickness, no minimum order, no payment terms, no pricing unit, no opening
+hours, no street address, and **no location at all -- the city is unpublished
+and the string "Yogyakarta" must never be written.** Inventing any of these is
+the worst failure mode for this project, because a fabrication buyer checks
+specifications and one wrong number destroys the page's credibility.
+
+`pendingClientConfirmations` in `src/data/services.ts` lists every value the
+client must still supply before the spec sheet can be filled in further. It is
+documentation only and is imported by no page. Nothing on that list may appear
+on the page until the client confirms it in writing.
 
 ## Skills
 
@@ -45,30 +126,12 @@ This template ships with `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json`
 
 ## Rules
 
-- All content pages must be server-rendered (`output: "server"`). No `getStaticPaths()` for CMS content.
-- Image fields are objects (`{ id, src, alt }`), not strings. Use `<Image image={...} />` from `"emdash/ui"`.
+- `output: "server"` is required and all content pages must be server-rendered. No `getStaticPaths()` for CMS content.
+- `react()` must stay in `astro.config.mjs` -- the EmDash admin UI hydrates with React. Removing it leaves the admin stuck on "Loading EmDash...".
+- CMS image fields are objects (`{ id, src, alt }`), not strings. This is a schema concern only: rendering them still goes through plain `<img>`, per the no-sharp constraint above.
 - `entry.id` is the slug (for URLs). `entry.data.id` is the database ULID (for API calls like `getEntryTerms`).
 - Always call `Astro.cache.set(cacheHint)` on pages that query content.
 - Taxonomy names in queries must match the seed's `"name"` field exactly (e.g., `"category"` not `"categories"`).
-- `react()` must stay in `astro.config.mjs` -- the EmDash admin UI hydrates with React. Removing it leaves the admin stuck on "Loading EmDash...".
-
-## Pages
-
-| Page        | Path           | What it shows                              |
-| ----------- | -------------- | ------------------------------------------ |
-| Landing     | `/`            | Site name + link to the blog. No CMS query |
-| Blog index  | `/blog`        | Published posts, newest first              |
-| Blog detail | `/blog/[slug]` | Single post: title, date, image, body      |
-| 404         | `/404`         | Not-found fallback                         |
-
-`/_emdash/admin` and `/_emdash/api/*` are injected by the `emdash()`
-integration from `node_modules` -- they are not files in `src/pages/`.
-
-## Schema
-
-- `posts` collection: `title`, `excerpt`, `featured_image` (image), `content` (Portable Text).
-- One taxonomy: `category` (flat), applied to `posts`.
-- Site settings: `title`, `tagline`. Title renders in the header.
 
 ## Seed files
 
@@ -90,7 +153,9 @@ Append `?content=0` to apply schema only.
 ## What not to do
 
 - Don't re-introduce the marketing blocks plugin or `src/components/blocks/`.
-  The site has no hero/features/pricing/FAQ blocks; content is plain Portable Text.
-- Don't add gradients or brand colours. The theme flattens the template's
-  gradient tokens on purpose -- the landing page is white, black text.
+  The landing page is hand-built Astro components reading `src/data/`, not CMS
+  blocks or Portable Text.
+- Don't delete `src/pages/blog/` or link to it from the landing page. It is
+  out of scope, not removed.
+- Don't add gradients or brand colours. `tokens.css` does not define them.
 - Don't reach for a JS framework on the public pages. Only the admin uses React.
