@@ -3,7 +3,7 @@
 	"version": "1",
 	"meta": {
 		"name": "Pamakarya",
-		"description": "Pamakarya - Custom Laser Cutting & Fabrikasi",
+		"description": "Pamakarya - Jasa Laser Cutting, Laser Marking, dan Fabrikasi Custom",
 		"author": "Pamakarya"
 	},
 	"settings": {
@@ -12,270 +12,45 @@
 	},
 	"collections": [
 		{
-			"slug": "pages",
-			"label": "Pages",
-			"labelSingular": "Page",
-			"supports": ["drafts", "revisions", "seo"],
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
 				{
 					"slug": "title",
 					"label": "Title",
 					"type": "string",
-					"required": true
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "excerpt",
+					"label": "Excerpt",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "Featured Image",
+					"type": "image"
 				},
 				{
 					"slug": "content",
 					"label": "Content",
-					"type": "portableText"
+					"type": "portableText",
+					"searchable": true
 				}
 			]
 		}
 	],
-	"menus": [
+	"taxonomies": [
 		{
-			"name": "primary",
-			"label": "Primary Navigation",
-			"items": [
-				{
-					"type": "custom",
-					"label": "Services",
-					"url": "/#features"
-				},
-				{
-					"type": "custom",
-					"label": "Pricing",
-					"url": "/pricing"
-				},
-				{
-					"type": "custom",
-					"label": "Contact",
-					"url": "/contact"
-				}
-			]
-		},
-		{
-			"name": "footer_product",
-			"label": "Footer: Services",
-			"items": [
-				{ "type": "custom", "label": "Laser Cutting", "url": "/#features" },
-				{ "type": "custom", "label": "Fabrication", "url": "/pricing" },
-				{ "type": "custom", "label": "Welding", "url": "/#features" }
-			]
-		},
-		{
-			"name": "footer_company",
-			"label": "Footer: Company",
-			"items": [
-				{ "type": "custom", "label": "About Us", "url": "/about" },
-				{ "type": "custom", "label": "Portfolio", "url": "/portfolio" },
-				{ "type": "custom", "label": "Contact", "url": "/contact" }
-			]
-		},
-		{
-			"name": "footer_support",
-			"label": "Footer: Support",
-			"items": [
-				{ "type": "custom", "label": "Get a Quote", "url": "/contact" },
-				{ "type": "custom", "label": "Contact Us", "url": "/contact" },
-				{ "type": "custom", "label": "Location", "url": "/contact" }
-			]
+			"name": "category",
+			"label": "Categories",
+			"labelSingular": "Category",
+			"hierarchical": false,
+			"collections": ["posts"]
 		}
-	],
-	"content": {
-		"pages": [
-			{
-				"id": "home",
-				"slug": "home",
-				"status": "published",
-				"data": {
-					"title": "Home",
-					"content": [
-						{
-							"_type": "marketing.hero",
-							"_key": "hero",
-							"headline": "Precision Laser Cutting & Custom Fabrication",
-							"subheadline": "High-quality metal cutting, welding, and fabrication services. From design to installation — we bring your vision to life.",
-							"primaryCtaLabel": "Get a Quote",
-							"primaryCtaUrl": "/contact",
-							"secondaryCtaLabel": "View Our Work",
-							"secondaryCtaUrl": "/#features"
-						},
-						{
-							"_type": "marketing.features",
-							"_key": "features",
-							"headline": "Our Services",
-							"subheadline": "Professional laser cutting and fabrication services for all your metalworking needs.",
-							"features": [
-								{
-									"icon": "zap",
-									"title": "Laser Cutting",
-									"description": "Precision laser cutting for steel, aluminum, and other metals with high accuracy."
-								},
-								{
-									"icon": "shield",
-									"title": "Welding Services",
-									"description": "Professional welding for structural steel, stainless steel, and aluminum fabrication."
-								},
-								{
-									"icon": "users",
-									"title": "Custom Fabrication",
-									"description": "Tailored metal fabrication solutions for industrial, commercial, and residential projects."
-								},
-								{
-									"icon": "chart",
-									"title": "Design & Engineering",
-									"description": "Professional design services from concept to finished product."
-								},
-								{
-									"icon": "code",
-									"title": "Installation",
-									"description": "Complete installation services for fabricated metal structures and components."
-								},
-								{
-									"icon": "globe",
-									"title": "Construction Support",
-									"description": "Metal construction solutions for buildings, factories, and infrastructure projects."
-								}
-							]
-						},
-						{
-							"_type": "marketing.testimonials",
-							"_key": "testimonials",
-							"headline": "Trusted by Our Clients",
-							"testimonials": [
-								{
-									"quote": "Pamakarya delivered exceptional quality on our laser cutting project. Precise cuts and professional service.",
-									"author": "Budi Santoso",
-									"role": "Project Manager",
-									"company": "PT Konstruksi Sejahtera"
-								},
-								{
-									"quote": "Outstanding fabrication work. They handled our complex design requirements with ease.",
-									"author": "Rina Hartono",
-									"role": "Operations Director",
-									"company": "Indo Metal Works"
-								},
-								{
-									"quote": "Reliable partner for all our metal construction needs. Highly recommended!",
-									"author": "Dewi Lestari",
-									"role": "Business Owner",
-									"company": "Lestari Fabrication"
-								}
-							]
-						},
-						{
-							"_type": "marketing.faq",
-							"_key": "faq",
-							"headline": "Frequently Asked Questions",
-							"items": [
-								{
-									"question": "What materials do you work with?",
-									"answer": "We work with steel, stainless steel, aluminum, copper, and other metals. Our laser cutting machines can handle various thicknesses from thin sheets to heavy plates."
-								},
-								{
-									"question": "Do you provide design services?",
-									"answer": "Yes! Our team can help you from concept to finished product. We provide design, engineering, and fabrication services."
-								},
-								{
-									"question": "What is your turnaround time?",
-									"answer": "Turnaround depends on project complexity. Simple laser cutting can be completed in 1-2 days. Custom fabrication projects typically take 1-2 weeks."
-								},
-								{
-									"question": "Do you offer installation services?",
-									"answer": "Yes, we provide complete installation services for all fabricated products, from small components to large structural steel installations."
-								}
-							]
-						}
-					]
-				}
-			},
-			{
-				"id": "pricing",
-				"slug": "pricing",
-				"status": "published",
-				"data": {
-					"title": "Services & Pricing",
-					"content": [
-						{
-							"_type": "marketing.hero",
-							"_key": "pricing-hero",
-							"headline": "Professional Laser Cutting Services",
-							"subheadline": "Competitive pricing for all your metal fabrication needs. Contact us for a custom quote.",
-							"centered": true
-						},
-						{
-							"_type": "marketing.pricing",
-							"_key": "pricing-plans",
-							"plans": [
-								{
-									"name": "Laser Cutting",
-									"price": "Custom Quote",
-									"period": "",
-									"description": "Precision cutting for all metals",
-									"features": "Steel, stainless steel, aluminum\nVarious thicknesses\nHigh accuracy cuts\nFast turnaround\nCustom shapes and sizes",
-									"ctaLabel": "Request Quote",
-									"ctaUrl": "/contact"
-								},
-								{
-									"name": "Custom Fabrication",
-									"price": "Custom Quote",
-									"period": "",
-									"description": "Complete fabrication solutions",
-									"features": "Design & engineering\nMetal forming & bending\nWelding & assembly\nQuality control\nInstallation available",
-									"ctaLabel": "Request Quote",
-									"ctaUrl": "/contact",
-									"highlighted": true
-								},
-								{
-									"name": "Construction Projects",
-									"price": "Custom Quote",
-									"period": "",
-									"description": "Large-scale metal construction",
-									"features": "Structural steel work\nBuilding frameworks\nIndustrial installations\nProject management\nTurnkey solutions",
-									"ctaLabel": "Discuss Project",
-									"ctaUrl": "/contact"
-								}
-							]
-						},
-						{
-							"_type": "marketing.faq",
-							"_key": "pricing-faq",
-							"headline": "Pricing FAQ",
-							"items": [
-								{
-									"question": "How do I get a quote?",
-									"answer": "Contact us with your project details, drawings, or requirements. We'll provide a detailed quote within 24-48 hours."
-								},
-								{
-									"question": "What is your minimum order?",
-									"answer": "We handle both small custom jobs and large production runs. No minimum quantity for laser cutting services."
-								},
-								{
-									"question": "Do you offer volume discounts?",
-									"answer": "Yes, we offer competitive pricing for larger quantities and ongoing projects. Contact us for volume pricing."
-								}
-							]
-						}
-					]
-				}
-			},
-			{
-				"id": "contact",
-				"slug": "contact",
-				"status": "published",
-				"data": {
-					"title": "Contact Us",
-					"content": [
-						{
-							"_type": "marketing.hero",
-							"_key": "contact-hero",
-							"headline": "Get a Free Quote",
-							"subheadline": "Ready to start your project? Contact us for a free consultation and quote.",
-							"centered": true
-						}
-					]
-				}
-			}
-		]
-	}
+	]
 }

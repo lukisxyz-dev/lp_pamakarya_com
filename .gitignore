@@ -7,6 +7,9 @@ dist/
 # Astro
 .astro/
 .emdash/migrations.json
+# Local seed -- holds authored content. The committed seed/seed.json carries
+# the schema; this file wins at load time and stays out of git.
+.emdash/seed.json
 
 # Wrangler local state
 .wrangler/
