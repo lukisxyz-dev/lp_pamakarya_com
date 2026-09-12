@@ -1,0 +1,49 @@
+---
+/**
+ * SectionHead.astro -- the one section heading pattern.
+ *
+ * Every section is a mono uppercase label above a sentence-case `<h2>` on a
+ * `--rule-strong` hairline. Regularity is the voice of this system: the same
+ * rule weight and the same label treatment on every section, which is what
+ * reads as a working drawing rather than a marketing page.
+ */
+interface Props {
+	/** `<h2>` text. Sentence case, no slogan. */
+	title: string;
+	/** Optional mono label above it, e.g. "Kapasitas". */
+	label?: string;
+}
+
+const { title, label } = Astro.props;
+---
+
+<div class="section-head">
+	{label && <p class="section-label">{label}</p>}
+	<h2>{title}</h2>
+</div>
+
+<style>
+	.section-head {
+		padding-top: var(--space-16);
+		border-top: 2px solid var(--ink);
+		margin-bottom: var(--space-32);
+	}
+
+	.section-label {
+		margin: 0 0 var(--space-4);
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: var(--fs-h2);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: -0.01em;
+		line-height: var(--lh-h2);
+	}
+</style>

@@ -1,0 +1,419 @@
+---
+/**
+ * MateriLayanan.astro -- §2 "Layanan dan material".
+ *
+ * The heaviest section on purpose: it is the one that converts, because it is
+ * where a buyer with a drawing can self-qualify without contacting anyone.
+ *
+ * It replaces what the live site spreads across a six-card service grid, a
+ * five-bullet "kenapa memilih kami" block and three FAQ answers -- and it does
+ * it with the values that exist rather than the ones the spec asked for. The
+ * spec's 6x6 comparison table needs tolerance, thickness, finishing and
+ * machine-envelope values per service; the client has confirmed none of them,
+ * so those columns are simply absent rather than filled with a plausible
+ * guess. What ships is what is grounded: the six service names, the material
+ * families they are known to handle, the live site's own application pairings
+ * and the three published lead-time tiers.
+ *
+ * ONE DOM, TWO PRESENTATIONS. The same `services` array is rendered twice --
+ * as stacked blocks on narrow screens and as a real `<table>` at >=1024px --
+ * and never as two hand-maintained copies. The "two copies" failure is real
+ * and observed: the closest peer site publishes three different maximum
+ * thicknesses for the same steel.
+ *
+ * The narrow blocks are plain markup, hidden at >=1024px. The table inside a
+ * native `<details>` is revealed at >=1024px by style alone, with no script
+ * and no `open` attribute:
+ *
+ *   @media (min-width: 1024px) { .as-table > summary { display: none } }
+ *   .as-table::details-content { content-visibility: visible; block-size: auto }
+ *
+ * The `::details-content` override is load-bearing: engines at Chromium 131+
+ * hide a closed `<details>`'s children with `content-visibility: hidden` on
+ * that pseudo-element, which `display: block` on the child does NOT override.
+ * Verified in Chromium, not assumed.
+ */
+import { leadTimeTiers, materialGroups, services } from "../data/services";
+import { sectionIds } from "../data/sections";
+import SectionHead from "./SectionHead.astro";
+---
+
+<section id={sectionIds.layanan} tabindex="-1" class="section section-layanan">
+	<div class="wrap">
+		<SectionHead label="Kapasitas" title="Layanan dan material" />
+
+		<p class="intro">
+			Enam layanan yang kami kerjakan, material yang bisa diproses, dan lama pengerjaan menurut
+			skala pesanan.
+		</p>
+
+		{/* --- Narrow screens: one block per service --------------------- */}
+		<div class="blocks">
+			{services.map((service) => (
+				<article class="service-block">
+					<h3>{service.name}</h3>
+					<p class="summary">{service.summary}</p>
+					<dl class="spec">
+						<dt>Material</dt>
+						<dd>
+							{service.materials === null
+								? "Belum dipublikasikan"
+								: service.materials
+										.map((group) => group.materials.map((m) => m.name).join(", "))
+										.join(" · ")}
+						</dd>
+						<dt>Lead time</dt>
+						<dd>
+							{service.leadTime === null ? (
+								"Belum dipublikasikan"
+							) : (
+								<>
+									<span class="num">{service.leadTime.label}</span>
+									{" — "}
+									{service.leadTime.qualifier}
+								</>
+							)}
+						</dd>
+					</dl>
+				</article>
+			))}
+		</div>
+
+		{/* --- >=1024px: the same data as a real table, closed by default.
+		        Summary hidden and panel revealed by CSS; no `open`, no JS. -- */}
+		<details id={sectionIds.kapasitas} class="as-table" tabindex="-1">
+			<summary>Tampilkan sebagai tabel</summary>
+			<div class="panel">
+				<table>
+					<caption>
+						Layanan yang dikerjakan, material yang diketahui, dan lead time menurut skala pesanan.
+						Sel yang tertulis “belum dipublikasikan” menunggu konfirmasi klien — angka yang belum
+						terverifikasi tidak ditampilkan.
+					</caption>
+					<thead>
+						<tr>
+							<th scope="col">Layanan</th>
+							<th scope="col">Material</th>
+							<th scope="col">Lead time</th>
+						</tr>
+					</thead>
+					<tbody>
+						{services.map((service) => (
+							<tr>
+								<th scope="row">{service.name}</th>
+								<td>
+									{service.materials === null
+										? "Belum dipublikasikan"
+										: service.materials
+												.map((group) => group.materials.map((m) => m.name).join(", "))
+												.join(" · ")}
+								</td>
+								<td class="num">
+									{service.leadTime === null
+										? "Belum dipublikasikan"
+										: `${service.leadTime.label} — ${service.leadTime.qualifier}`}
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</details>
+
+		{/* --- Lead time, the three published tiers ---------------------- */}
+		<h3 class="sub" id="lead-time" tabindex="-1">
+			Lama pengerjaan
+		</h3>
+		<table class="lead-table">
+			<caption>
+				Lama pengerjaan menurut live site, dengan syarat tiap tingkatan. Waktu dihitung dari desain
+				yang sudah disetujui.
+			</caption>
+			<thead>
+				<tr>
+					<th scope="col">Lead time</th>
+					<th scope="col">Untuk</th>
+				</tr>
+			</thead>
+			<tbody>
+				{leadTimeTiers.map((tier) => (
+					<tr>
+						<th scope="row" class="num">
+							{tier.label}
+						</th>
+						<td>{tier.qualifier}</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+
+		{/* --- Material families, grouped by the live site's own pairings -- */}
+		<h3 class="sub" id={sectionIds.material} tabindex="-1">
+			Material
+		</h3>
+		<p class="intro">
+			Material yang bisa diproses, dikelompokkan menurut pemakaian yang tercantum di live site.
+			Ketebalan dan toleransi berbeda untuk tiap material.
+		</p>
+		<ul class="materials">
+			{materialGroups.map((group) => (
+				<li class="material-group">
+					<ul class="material-names">
+						{group.materials.map((material) => (
+							<li>
+								<span class="material-name">{material.name}</span>
+							</li>
+						))}
+					</ul>
+					<p class="application">
+						<span class="cocok">Cocok untuk</span> {group.application}
+					</p>
+				</li>
+			))}
+		</ul>
+
+		{/* --- Honest scope -------------------------------------------- */}
+		<p class="scope">
+			Toleransi yang bisa dicapai berbeda untuk setiap material dan ketebalan, dan juga bergantung
+			pada bentuk potongan. Karena itu toleransi untuk pekerjaan Anda kami konfirmasi per pesanan
+			setelah file desain kami periksa.
+		</p>
+
+		<p class="cta">
+			<a
+				class="btn btn-primary"
+				href={`https://wa.me/6287884354403?text=${encodeURIComponent(
+					"Halo Pamakarya, saya sudah lihat daftar layanan dan material di situs. Saya mau tanya soal pekerjaan yang cocok untuk kebutuhan saya.",
+				)}`}
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				Tanya soal pekerjaan Anda<span class="visually-hidden"> (buka di tab baru)</span>
+			</a>
+		</p>
+	</div>
+</section>
+
+<style>
+	.section {
+		padding: var(--section-pad) var(--gutter);
+	}
+
+	.wrap {
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	.intro {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-24);
+		color: var(--ink-2);
+		font-size: var(--fs-body);
+	}
+
+	/* -- narrow: one block per service -------------------------------- */
+	.service-block {
+		padding: var(--space-16) 0;
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.service-block:first-child {
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.service-block h3 {
+		margin: 0 0 var(--space-4);
+		font-size: var(--fs-h3);
+		font-weight: var(--font-weight-heading);
+		line-height: var(--lh-h3);
+	}
+
+	.summary {
+		margin: 0 0 var(--space-12);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	/* Label above value, so the value gets the full column width. A
+	   label-left layout would waste a third of a 328px column. */
+	.spec {
+		margin: 0;
+	}
+
+	.spec dt {
+		margin: var(--space-8) 0 2px;
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.spec dd {
+		margin: 0;
+	}
+
+	/* -- the table, gated behind a details --------------------------- */
+	.as-table {
+		display: block;
+		margin: var(--space-24) 0 0;
+	}
+
+	.as-table > summary {
+		display: block;
+		/* 56px full-width hit area, not just the text. */
+		min-height: 56px;
+		padding: var(--space-16) 0;
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--font-weight-heading);
+		cursor: pointer;
+	}
+
+	/* -- lead time table --------------------------------------------- */
+	.lead-table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 0 0 var(--space-32);
+	}
+
+	.lead-table caption,
+	table caption {
+		margin-bottom: var(--space-8);
+		color: var(--ink-3);
+		font-size: var(--fs-caption);
+		text-align: left;
+	}
+
+	.lead-table th,
+	.lead-table td {
+		padding: var(--space-12) var(--space-12) var(--space-12) 0;
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+		font-size: var(--fs-body-s);
+		text-align: left;
+		vertical-align: top;
+	}
+
+	.sub {
+		margin: var(--space-32) 0 var(--space-12);
+		font-size: var(--fs-h3);
+		font-weight: var(--font-weight-heading);
+		line-height: var(--lh-h3);
+	}
+
+	/* -- material groups ---------------------------------------------- */
+	.materials {
+		display: grid;
+		gap: var(--space-16);
+		margin: 0 0 var(--space-32);
+		padding: 0;
+		list-style: none;
+	}
+
+	.material-group {
+		padding: var(--space-16) 0;
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.material-names {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-8);
+		margin: 0 0 var(--space-8);
+		padding: 0;
+		list-style: none;
+	}
+
+	.material-name {
+		font-family: var(--font-mono);
+		font-size: var(--fs-body-s);
+		font-weight: var(--font-weight-medium);
+	}
+
+	.application {
+		margin: 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	.cocok {
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.scope {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-24);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	.cta {
+		margin: 0;
+	}
+
+	/* Numeric cells align as a column. */
+	.num,
+	td.num,
+	th.num {
+		font-family: var(--font-mono);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* -- >=1024px ------------------------------------------------------ */
+	@media (min-width: 1024px) {
+		.blocks {
+			display: none;
+		}
+
+		.as-table > summary {
+			display: none;
+		}
+
+		.as-table::details-content {
+			content-visibility: visible;
+			block-size: auto;
+		}
+
+		.as-table table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.as-table th,
+		.as-table td {
+			padding: var(--space-12);
+			border-bottom: var(--rule-width) solid var(--rule-strong);
+			font-size: var(--fs-body-s);
+			text-align: left;
+			vertical-align: top;
+		}
+
+		.as-table thead th {
+			border-bottom: 2px solid var(--ink);
+			font-family: var(--font-mono);
+			font-size: var(--fs-label);
+			font-weight: var(--font-weight-medium);
+			letter-spacing: var(--tracking-label);
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		/* Row headers carry the service name, set in body type so the table
+		   reads as a list of services rather than as a header block. */
+		.as-table tbody th {
+			font-family: var(--font-body);
+			font-weight: var(--font-weight-heading);
+		}
+
+		.materials {
+			grid-template-columns: repeat(3, 1fr);
+			gap: var(--space-24);
+		}
+	}
+</style>

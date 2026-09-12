@@ -51,6 +51,63 @@ export const contact = {
 export const freeConsultation = "Konsultasi gratis";
 
 /**
+ * Build a `wa.me` deep link with a prefilled message.
+ *
+ * `encodeURIComponent` is used rather than hand-written `%0A` escapes: the
+ * spec's templates are written with `%0A` because they are documentation, but
+ * a hand-escaped string is one mistyped hex digit away from a broken link, and
+ * it cannot carry the `&` in "otomotif & konstruksi" or the en dashes in the
+ * lead-time tiers.
+ *
+ * Callers pass a distinct opening intent per CTA -- hero, post-capacity and
+ * footer each ask a different question, so the buyer never arrives with the
+ * generic "mohon info layanannya" that every competitor sends.
+ */
+export const whatsappLink = (message: string): string =>
+	`${contact.whatsappBaseUrl}?text=${encodeURIComponent(message)}`;
+
+/**
+ * The documentary stills in `public/foto/`.
+ *
+ * Pre-optimised WebP, referenced with plain `<img>`: Astro's `<Image>` is not
+ * available here (the `sharp` build script is deliberately blocked in
+ * pnpm-workspace.yaml), so every intrinsic size below is the file's real
+ * pixel size, read from its WebP header. Hard-coding width/height is what
+ * keeps CLS at zero, so these numbers must stay in step with the files.
+ *
+ * No captions are attached to these: what each photograph shows is only known
+ * to whoever shot it, and a caption naming a material or a thickness that the
+ * photograph does not provably show would be an invented specification.
+ */
+export interface Photo {
+	/** Path under `public/`. */
+	src: string;
+	/** Intrinsic pixel width, as encoded. */
+	width: number;
+	/** Intrinsic pixel height, as encoded. */
+	height: number;
+}
+
+export const heroPhoto: { desktop: Photo; mobile: Photo } = {
+	desktop: { src: "/foto/hero.webp", width: 1000, height: 667 },
+	mobile: { src: "/foto/hero-mobile.webp", width: 800, height: 1000 },
+};
+
+/**
+ * The proof strip. Six photographs, in file order. The short descriptions are
+ * generic on purpose -- "Pekerjaan fabrikasi" is supportable, a named material
+ * or a measured dimension would not be.
+ */
+export const proofPhotos: (Photo & { description: string })[] = [
+	{ src: "/foto/proof-1.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+	{ src: "/foto/proof-2.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+	{ src: "/foto/proof-3.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+	{ src: "/foto/proof-4.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+	{ src: "/foto/proof-5.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+	{ src: "/foto/proof-6.webp", width: 800, height: 533, description: "Pekerjaan fabrikasi" },
+];
+
+/**
  * The ordering steps, verbatim from the live FAQ's five-step answer. Rendered
  * as an `<ol>` in one section and as the prefilled WhatsApp checklist in
  * another, both from this array.

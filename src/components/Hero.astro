@@ -1,0 +1,201 @@
+---
+/**
+ * Hero.astro -- §1.
+ *
+ * What replaces the live site's three-slide auto-advancing Bootstrap carousel:
+ * one headline, one sub-paragraph, two CTAs, one image. The carousel repeated
+ * the same claim three times ("Berkualitas Tinggi" / "Berbagai Kebutuhan
+ * Industri" / "Terpercaya"), it auto-advances (a WCAG 2.2.2 problem unless
+ * pausable), and it destroys LCP because the largest element keeps changing.
+ *
+ * THE H1 IS NOT THE SPEC'S H1. The spec's headline is "Potong plat, akrilik,
+ * dan fabrikasi custom — toleransi ±0,1 mm", and the tolerance figure is not
+ * confirmed by the client anywhere. A number invented to fill a headline is
+ * the highest-risk content on the page, because a fabrication buyer checks
+ * specifications. The headline therefore ends at the service list: verb-led,
+ * sentence case, no slogan, no number.
+ *
+ * The secondary CTA is likewise renamed. The spec calls it "Lihat kapasitas &
+ * toleransi"; there is no tolerance figure to look at, so the label promises
+ * only what the section delivers.
+ *
+ * The sub-paragraph is built only from grounded facts: 10+ years, the six
+ * sectors, the accepted file formats, and that the file is checked and a quote
+ * is sent. No location -- Pamakarya's location is not published anywhere, and
+ * the spec's "Yogyakarta" is an unverified inference.
+ */
+import { designFileFormats, experience, heroPhoto, whatsappLink } from "../data/site";
+import { sectors } from "../data/services";
+import { sectionIds } from "../data/sections";
+import Button from "./Button.astro";
+
+/**
+ * The hero intent carries a partial checklist, so the first message already
+ * says what the buyer wants instead of arriving as a bare greeting.
+ */
+const heroIntent = [
+	"Halo Pamakarya, saya mau minta penawaran.",
+	"",
+	"Layanan: ____",
+	"Material: ____",
+	"Ukuran: ____ x ____ mm",
+	"Jumlah: ____ pcs",
+	"",
+	"Saya kirim file desainnya di chat ini.",
+].join("\n");
+
+const waHref = whatsappLink(heroIntent);
+---
+
+<section class="hero">
+	<div class="hero-grid">
+		<div class="hero-copy">
+			<h1>Laser cutting plat, akrilik, dan fabrikasi custom.</h1>
+
+			<p class="lead">
+				{experience.prose} mengerjakan potong laser dan fabrikasi untuk otomotif, elektronik,
+				konstruksi, arsitektur, interior, dan industri kreatif. Kirim file{" "}
+				{designFileFormats.slice(0, -1).join(", ")} atau {designFileFormats.at(-1)} lewat WhatsApp —
+				kami periksa dan kirim penawaran.
+			</p>
+
+			<div class="hero-cta">
+				<Button label="WhatsApp — minta penawaran" href={waHref} external fullWidth />
+				<Button
+					label="Lihat kapasitas"
+					href={`#${sectionIds.kapasitas}`}
+					variant="ghost"
+					fullWidth
+				/>
+			</div>
+
+			<p class="sectors">
+				<span class="sectors-label">Sektor</span>
+				{sectors.map((sector) => sector.name).join(" · ")}
+			</p>
+		</div>
+
+		<figure class="hero-figure">
+			{/* Two crops, no JS: 4:5 on narrow screens, 3:2 from 640px up. Both
+			    files exist in public/foto; the intrinsic sizes are the real
+			    encoded pixel sizes, which is what holds CLS at zero. */}
+			<picture>
+				<source
+					media="(min-width: 640px)"
+					srcset={heroPhoto.desktop.src}
+					width={heroPhoto.desktop.width}
+					height={heroPhoto.desktop.height}
+				/>
+				<img
+					src={heroPhoto.mobile.src}
+					width={heroPhoto.mobile.width}
+					height={heroPhoto.mobile.height}
+					alt="Mesin laser CNC Pamakarya saat memotong, dengan operator mendampingi proses."
+					fetchpriority="high"
+					decoding="async"
+				/>
+			</picture>
+		</figure>
+	</div>
+</section>
+
+<style>
+	.hero {
+		padding: var(--section-pad) var(--gutter);
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.hero-grid {
+		display: grid;
+		gap: var(--space-32);
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	h1 {
+		/* 28/36px, not the 56-72px a marketing page would use: a 4.5rem
+		   headline reads as decoration to an industrial buyer. */
+		margin: 0 0 var(--space-16);
+		font-size: var(--fs-h1);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: var(--tracking-h1);
+		line-height: var(--lh-h1);
+	}
+
+	.lead {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-24);
+		color: var(--ink-2);
+		font-size: var(--fs-lead);
+		line-height: var(--lh-lead);
+	}
+
+	/* Primary action sits above the fold and above the image on a 740px
+	   screen; the thumb reaches the bottom, so this is the top-anchored
+	   exception and the sticky bar carries the bottom one. */
+	.hero-cta {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-12);
+		margin-bottom: var(--space-24);
+	}
+
+	.sectors {
+		margin: 0;
+		color: var(--ink-3);
+		font-size: var(--fs-caption);
+	}
+
+	.sectors-label {
+		display: block;
+		margin-bottom: var(--space-4);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	.hero-figure {
+		margin: 0;
+	}
+
+	.hero-figure img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	picture {
+		display: block;
+	}
+
+	@media (min-width: 640px) {
+		.hero-cta {
+			flex-direction: row;
+			flex-wrap: wrap;
+		}
+
+		.hero-cta :global(.btn) {
+			width: auto;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		/* Image is a grid child with a real column span, not a centred card:
+		   a spec sheet aligns to a margin, it does not centre things. */
+		.hero-grid {
+			grid-template-columns: repeat(12, 1fr);
+			gap: var(--space-48);
+			align-items: start;
+		}
+
+		.hero-copy {
+			grid-column: 1 / span 5;
+		}
+
+		.hero-figure {
+			grid-column: 6 / span 7;
+		}
+	}
+</style>

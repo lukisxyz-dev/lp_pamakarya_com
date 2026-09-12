@@ -2,18 +2,20 @@
 /**
  * Landing page.
  *
- * PLACEHOLDER for Step 3: the shell (skip link, header, nav, footer, sticky
- * action bar) lives in Base.astro and is what this step verifies. The six
- * content sections land in Steps 4 and 5, replacing the body below.
+ * Sections §1-§2 (this step) and §3-§6 (Step 5), in the spec's order and
+ * reading order. DOM order is the visual order at every breakpoint: no `order`,
+ * no `row-reverse`, no grid placement that decouples reading order.
  *
- * The previous version of this file linked to `/blog`. That link is gone --
- * the site has no second destination, and a link into a section that is not
- * part of the page is a dead end of exactly the kind the current live site is
- * built from.
+ * Nothing here links to /blog or to any other route. The nav is four same-page
+ * anchors, and the section ids come from src/data/sections.ts so a header link
+ * and its target cannot drift apart.
  */
 import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.astro";
+import MateriLayanan from "../components/MateriLayanan.astro";
 ---
 
 <Base>
-	<h1>Pamakarya</h1>
+	<Hero />
+	<MateriLayanan />
 </Base>
