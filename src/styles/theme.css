@@ -1,28 +1,57 @@
 /*
-  theme.css -- Pamakarya theme overrides.
+  theme.css -- the override surface on top of src/styles/tokens.css.
 
-  Landing page is deliberately plain: white background, dark text, one
-  brand colour for the primary action. The template's gradient defaults
-  are flattened to solid brand so nothing inherits a gradient by
-  accident -- this site does not use them.
+  What this file sets, and nothing else:
 
-  Colors use light-dark() from tokens.css. Overriding with a plain
-  colour changes light and dark at once; use light-dark(<light>, <dark>)
-  to keep them distinct.
+  1. It bridges the legacy template token names for the routes in
+     src/pages/blog/. Those routes are deliberately out of scope for the
+     landing-page rebuild and are left byte-for-byte as they are, so they
+     still consume the old token names. Landing-page components must not use
+     anything below -- they use the tokens.css names directly. This block
+     disappears when the blog routes do.
+
+  2. It pins the two weights the "Gambar Kerja" direction allows. Nothing on
+     this site is heavier than 700.
+
+  No interpolated colour ramps, no brand colours, no shadows: tokens.css does
+  not define them, so nothing can inherit one by accident.
 */
 
 :root {
-	--color-brand: light-dark(#1a1a1a, #f5f5f5);
-	--color-brand-strong: light-dark(#000000, #ffffff);
-	--color-brand-soft: light-dark(#6b6b6b, #a3a3a3);
-	--color-on-brand: light-dark(#ffffff, #111111);
+	/* -- 1. Legacy names for the untouched blog routes ------------------- */
+	--color-text: var(--ink);
+	--color-muted: var(--ink-3);
+	--color-border: var(--rule);
+	--color-surface: var(--paper-2);
 
-	/* No gradients on this site -- flatten the template's brand tokens. */
-	--gradient-brand: var(--color-brand);
-	--gradient-brand-strong: var(--color-brand-strong);
-	--gradient-brand-soft: var(--color-brand-soft);
-	--gradient-headline: var(--color-text);
+	--font-size-xs: var(--fs-label);
+	--font-size-sm: var(--fs-caption);
+	--font-size-base: var(--fs-body);
+	--font-size-lg: var(--fs-body);
+	--font-size-xl: var(--fs-h3);
+	--font-size-3xl: var(--fs-h2);
+	--font-size-5xl: var(--fs-figure);
 
+	--leading-tight: var(--lh-h1);
+	--leading-snug: var(--lh-h2);
+	--leading-normal: var(--lh-body);
+	--leading-relaxed: var(--lh-body);
+
+	--tracking-tight: var(--tracking-h1);
+	--tracking-snug: -0.01em;
+
+	--spacing-sm: var(--space-8);
+	--spacing-md: var(--space-16);
+	--spacing-lg: var(--space-24);
+	--spacing-xl: var(--space-32);
+	--spacing-2xl: var(--space-48);
+	--spacing-3xl: var(--space-64);
+	--spacing-4xl: var(--space-96);
+
+	--max-width: var(--prose-max);
+	--transition-fast: var(--dur-hover) var(--ease-hover);
+
+	/* -- 2. Weights ----------------------------------------------------- */
+	--font-weight-heading: 600;
 	--font-weight-display: 700;
-	--max-width: 640px;
 }

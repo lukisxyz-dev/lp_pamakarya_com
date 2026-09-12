@@ -23,10 +23,24 @@ export default defineConfig({
 	fonts: [
 		{
 			provider: fontProviders.google(),
-			name: "Inter",
+			name: "IBM Plex Sans",
 			cssVariable: "--font-body",
 			weights: [400, 500, 600, 700],
+			styles: ["normal"],
+			subsets: ["latin"],
 			fallbacks: ["sans-serif"],
+		},
+		{
+			// Every numeral, unit, label, table figure and caption. Pair it
+			// with `font-variant-numeric: tabular-nums` so columns of figures
+			// align. Nothing on this site is italic, hence styles: ["normal"].
+			provider: fontProviders.google(),
+			name: "IBM Plex Mono",
+			cssVariable: "--font-mono",
+			weights: [400, 500, 600],
+			styles: ["normal"],
+			subsets: ["latin"],
+			fallbacks: ["ui-monospace", "monospace"],
 		},
 	],
 	devToolbar: { enabled: false },
