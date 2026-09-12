@@ -2,58 +2,18 @@
 /**
  * Landing page.
  *
- * Intentionally plain: the site name and one action into the blog.
- * Content lives entirely in the blog collection.
+ * PLACEHOLDER for Step 3: the shell (skip link, header, nav, footer, sticky
+ * action bar) lives in Base.astro and is what this step verifies. The six
+ * content sections land in Steps 4 and 5, replacing the body below.
+ *
+ * The previous version of this file linked to `/blog`. That link is gone --
+ * the site has no second destination, and a link into a section that is not
+ * part of the page is a dead end of exactly the kind the current live site is
+ * built from.
  */
 import Base from "../layouts/Base.astro";
 ---
 
 <Base>
-	<section class="landing">
-		<h1>Pamakarya</h1>
-		<a href="/blog" class="landing-cta">
-			Baca Blog
-		</a>
-	</section>
+	<h1>Pamakarya</h1>
 </Base>
-
-<style>
-	.landing {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: var(--spacing-2xl);
-		min-height: 70vh;
-		padding: var(--spacing-2xl) var(--spacing-lg);
-		text-align: center;
-	}
-
-	.landing h1 {
-		font-size: var(--font-size-5xl);
-		font-weight: var(--font-weight-display);
-		letter-spacing: var(--tracking-tight);
-		line-height: var(--leading-tight);
-		margin: 0;
-	}
-
-	.landing-cta {
-		display: inline-flex;
-		align-items: center;
-		padding: var(--spacing-md) var(--spacing-xl);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-full);
-		font-size: var(--font-size-base);
-		font-weight: 500;
-		color: var(--color-text);
-		text-decoration: none;
-		transition:
-			background-color var(--transition-fast),
-			border-color var(--transition-fast);
-	}
-
-	.landing-cta:hover {
-		background-color: var(--color-surface);
-		border-color: var(--color-text);
-	}
-</style>

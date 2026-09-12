@@ -1,0 +1,150 @@
+---
+/**
+ * Button.astro -- the one control primitive.
+ *
+ * A link styled as a button, never a `<button>`: every primary action on this
+ * site is a `wa.me` deep link, an in-page anchor or a `mailto:`, so a real
+ * `<a>` is the correct semantics and needs no JS to work.
+ *
+ * There are exactly two variants, and the accent discipline is the point:
+ *
+ *   primary  solid `--signal` fill with `--signal-ink` text. #FFC300 is
+ *            illegible as text on paper (1.61:1), so the accent can only ever
+ *            be a filled surface -- which forces it to mean one thing: an
+ *            action you can take.
+ *   ghost    transparent fill, `--ink` text, `--rule-strong` outline. A
+ *            structural boundary, so it must clear 1.4.11 (3.47:1 on paper).
+ *
+ * Shape is `0` radius except for the 2px on buttons, and there is no shadow:
+ * depth comes from the hairline and the fill. Hover changes background and
+ * border colour only, 120ms -- no transform, no lift, no scale.
+ *
+ * The touch target is 56px by default and 48px at the `compact` size, both
+ * comfortably above WCAG 2.2's 24px floor, because a 360px screen used
+ * one-handed, outdoors, sometimes with gloves, makes 24px unusable.
+ */
+import { whatsappLink } from "../data/site";
+import Icon from "./Icon.astro";
+
+interface Props {
+	/** Rendered text. Keep it verb-led and sentence case. */
+	label: string;
+	/** Destination. Mutually exclusive with `whatsapp`. */
+	href?: string;
+	/** Prefilled WhatsApp message. Builds the `href`. */
+	whatsapp?: string;
+	/** `primary` is the signal fill; `ghost` is the outlined surface. */
+	variant?: "primary" | "ghost";
+	/** `default` is 56px tall, `compact` 48px. */
+	size?: "default" | "compact";
+	/** Stripe the button across its container. */
+	fullWidth?: boolean;
+	/** Show the WhatsApp glyph. Set by the `whatsapp` prop by default. */
+	glyph?: boolean;
+	/** Required when `target="_blank"`; appended to the accessible name. */
+	external?: boolean;
+	class?: string;
+}
+
+const {
+	label,
+	href,
+	whatsapp,
+	variant = "primary",
+	size = "default",
+	fullWidth = false,
+	glyph = whatsapp !== undefined,
+	external = false,
+	class: className,
+} = Astro.props;
+
+const url = whatsapp !== undefined ? whatsappLink(whatsapp) : href;
+
+if (!url) {
+	throw new Error("Button.astro: pass either `href` or `whatsapp`.");
+}
+---
+
+<a
+	href={url}
+	class:list={[
+		"btn",
+		`btn-${variant}`,
+		size === "compact" && "btn-compact",
+		fullWidth && "btn-full",
+		className,
+	]}
+	target={external ? "_blank" : undefined}
+	rel={external ? "noopener noreferrer" : undefined}
+>
+	{glyph && <Icon name="whatsapp" />}
+	<span class="btn-label">
+		{label}
+		{
+			/* "opens in a new tab" belongs in the accessible name, so a screen
+			   reader user learns the behaviour before activating the link. */
+			external && <span class="visually-hidden"> (buka di tab baru)</span>
+		}
+	</span>
+</a>
+
+<style>
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-8);
+		min-height: 56px;
+		padding: var(--space-12) var(--space-24);
+		border: var(--rule-width) solid;
+		border-radius: var(--radius-button);
+		font-family: var(--font-body);
+		font-size: var(--fs-body-s);
+		font-weight: var(--font-weight-heading);
+		line-height: var(--lh-label);
+		text-align: center;
+		text-decoration: none;
+		transition:
+			background-color var(--dur-hover) var(--ease-hover),
+			border-color var(--dur-hover) var(--ease-hover);
+	}
+
+	.btn-primary {
+		background-color: var(--signal);
+		border-color: var(--signal);
+		color: var(--signal-ink);
+	}
+
+	/* Hover only moves the fill; the signal-deep ground keeps the ink label
+	   legible (--signal-ink on --signal-deep would not). Text stays on the
+	   signal fill and the border darkens instead. */
+	.btn-primary:hover {
+		background-color: var(--signal);
+		border-color: var(--ink);
+	}
+
+	.btn-ghost {
+		background-color: transparent;
+		border-color: var(--rule-strong);
+		color: var(--ink);
+	}
+
+	.btn-ghost:hover {
+		background-color: var(--paper-2);
+		border-color: var(--ink);
+	}
+
+	.btn-compact {
+		min-height: 48px;
+		padding: var(--space-8) var(--space-16);
+	}
+
+	.btn-full {
+		display: flex;
+		width: 100%;
+	}
+
+	.btn-label {
+		display: inline;
+	}
+</style>

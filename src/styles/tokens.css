@@ -119,6 +119,11 @@
 
 		/* Chrome */
 		--header-h: 56px;
+		--header-h-lg: 64px;
+		/* Reservations that keep the two sticky surfaces off the content and
+		   off a focused element. Declared here so the page body and every
+		   anchor target read the same numbers. */
+		--body-pad-bottom: 72px;
 		--action-bar-h: 64px;
 		--scroll-margin: 80px;
 		--touch-min: 44px;
@@ -164,6 +169,12 @@
 			--gutter: 24px;
 			--section-pad: 80px;
 			--section-pad-tight: 48px;
+			/* The action bar is a mobile affordance, so above 768px the footer
+			   band can sit on the page edge again. Done by zeroing the
+			   variable rather than restating `body`, because a second `body`
+			   rule of equal specificity would be order-dependent on the base
+			   rule above. */
+			--body-pad-bottom: 0px;
 		}
 	}
 
@@ -189,6 +200,47 @@
 		font-weight: var(--font-weight-body);
 		line-height: var(--lh-body);
 		margin: 0;
+		/* Keep the last footer row clear of the mobile action bar. The bar is
+		   fixed, so without this it would sit on top of the copyright line.
+		   Only a permanent reservation is correct here: no scroll listener,
+		   no show/hide, no animation. */
+		padding-bottom: calc(var(--body-pad-bottom) + env(safe-area-inset-bottom, 0px));
+	}
+
+	/* Utility classes. Small and closed on purpose -- there is no utility
+	   framework here and there should not be one. */
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	/*
+	 * WCAG 2.4.11 Focus Not Obscured. The sticky header hides anything the
+	 * browser scrolls to the top edge, and the sticky action bar hides
+	 * anything it scrolls to the bottom edge, so both margins are needed on
+	 * everything that can receive focus and on every anchor target.
+	 *
+	 * The selector is explicit rather than universal: `*:focus` would also hit
+	 * descendants whose offset parent is not the scroll container, and
+	 * `html { scroll-padding }` behaves the same width-wise but cannot be
+	 * overridden per element by a component.
+	 */
+	a[href]:focus-visible,
+	button:focus-visible,
+	summary:focus-visible,
+	[tabindex]:focus-visible,
+	:target,
+	section[id],
+	[id][tabindex="-1"] {
+		scroll-margin-top: var(--scroll-margin);
+		scroll-margin-bottom: var(--scroll-margin);
 	}
 
 	/* Dual tone, because #FFC300 on white is 1.61:1 and would fail 1.4.11 as
@@ -208,6 +260,22 @@
 	.on-dark :focus-visible {
 		outline: 3px solid var(--signal);
 		box-shadow: none;
+	}
+
+	/*
+	 * The skip link targets <main>. A landmark is not a UI component, so it
+	 * does not need a ring of its own -- and the generic rule above would draw
+	 * a rectangle around the entire page content, which reads as a rendering
+	 * fault rather than as an affordance. It gets one signal rule along its
+	 * top edge instead: visible, meaningful, and not a page frame.
+	 *
+	 * This is the only `outline: none` on the site, and it replaces the ring
+	 * with a visible indicator rather than removing the indicator.
+	 */
+	#main:focus,
+	#main:focus-visible {
+		outline: none;
+		box-shadow: inset 0 3px 0 0 var(--signal);
 	}
 
 	/* Exactly three things animate on this site: focus (no transition), button

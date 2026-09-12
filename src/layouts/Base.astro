@@ -1,15 +1,36 @@
 ---
 /**
- * Site layout.
+ * Base.astro -- the site shell: skip link, header, main, footer, action bar.
  *
- * Deliberately minimal: site name, a link to the blog, and admin access.
- * No menus, no search, no widgets -- this site is a landing page plus a
- * blog, both fed by EmDash.
+ * EmDash wiring is intact: EmDashHead / EmDashBodyStart / EmDashBodyEnd and
+ * createPublicPageContext are all still rendered, and the title still comes
+ * from the site-settings query (`settings.title`), so the admin keeps working
+ * and the CMS keeps owning the site name.
+ *
+ * Three things the previous shell got wrong and this one does not:
+ *
+ *   1. No `<main>` was identified and there was no skip link, so the way past
+ *      the header was through the header. The skip link is now the first
+ *      focusable element in the document (EmDash contributes nothing before
+ *      its body-start hook, so it is genuinely first in the DOM), and it is
+ *      revealed on focus rather than merely present.
+ *   2. `Blog` and `Admin` were in the public nav. Neither belongs there: the
+ *      site has no second destination, and `/_emdash/admin` is not a public
+ *      route.
+ *   3. The footer was a bare copyright line. It becomes the contact band in
+ *      Step 5; until then it carries only the copyright and no placeholder.
+ *
+ * Section ids come from src/data/sections.ts rather than being written as
+ * literals, so a header link and its target cannot drift apart.
  */
 import { getSiteSettingsWithCacheHint } from "emdash";
 import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
+import { navItems, sectionHref, sectionIds } from "../data/sections";
+import { companyName } from "../data/site";
+import Button from "../components/Button.astro";
+import Icon from "../components/Icon.astro";
 import "../styles/tokens.css";
 import "../styles/theme.css";
 
@@ -23,7 +44,7 @@ const { title, description, image } = Astro.props;
 const { data: settings, cacheHint } = await getSiteSettingsWithCacheHint();
 Astro.cache.set(cacheHint);
 
-const siteTitle = settings.title || "Pamakarya";
+const siteTitle = settings.title || companyName;
 const fullTitle = title ? `${title} — ${siteTitle}` : siteTitle;
 const siteDescription = settings.tagline || "";
 
@@ -40,6 +61,23 @@ const pageCtx = createPublicPageContext({
 	siteName: siteTitle,
 	breadcrumbs: [],
 });
+
+/**
+ * Whether this render carries the landing page's section ids. On any other
+ * page the section anchors must be qualified with `/` or they lead nowhere.
+ */
+const isLandingPage = Astro.url.pathname === "/";
+const hrefFor = (id: Parameters<typeof sectionHref>[0]) => sectionHref(id, isLandingPage);
+
+/**
+ * The header's WhatsApp intent. The three in-page CTAs each ask a different
+ * question; this one is the generic opener, because the header is the control
+ * a visitor reaches before deciding what they want.
+ */
+const headerIntent = `Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`;
+
+/** The sticky bar's intent, phrased for someone who has read the capacity table. */
+const barIntent = `Halo ${siteTitle}, saya mau minta penawaran. Saya sudah lihat daftar layanan dan material di situs.`;
 ---
 
 <!doctype html>
@@ -50,85 +88,268 @@ const pageCtx = createPublicPageContext({
 		<title>{fullTitle}</title>
 		<EmDashHead page={pageCtx} />
 		<Font cssVariable="--font-body" preload />
+		{/* Emits the mono family's @font-face rules and the --font-mono
+		    custom property. Astro only generates a family's CSS when a
+		    component renders <Font> for it, so this is load-bearing despite
+		    emitting no element. */}
 		<Font cssVariable="--font-mono" />
 	</head>
 	<body>
+		{/* First focusable element. Rendered at the top of <body>, before the
+		    header, so a keyboard user's first Tab reaches it. Off-screen until
+		    focused -- see `.skip` below. */}
+		<a href="#main" class="skip">
+			Lewati ke konten utama
+		</a>
+
 		<EmDashBodyStart page={pageCtx} />
 
 		<header class="site-header">
-			<a href="/" class="site-name">
-				{siteTitle}
-			</a>
-			<nav class="site-nav">
-				<a href="/blog">Blog</a>
-				<a href="/_emdash/admin">Admin</a>
-			</nav>
+			<div class="header-inner">
+				<a href="/" class="wordmark">
+					{siteTitle}
+				</a>
+
+				{/* Desktop only. Four same-page anchors; no dropdowns, no
+				    mega-menu, and no Blog or Admin entry. */}
+				<nav class="site-nav" aria-label="Utama">
+					<ul>
+						{navItems.map((item) => (
+							<li>
+								<a href={hrefFor(item.id)}>{item.label}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+
+				<Button
+					label="WhatsApp"
+					whatsapp={headerIntent}
+					external
+					size="compact"
+					variant="primary"
+					class="header-cta"
+				/>
+			</div>
 		</header>
 
-		<main>
+		{/* `tabindex="-1"` so the skip link moves focus into <main>, not just
+		    the scroll position. Without it the browser focuses nothing and the
+		    next Tab returns to the header -- the skip link appears to work and
+		    does not. */}
+		<main id="main" tabindex="-1">
 			<slot />
 		</main>
 
+		{/* Completed into the contact band in Step 5. Until then it carries
+		    the copyright only: no placeholder rows, no "coming soon". */}
 		<footer class="site-footer">
-			<p>
-				&copy; {new Date().getFullYear()} {siteTitle}
+			<p class="copyright">
+				&copy; {new Date().getFullYear()} {siteTitle}.
 			</p>
 		</footer>
+
+		{/* Mobile only, always present from first paint: no scroll listener,
+		    no show/hide, no animation. Being permanently in the same place is
+		    what makes it satisfy Consistent Help (3.2.6). */}
+		<div class="action-bar">
+			<Button label="WhatsApp" whatsapp={barIntent} external fullWidth class="action-bar-primary" />
+			<a class="action-bar-secondary" href={hrefFor(sectionIds.kapasitas)}>
+				<span>Kapasitas</span>
+				<Icon name="arrow-right" />
+			</a>
+		</div>
 
 		<EmDashBodyEnd page={pageCtx} />
 	</body>
 </html>
 
 <style>
+	/* -- Skip link ------------------------------------------------------ */
+	.skip {
+		position: absolute;
+		left: var(--space-16);
+		top: var(--space-16);
+		z-index: 100;
+		padding: var(--space-12) var(--space-24);
+		background-color: var(--signal);
+		color: var(--signal-ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--font-weight-heading);
+		text-decoration: none;
+		/* Off-screen until focused. `transform` rather than `left`, so it does
+		   not create a scrollable overflow region to the left of the page. */
+		transform: translateY(calc(-100% - var(--space-16)));
+	}
+
+	/* Revealed on focus, instantly -- no transition, because a delayed focus
+	   indicator is itself an accessibility defect. */
+	.skip:focus,
+	.skip:focus-visible {
+		transform: translateY(0);
+		outline: 3px solid var(--ink);
+		outline-offset: 2px;
+		box-shadow: 0 0 0 6px var(--signal);
+	}
+
+	/* -- Header --------------------------------------------------------- */
 	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background-color: var(--paper);
+		border-bottom: var(--rule-width) solid var(--rule-strong);
+	}
+
+	.header-inner {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		gap: var(--spacing-lg);
-		max-width: var(--wide-width);
+		gap: var(--space-16);
+		max-width: var(--content-max);
+		min-height: var(--header-h);
 		margin: 0 auto;
-		padding: var(--spacing-lg) var(--spacing-lg);
+		padding: 0 var(--gutter);
 	}
 
-	.site-name {
-		font-size: var(--font-size-lg);
-		font-weight: 600;
-		letter-spacing: var(--tracking-tight);
-		color: var(--color-text);
+	.wordmark {
+		flex: none;
+		/* 44px target, with the padding rather than a fixed height so the text
+		   stays on its own line box. */
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--touch-min);
+		padding: var(--space-8) 0;
+		color: var(--ink);
+		font-size: var(--fs-body);
+		font-weight: var(--font-weight-display);
+		letter-spacing: var(--tracking-h1);
 		text-decoration: none;
 	}
 
+	/* Mobile: no nav items at all. The one jump that matters is the sticky
+	   bar's "Kapasitas"; everything else is a scroll away on a page that is
+	   about five screens tall. */
 	.site-nav {
-		display: flex;
-		gap: var(--spacing-lg);
+		display: none;
 	}
 
-	.site-nav a {
-		font-size: var(--font-size-sm);
-		color: var(--color-muted);
-		text-decoration: none;
-		transition: color var(--transition-fast);
+	.header-cta {
+		margin-left: auto;
 	}
 
-	.site-nav a:hover {
-		color: var(--color-text);
-	}
-
-	main {
-		display: block;
-		min-height: 60vh;
-	}
-
+	/* -- Footer --------------------------------------------------------- */
 	.site-footer {
-		max-width: var(--wide-width);
-		margin: 0 auto;
-		padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl);
-		border-top: 1px solid var(--color-border);
-		margin-top: var(--spacing-4xl);
+		margin-top: var(--section-pad);
+		padding: var(--section-pad-tight) var(--gutter);
+		border-top: var(--rule-width) solid var(--rule-strong);
 	}
 
-	.site-footer p {
-		font-size: var(--font-size-sm);
-		color: var(--color-muted);
+	.copyright {
+		max-width: var(--content-max);
+		margin: 0 auto;
+		color: var(--ink-3);
+		font-size: var(--fs-caption);
+	}
+
+	/* -- Sticky action bar ---------------------------------------------- */
+	.action-bar {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 30;
+		display: flex;
+		gap: var(--space-8);
+		align-items: stretch;
+		/* The bar's own height plus the notch inset: body reserves the same
+		   base amount, so the two can never disagree. */
+		height: calc(var(--action-bar-h) + env(safe-area-inset-bottom, 0px));
+		padding: var(--space-4) var(--gutter) env(safe-area-inset-bottom, 0px);
+		background-color: var(--paper);
+		/* Structural, not decorative: it separates a control surface from the
+		   page, so it must clear 1.4.11 (3.47:1 on paper). */
+		border-top: var(--rule-width) solid var(--rule-strong);
+	}
+
+	/* 60 / 40 across the bar, minus the gap between them. Kept as shorthand
+	   `flex` because `flex: 0 0 60%` plus `flex: 1 1 40%` would overflow:
+	   both bases plus the gap cannot fit in the content box. */
+	.action-bar-primary {
+		flex: 0 0 calc(60% - var(--space-4));
+	}
+
+	.action-bar-secondary {
+		flex: 1 1 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-8);
+		min-height: 56px;
+		padding: var(--space-8) var(--space-12);
+		border: var(--rule-width) solid var(--rule-strong);
+		border-radius: var(--radius-button);
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--font-weight-heading);
+		text-decoration: none;
+		transition:
+			background-color var(--dur-hover) var(--ease-hover),
+			border-color var(--dur-hover) var(--ease-hover);
+	}
+
+	.action-bar-secondary:hover {
+		background-color: var(--paper-2);
+		border-color: var(--ink);
+	}
+
+	/* -- Desktop -------------------------------------------------------- */
+	@media (min-width: 1024px) {
+		.header-inner {
+			min-height: var(--header-h-lg);
+			gap: var(--space-32);
+		}
+
+		.site-nav {
+			display: block;
+			margin-left: auto;
+		}
+
+		.site-nav ul {
+			display: flex;
+			gap: var(--space-24);
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.site-nav a {
+			display: inline-flex;
+			align-items: center;
+			/* 44px target at the spec's 12px/8px padding. */
+			min-height: var(--touch-min);
+			padding: var(--space-12) var(--space-8);
+			color: var(--ink-2);
+			font-size: var(--fs-body-s);
+			text-decoration: none;
+			/* Background colour only. The spec permits `background-color` and
+			   `border-color` to transition and nothing else, so the text colour
+			   is deliberately static between rest and hover -- the ground shift
+			   is the whole affordance. */
+			transition: background-color var(--dur-hover) var(--ease-hover);
+		}
+
+		.site-nav a:hover {
+			background-color: var(--paper-2);
+		}
+
+		/* The header CTA no longer needs to push itself right: the nav does. */
+		.header-cta {
+			margin-left: 0;
+		}
+
+		/* The action bar is a mobile affordance only. */
+		.action-bar {
+			display: none;
+		}
 	}
 </style>

@@ -1,45 +1,122 @@
 ---
+/**
+ * 404 -- not found.
+ *
+ * This page carries the full shell: the same header, the same sticky action
+ * bar and the same WhatsApp affordance as the landing page, because WCAG 3.2.6
+ * (Consistent Help) applies here too. A 404 is the page a stray client link
+ * lands on, so it is the worst place to leave someone with a dead end -- which
+ * is precisely what the live site's missing 404 does.
+ *
+ * Kept deliberately plain: one `<h1>`, one sentence, one way back, and the
+ * WhatsApp CTA that the shell already provides in the header and the action
+ * bar. No search box (there is nothing to search), no site map (there is
+ * nothing to map), no illustration.
+ */
 import Base from "../layouts/Base.astro";
+import { companyName, whatsappLink } from "../data/site";
+import Button from "../components/Button.astro";
+import { sectionHref, sectionIds } from "../data/sections";
+
+const intent = `Halo ${companyName}, saya sampai di halaman yang tidak ada di situs. Saya mau tanya soal layanan laser cutting.`;
+const waHref = whatsappLink(intent);
+// This page is not the landing page, so the section anchor must be qualified.
+const layananHref = sectionHref(sectionIds.layanan, false);
 ---
 
-<Base title="Halaman tidak ditemukan">
+<Base
+	title="Halaman tidak ditemukan"
+	description="Halaman yang Anda cari tidak ada di situs Pamakarya."
+>
 	<section class="not-found">
-		<h1>404</h1>
-		<p>Halaman yang Anda cari tidak ada.</p>
-		<a href="/" class="not-found-link">
-			Kembali ke beranda
-		</a>
+		<p class="eyebrow">Error 404</p>
+		<h1>Halaman yang Anda cari tidak ada.</h1>
+		<p class="lead">
+			Alamatnya mungkin salah tulis, atau halamannya sudah dipindahkan. Anda bisa kembali ke
+			beranda, atau langsung menghubungi kami.
+		</p>
+
+		<div class="actions">
+			<Button label="Kembali ke beranda" href="/" variant="ghost" />
+			<Button label="WhatsApp — tanya langsung" href={waHref} external variant="primary" />
+		</div>
+
+		<p class="hint">
+			Butuh melihat daftar layanan? <a href={layananHref}>Buka bagian layanan</a> di beranda.
+		</p>
 	</section>
 </Base>
 
 <style>
 	.not-found {
+		max-width: var(--content-max);
+		margin: 0 auto;
+		padding: var(--section-pad) var(--gutter);
+	}
+
+	.eyebrow {
+		margin: 0 0 var(--space-12);
+		color: var(--ink-3);
+		font-family: var(--font-mono);
+		font-size: var(--fs-label);
+		font-weight: var(--font-weight-medium);
+		letter-spacing: var(--tracking-label);
+		text-transform: uppercase;
+	}
+
+	h1 {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-16);
+		font-size: var(--fs-h1);
+		font-weight: var(--font-weight-heading);
+		letter-spacing: var(--tracking-h1);
+		line-height: var(--lh-h1);
+	}
+
+	.lead {
+		max-width: var(--prose-max);
+		margin: 0 0 var(--space-32);
+		color: var(--ink-2);
+		font-size: var(--fs-lead);
+		line-height: var(--lh-lead);
+	}
+
+	.actions {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: var(--spacing-lg);
-		min-height: 60vh;
-		padding: var(--spacing-2xl) var(--spacing-lg);
-		text-align: center;
+		flex-wrap: wrap;
+		gap: var(--space-12);
+		margin-bottom: var(--space-32);
 	}
 
-	.not-found h1 {
-		font-size: var(--font-size-5xl);
-		font-weight: var(--font-weight-display);
-		letter-spacing: var(--tracking-tight);
+	.hint {
+		max-width: var(--prose-max);
 		margin: 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
 	}
 
-	.not-found p {
-		color: var(--color-muted);
-		margin: 0;
-	}
-
-	.not-found-link {
-		font-size: var(--font-size-sm);
-		color: var(--color-text);
+	/* Links carry no accent colour: the accent is fill-only, because #FFC300
+	   is illegible as text on paper. Identity comes from the underline, and
+	   hover moves it to --signal-deep (7.48:1).
+	   No transition here: the spec permits `background-color` and
+	   `border-color` to animate and nothing else, and an underline is neither.
+	   The colour change is instantaneous, which also keeps the page inside the
+	   three-permitted-animations rule. */
+	.hint a {
+		color: var(--ink);
 		text-decoration: underline;
-		text-underline-offset: 3px;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 0.15em;
+		padding: var(--space-4) 2px;
+	}
+
+	.hint a:hover {
+		text-decoration-color: var(--signal-deep);
+	}
+
+	@media (min-width: 640px) {
+		.actions {
+			gap: var(--space-16);
+		}
 	}
 </style>

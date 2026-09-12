@@ -1,0 +1,66 @@
+---
+/**
+ * Icon.astro -- the six permitted glyphs, inline SVG.
+ *
+ * No icon font: the live site loads three (Material Design Icons, Unicons,
+ * Feather) for about fifteen distinct glyphs, at roughly 1.1 MB of CSS and
+ * webfont payload. These are inline, 1.5px stroke, `currentColor`, and
+ * `aria-hidden` because every icon on this site sits beside a text label.
+ *
+ * The set is closed on purpose. There are no decorative icons -- no wrench,
+ * target, shield or briefcase -- and no emoji, which render differently on
+ * every Android skin and read as a blog post rather than a fabricator.
+ *
+ * `whatsapp` is a plain message bubble, not the WhatsApp logo: the button
+ * label already names the platform, and a subtly wrong brand mark is worse
+ * than none. It also keeps the fill `--signal` -- WhatsApp green would put
+ * white on #25D366 (1.98:1, a hard fail).
+ */
+interface Props {
+	name: "whatsapp" | "arrow-right" | "chevron-down" | "check" | "external-link" | "copy";
+	/** Square size in px. 20 in prose and controls, 24 in a figure. */
+	size?: number;
+}
+
+const { name, size = 20 } = Astro.props;
+
+/**
+ * Every path is drawn inside a 4..20 box on a 24 grid so the 1.5px stroke
+ * never clips at the viewBox edge, and every command is axis-aligned or a
+ * plain arc, so nothing depends on a bezier control point being right.
+ */
+const paths: Record<Props["name"], string> = {
+	// Speech bubble with a tail: (4,5) 16x11 body, tail down to (8,20).
+	whatsapp: "M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4z",
+	"arrow-right": "M4 12h15M13 6l6 6-6 6",
+	"chevron-down": "M6 9l6 6 6-6",
+	check: "M4 12.5l5.5 5.5L20 7",
+	"external-link": "M14 4h6v6M20 4l-9 9M18 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h4",
+	copy: "M9 9h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zM15 9V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h4",
+};
+
+/** All six glyphs are stroked at 1.5px, so the set reads as one family. */
+---
+
+<svg
+	class="icon"
+	width={size}
+	height={size}
+	viewBox="0 0 24 24"
+	fill="none"
+	stroke="currentColor"
+	stroke-width="1.5"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+	aria-hidden="true"
+	focusable="false"
+>
+	<path d={paths[name]}></path>
+</svg>
+
+<style>
+	.icon {
+		display: block;
+		flex: none;
+	}
+</style>
