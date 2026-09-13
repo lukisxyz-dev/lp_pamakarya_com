@@ -4,6 +4,7 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: false
+  lefthook: true
 
 # Supply-chain hardening: cooldown on brand-new releases (EmDash exempt)
 # and no non-registry transitive sources. (No trustPolicy: no-downgrade --

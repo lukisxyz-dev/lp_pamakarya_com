@@ -14,15 +14,15 @@ A general-purpose starting point for building sites with [EmDash](https://github
 
 ## Pages
 
-| Page | Route |
-|---|---|
-| Homepage | `/` |
-| All posts | `/posts` |
-| Single post | `/posts/:slug` |
+| Page             | Route             |
+| ---------------- | ----------------- |
+| Homepage         | `/`               |
+| All posts        | `/posts`          |
+| Single post      | `/posts/:slug`    |
 | Category archive | `/category/:slug` |
-| Tag archive | `/tag/:slug` |
-| Static pages | `/:slug` |
-| 404 | fallback |
+| Tag archive      | `/tag/:slug`      |
+| Static pages     | `/:slug`          |
+| 404              | fallback          |
 
 ## Infrastructure
 
@@ -38,6 +38,10 @@ pnpm install
 pnpm bootstrap
 pnpm dev
 ```
+
+`pnpm install` also installs a lefthook `pre-commit` hook, so staged files are
+formatted on every commit. Format the whole repo with `pnpm format`, verify it
+with `pnpm format:check`.
 
 ## Deploying
 

@@ -5,7 +5,16 @@ This is an EmDash site -- a CMS built on Astro with a full admin UI.
 ```bash
 pnpm dev              # Start the Astro dev server
 npx emdash types      # Regenerate TypeScript types from a running site
+pnpm format           # Format the repo (oxfmt + Prettier for .astro)
+pnpm format:check     # Check formatting without writing
 ```
+
+A lefthook `pre-commit` hook formats staged files and re-stages them, so the
+formatted result lands in the same commit even when it was not staged.
+`pnpm install` installs the hook through the `prepare` script. `.astro` goes
+through Prettier (oxfmt silently skips the extension, so it is unformatted
+without that second pass); everything else through oxfmt. Skip once with
+`LEFTHOOK=0 git commit ...`.
 
 The admin UI is at `http://localhost:4321/_emdash/admin`.
 
