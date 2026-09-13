@@ -8,7 +8,8 @@
 	},
 	"settings": {
 		"title": "Pamakarya",
-		"tagline": "Custom Laser Cutting & Fabrikasi"
+		"tagline": "Custom Laser Cutting & Fabrikasi",
+		"url": "https://pamakarya.com"
 	},
 	"collections": [
 		{
@@ -47,7 +48,7 @@
 			"label": "Pages",
 			"labelSingular": "Page",
 			"urlPattern": "/{slug}",
-			"supports": ["drafts", "revisions", "search"],
+			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
 				{
 					"slug": "title",

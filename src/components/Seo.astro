@@ -1,0 +1,141 @@
+---
+/**
+ * Seo.astro -- every tag this template gives a crawler, in one file.
+ *
+ * The split with EmDash: the CMS owns the values an editor can change and the
+ * tags that follow from them -- meta description, canonical, og:*, twitter:*,
+ * hreflang, the WebSite/BlogPosting graph, favicons, and the search-console
+ * verification values from Settings -> SEO. This file renders the `<title>`,
+ * the locale, the canonical fallback, the robots rule, and the business graph
+ * that no editor field could describe (what the company is and what it sells).
+ * It then hands the page context to `<EmDashHead />`, so plugin head
+ * contributions and visual-editing data still land in the right order.
+ *
+ * Nothing is emitted twice: `<title>` is not EmDash's to write, the canonical
+ * link and the robots meta are only written here when the page context does
+ * not already carry them, and the Organization node is a separate entity from
+ * EmDash's WebSite node, which it references by `@id`.
+ *
+ * Grounding. `business` in src/data/site.ts holds the company description, the
+ * service lines, the materials and the sectors, each traced to the live site.
+ * The graph states those and nothing more: no address, no opening hours, no
+ * price range, and no `LocalBusiness` -- that type requires a street address
+ * Pamakarya has never published. The day it does, `LocalBusiness` with
+ * `address` and `geo` belongs right here.
+ */
+import { EmDashHead } from "emdash/ui";
+import { createPublicPageContext, safeJsonLdSerialize } from "emdash/page";
+import { business, companyName, contact } from "../data/site";
+
+interface Props {
+	/** The page context the layout built. EmDash reads it for its own tags. */
+	page: ReturnType<typeof createPublicPageContext>;
+	/** The page's own name, without the site name. */
+	title: string;
+	siteTitle: string;
+	siteTagline?: string | null;
+	/** From Settings -> SEO. EmDash's own default is a vertical bar. */
+	titleSeparator?: string | null;
+	/** Pages that must stay out of the index, such as the 404. */
+	noindex?: boolean;
+}
+
+const { page, title, siteTitle, siteTagline, titleSeparator, noindex } = Astro.props;
+
+const separator = titleSeparator ?? " | ";
+const siteUrl = (page.siteUrl ?? Astro.url.origin).replace(/\/+$/, "");
+
+/**
+ * Titles read "<page> | Pamakarya". The homepage has no page name of its own,
+ * so the tagline takes that slot rather than repeating the site name alone --
+ * "Pamakarya | Custom Laser Cutting & Fabrikasi" is what the live site's own
+ * `<title>` says, and it is the sentence a search result needs.
+ */
+const pageName = title.trim();
+const fullTitle =
+	!pageName || pageName === siteTitle
+		? [siteTitle, siteTagline].filter(Boolean).join(separator)
+		: pageName.includes(siteTitle)
+			? pageName
+			: [pageName, siteTitle].join(separator);
+
+/**
+ * A self-referencing canonical for every page that does not already have one.
+ * Trailing slashes are stripped so `/about` and `/about/` cannot both be
+ * indexed; the root keeps its slash.
+ */
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const canonical = `${siteUrl}${path === "/" ? "/" : path}`;
+
+const areaServed = { "@type": "Country", name: "Indonesia" };
+const organizationId = `${siteUrl}/#organization`;
+
+/**
+ * One graph, one entity. The OfferCatalog is the service list as the live site
+ * groups it, written as Offer -> itemOffered -> Service, which is the shape
+ * Google's structured-data guidance uses for a business's services.
+ */
+const graph = {
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "Organization",
+			"@id": organizationId,
+			name: companyName,
+			url: siteUrl,
+			description: business.description,
+			logo: {
+				"@type": "ImageObject",
+				url: `${siteUrl}${business.logo.path}`,
+				width: business.logo.width,
+				height: business.logo.height,
+			},
+			email: contact.email,
+			telephone: contact.phone,
+			/* The live site's own <title>: "Pamakarya - Custom Laser Cutting & Fabrikasi". */
+			slogan: "Custom Laser Cutting & Fabrikasi",
+			contactPoint: [
+				{
+					"@type": "ContactPoint",
+					contactType: "customer service",
+					telephone: contact.phone,
+					email: contact.email,
+					availableLanguage: "id",
+					areaServed,
+				},
+			],
+			sameAs: [contact.instagramUrl, contact.tokopediaUrl],
+			areaServed,
+			/* What the company can be asked for, in the words of its own pages. */
+			knowsAbout: [...business.serviceUnits.map((unit) => unit.name), ...business.materials],
+			hasOfferCatalog: {
+				"@type": "OfferCatalog",
+				name: `Layanan ${companyName}`,
+				itemListElement: business.serviceUnits.map((unit) => ({
+					"@type": "Offer",
+					itemOffered: {
+						"@type": "Service",
+						name: unit.name,
+						...(unit.description ? { description: unit.description } : {}),
+						provider: { "@id": organizationId },
+						areaServed,
+						/* Who the work is for. The about page names these itself. */
+						serviceAudience: {
+							"@type": "BusinessAudience",
+							name: business.sectors.join(", "),
+						},
+					},
+				})),
+			},
+		},
+	],
+};
+---
+
+<title>{fullTitle}</title>
+{noindex && !page.seo?.robots && <meta name="robots" content="noindex, follow" />}
+{!page.canonical && !noindex && <link rel="canonical" href={canonical} />}
+{!page.canonical && !noindex && <meta property="og:url" content={canonical} />}
+<meta property="og:locale" content="id_ID" />
+<script is:inline type="application/ld+json" set:html={safeJsonLdSerialize(graph)}></script>
+<EmDashHead page={page} />

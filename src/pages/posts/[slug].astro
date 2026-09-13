@@ -2,6 +2,7 @@
 import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettings } from "emdash";
 import { Image, PortableText, WidgetArea } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
+import { companyName } from "../../data/site";
 import { resolveStarterSiteIdentity } from "../../utils/site-identity";
 
 const slug = decodeSlug(Astro.params.slug);
@@ -37,6 +38,14 @@ const categories = post.data.terms?.category ?? [];
 	description={seo.description}
 	canonical={seo.canonical}
 	image={seo.ogImage}
+	pageType="article"
+	articleMeta={{
+		publishedTime: post.data.publishedAt?.toISOString() ?? null,
+		modifiedTime: post.data.updatedAt?.toISOString() ?? null,
+		/* A post with no byline is still published by the company; leaving the
+		   field out would make the BlogPosting graph incomplete instead. */
+		author: post.data.bylines?.[0]?.byline.displayName ?? companyName,
+	}}
 	content={{ collection: "posts", id: post.data.id, slug }}
 >
 	<article>

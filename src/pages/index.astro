@@ -7,11 +7,11 @@ import { resolveStarterSiteIdentity } from "../utils/site-identity";
 const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
 	orderBy: { published_at: "desc" },
 });
-const { siteTitle, siteTagline } = resolveStarterSiteIdentity(await getSiteSettings());
+const { siteTitle } = resolveStarterSiteIdentity(await getSiteSettings());
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 ---
 
-<Base title={siteTitle} description={siteTagline}>
+<Base title={siteTitle}>
 	<h1>Recent Posts</h1>
 
 	{posts.length === 0 ? (
