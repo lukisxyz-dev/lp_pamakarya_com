@@ -1,0 +1,654 @@
+---
+/**
+ * Header.astro -- the site's two-layer header.
+ *
+ *   Top strip (navy)   email and the reachable phone number, then the three
+ *                      profiles Pamakarya actually publishes.
+ *   Main bar (white)   logo, the primary menu centred, WhatsApp CTA.
+ *
+ * Why the strip is navy and the bar is white: the logo is orange on dark blue
+ * and only reads on white. The strip carries the brand's other colour, so the
+ * two layers are the brand rather than an arbitrary band.
+ *
+ * Behaviour
+ *   - Both bars are inside one sticky header. On scroll down the header
+ *     translates up by exactly the strip's height, so the strip leaves and the
+ *     white bar stays; on scroll up it comes back. Transform, not height, so
+ *     nothing below the header moves.
+ *   - The strip is decoration around contact details that are also in the
+ *     drawer (mobile) and always present in the DOM, so hiding it costs no
+ *     information.
+ *   - Menu items come from the EmDash `primary` menu. Editors own the labels
+ *     and order; this file owns how they render.
+ */
+import { getMenu, getSiteSettings } from "emdash";
+import Icon from "./Icon.astro";
+import { contact, whatsappLink } from "../data/site";
+import { resolveStarterSiteIdentity } from "../utils/site-identity";
+
+const { siteTitle, siteLogo } = resolveStarterSiteIdentity(await getSiteSettings());
+const menu = await getMenu("primary");
+
+/* The bundled logo is the fallback the site is designed around; a logo chosen
+   in Settings wins, because that is the field the admin exposes. */
+const logoUrl = siteLogo?.url ?? "/logo.png";
+const logoAlt = siteLogo?.alt || siteTitle;
+const logoWidth = siteLogo?.width ?? 1920;
+const logoHeight = siteLogo?.height ?? 768;
+
+/* The generic opener. This is the one CTA on the site chrome: a visitor who
+   taps it has not read a section yet, so the message asks, it does not quote. */
+const waHref = whatsappLink(
+	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
+);
+
+const socials = [
+	{
+		icon: "instagram",
+		label: `Instagram ${contact.instagramHandle}`,
+		href: contact.instagramUrl,
+	},
+	{
+		icon: "store",
+		label: `Tokopedia ${contact.tokopediaHandle}`,
+		href: contact.tokopediaUrl,
+	},
+	{
+		icon: "whatsapp",
+		label: `WhatsApp ${contact.whatsappDisplay}`,
+		href: waHref,
+	},
+] as const;
+
+const navItems = menu?.items ?? [];
+
+/* Active state is computed here, not left to the editor: the menu stores
+   destinations, the current URL decides which one is current. */
+const currentPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isCurrent = (href: string) => {
+	if (!href.startsWith("/")) return false;
+	const path = href.replace(/\/+$/, "") || "/";
+	return path === "/"
+		? currentPath === "/"
+		: currentPath === path || currentPath.startsWith(`${path}/`);
+};
+---
+
+<header class="site-header" data-header data-topbar="shown">
+	<div class="topbar">
+		<div class="shell topbar__inner">
+			<ul class="topbar__contact">
+				<li class="topbar__email">
+					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				</li>
+				<li>
+					<a class="topbar__phone" href={`tel:${contact.phone}`}>
+						{contact.whatsappDisplay}
+					</a>
+				</li>
+			</ul>
+
+			<ul class="topbar__social">
+				{socials.map((social) => (
+					<li>
+						<a href={social.href} aria-label={social.label} target="_blank" rel="noopener">
+							<Icon name={social.icon} size={20} />
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</div>
+
+	<div class="mainbar">
+		<div class="shell mainbar__inner">
+			<a class="mainbar__logo" href="/" aria-label={`${siteTitle} — beranda`}>
+				<img
+					src={logoUrl}
+					alt={logoAlt}
+					width={logoWidth}
+					height={logoHeight}
+					decoding="async"
+					fetchpriority="high"
+				/>
+			</a>
+
+			<nav class="mainbar__nav" aria-label="Navigasi utama">
+				<ul>
+					{navItems.map((item) => (
+						<li>
+							<a
+								href={item.url}
+								target={item.target}
+								aria-current={isCurrent(item.url) ? "page" : undefined}
+							>
+								{item.label}
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+
+			<div class="mainbar__actions">
+				<a class="cta" href={waHref} target="_blank" rel="noopener">
+					<Icon name="whatsapp" size={18} />
+					<span>Konsultasi Gratis</span>
+				</a>
+
+				<button
+					class="burger"
+					type="button"
+					aria-expanded="false"
+					aria-controls="site-drawer"
+					data-drawer-toggle
+				>
+					<Icon name="menu" size={22} />
+					<span class="sr-only">Buka menu</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</header>
+
+<dialog class="drawer" id="site-drawer" aria-label="Menu dan kontak" data-drawer>
+	<div class="drawer__inner shell">
+		<nav class="drawer__nav" aria-label="Navigasi utama">
+			<ul>
+				{navItems.map((item) => (
+					<li>
+						<a
+							href={item.url}
+							target={item.target}
+							aria-current={isCurrent(item.url) ? "page" : undefined}
+						>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+
+		<h2 class="drawer__heading" id="drawer-contact">
+			Hubungi kami
+		</h2>
+		<ul class="drawer__contact" aria-labelledby="drawer-contact">
+			<li>
+				<a href={`mailto:${contact.email}`}>{contact.email}</a>
+			</li>
+			<li>
+				<a href={`tel:${contact.phone}`}>{contact.whatsappDisplay}</a>
+			</li>
+		</ul>
+
+		<ul class="drawer__social">
+			{socials.map((social) => (
+				<li>
+					<a href={social.href} target="_blank" rel="noopener">
+						<Icon name={social.icon} size={20} />
+						<span>{social.label}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	</div>
+</dialog>
+
+<script>
+	const header = document.querySelector<HTMLElement>("[data-header]");
+	const toggle = document.querySelector<HTMLButtonElement>("[data-drawer-toggle]");
+	const drawer = document.querySelector<HTMLDialogElement>("[data-drawer]");
+
+	/**
+	 * Scroll direction. The strip leaves on the way down and returns on the way
+	 * up, and is always present in the first screenful so the header never
+	 * looks like it is missing its own contact details.
+	 */
+	if (header) {
+		let lastY = window.scrollY;
+		let queued = false;
+
+		const settle = () => {
+			queued = false;
+			const y = Math.max(0, window.scrollY);
+			const delta = y - lastY;
+			// Below the jitter threshold, momentum scroll fires dozens of
+			// single-pixel events; acting on those makes the strip stutter.
+			if (Math.abs(delta) < 8) return;
+			lastY = y;
+			const next = y <= 16 || delta < 0 ? "shown" : "hidden";
+			if (header.dataset.topbar !== next) header.dataset.topbar = next;
+		};
+
+		window.addEventListener(
+			"scroll",
+			() => {
+				if (queued || drawer?.open) return;
+				queued = true;
+				requestAnimationFrame(settle);
+			},
+			{ passive: true },
+		);
+
+		// A resize can leave scrollY stale (iOS collapses its toolbar), which
+		// would make the first gesture after it read as a huge jump.
+		window.addEventListener("resize", () => (lastY = Math.max(0, window.scrollY)), {
+			passive: true,
+		});
+	}
+
+	if (drawer && toggle) {
+		const setOpen = (open: boolean) => {
+			if (open && !drawer.open) {
+				// The drawer hangs from the bottom of the strip, so the strip has
+				// to be showing before it opens.
+				if (header) header.dataset.topbar = "shown";
+				drawer.showModal();
+			} else if (!open && drawer.open) {
+				drawer.close();
+			}
+			toggle.setAttribute("aria-expanded", String(open));
+			document.documentElement.classList.toggle("drawer-open", open);
+		};
+
+		toggle.addEventListener("click", () => setOpen(!drawer.open));
+
+		// Escape and the backdrop are the dialog's own gestures; this only
+		// mirrors their result back onto the button and the page.
+		drawer.addEventListener("close", () => {
+			toggle.setAttribute("aria-expanded", "false");
+			document.documentElement.classList.remove("drawer-open");
+		});
+
+		// Clicks on ::backdrop are dispatched on the dialog itself, so a click
+		// that never reached the panel is a click outside it.
+		drawer.addEventListener("click", (event) => {
+			if (event.target === drawer) drawer.close();
+		});
+
+		// Resizing past the breakpoint brings the inline nav back; a modal still
+		// open over it would be inert decoration.
+		matchMedia("(min-width: 900px)").addEventListener("change", (event) => {
+			if (event.matches) setOpen(false);
+		});
+	}
+</script>
+
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: var(--z-header);
+		background: var(--paper);
+		transform: translateY(0);
+		transition: transform var(--dur-chrome) var(--ease-out);
+	}
+
+	.site-header[data-topbar="hidden"] {
+		transform: translateY(calc(-1 * var(--topbar-h)));
+	}
+
+	/* Top strip ------------------------------------------------------------ */
+
+	.topbar {
+		background: var(--navy);
+		color: var(--on-navy);
+	}
+
+	.topbar__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-24);
+		height: var(--topbar-h);
+	}
+
+	.topbar__contact,
+	.topbar__social {
+		display: flex;
+		align-items: center;
+		gap: var(--space-16);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.topbar__contact {
+		min-width: 0;
+		font-size: var(--fs-caption);
+	}
+
+	/* The divider carries structure between two values of the same kind, so it
+	   is a hairline in the strip's own ink rather than a grey. */
+	.topbar__contact li + li {
+		padding-left: var(--space-16);
+		border-left: 1px solid var(--rule-navy);
+	}
+
+	.topbar__contact a {
+		display: block;
+		max-width: 46ch;
+		overflow: hidden;
+		color: inherit;
+		text-decoration: none;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.topbar__phone {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.topbar__contact a:hover,
+	.topbar__social a:hover {
+		color: var(--orange);
+	}
+
+	.topbar__social {
+		gap: var(--space-4);
+	}
+
+	.topbar__social a {
+		display: grid;
+		place-items: center;
+		width: 32px;
+		height: 32px;
+		border-radius: var(--radius-control);
+		color: var(--on-navy-muted);
+		transition: color var(--dur-control) var(--ease-out);
+	}
+
+	/* Main bar ------------------------------------------------------------- */
+
+	.mainbar {
+		background: var(--paper);
+		border-bottom: 1px solid var(--rule);
+	}
+
+	/* Two 1fr columns around the menu is what centres it on the page rather
+	   than on whatever space the logo and the CTA happen to leave. */
+	.mainbar__inner {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: var(--space-16);
+		height: var(--mainbar-h);
+	}
+
+	.mainbar__logo {
+		justify-self: start;
+		display: block;
+	}
+
+	.mainbar__logo img {
+		display: block;
+		width: auto;
+		height: var(--logo-h);
+		/* The logo keeps its ratio wherever the box is capped; a squashed
+		   wordmark is worse than a smaller one. */
+		object-fit: contain;
+	}
+
+	.mainbar__nav {
+		justify-self: center;
+	}
+
+	.mainbar__nav ul {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.mainbar__nav a {
+		display: block;
+		padding: 8px var(--space-12);
+		border-radius: var(--radius-control);
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-medium);
+		text-decoration: none;
+		transition:
+			background-color var(--dur-control) var(--ease-out),
+			color var(--dur-control) var(--ease-out);
+	}
+
+	.mainbar__nav a:hover {
+		background: var(--paper-2);
+	}
+
+	.mainbar__nav a[aria-current="page"] {
+		color: var(--orange-deep);
+		font-weight: var(--fw-semibold);
+	}
+
+	.mainbar__actions {
+		justify-self: end;
+		display: flex;
+		align-items: center;
+		gap: var(--space-8);
+	}
+
+	.cta {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-8);
+		padding: 10px var(--space-16);
+		border-radius: var(--radius-control);
+		background: var(--orange-fill);
+		color: var(--paper);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		text-decoration: none;
+		white-space: nowrap;
+		transition: background-color var(--dur-control) var(--ease-out);
+	}
+
+	.cta:hover {
+		background: var(--orange-deep);
+	}
+
+	.cta:active {
+		transform: translateY(1px);
+	}
+
+	.burger {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		padding: 0;
+		border: 1px solid var(--rule-strong);
+		border-radius: var(--radius-control);
+		background: var(--paper);
+		color: var(--ink);
+		cursor: pointer;
+		transition:
+			border-color var(--dur-control) var(--ease-out),
+			color var(--dur-control) var(--ease-out);
+	}
+
+	.burger:hover {
+		border-color: var(--orange);
+		color: var(--orange-deep);
+	}
+
+	/* Drawer --------------------------------------------------------------- */
+
+	.drawer {
+		position: fixed;
+		/* Anchored to the bottom edge of the two bars, and not stretched to the
+		   viewport bottom the way a UA dialog with both insets set would be. */
+		inset: var(--chrome-h) 0 auto 0;
+		width: 100%;
+		max-width: none;
+		max-height: calc(100dvh - var(--chrome-h));
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-bottom: 1px solid var(--rule-strong);
+		background: var(--paper);
+		color: var(--ink);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		opacity: 0;
+		translate: 0 -8px;
+		transition:
+			opacity var(--dur-chrome) var(--ease-out),
+			translate var(--dur-chrome) var(--ease-out),
+			display var(--dur-chrome) allow-discrete,
+			overlay var(--dur-chrome) allow-discrete;
+	}
+
+	.drawer[open] {
+		opacity: 1;
+		translate: 0 0;
+	}
+
+	@starting-style {
+		.drawer[open] {
+			opacity: 0;
+			translate: 0 -8px;
+		}
+	}
+
+	.drawer::backdrop {
+		background: rgb(14 36 54 / 45%);
+	}
+
+	:global(html.drawer-open) {
+		overflow: hidden;
+	}
+
+	.drawer__inner {
+		padding-block: var(--space-8) var(--space-24);
+	}
+
+	.drawer__nav ul,
+	.drawer__contact,
+	.drawer__social {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.drawer__nav a {
+		display: block;
+		padding: 14px 0;
+		border-bottom: 1px solid var(--rule);
+		color: var(--ink);
+		font-size: 1.0625rem;
+		font-weight: var(--fw-medium);
+		text-decoration: none;
+	}
+
+	.drawer__nav a[aria-current="page"] {
+		color: var(--orange-deep);
+		font-weight: var(--fw-semibold);
+	}
+
+	.drawer__heading {
+		margin: var(--space-24) 0 var(--space-8);
+		color: var(--ink-3);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-semibold);
+	}
+
+	.drawer__contact {
+		font-size: var(--fs-body-s);
+	}
+
+	.drawer__contact a {
+		display: block;
+		padding: 10px 0;
+		color: var(--ink-2);
+		text-decoration: none;
+	}
+
+	.drawer__contact li:last-child a {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.drawer__social a {
+		display: flex;
+		align-items: center;
+		gap: var(--space-12);
+		padding: 10px 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		text-decoration: none;
+	}
+
+	.drawer__nav a:hover,
+	.drawer__contact a:hover,
+	.drawer__social a:hover {
+		color: var(--orange-deep);
+	}
+
+	/* Breakpoints ---------------------------------------------------------- */
+
+	@media (max-width: 899px) {
+		/* The profiles are labelled rows in the drawer at this width; the strip
+		   only has room for the two details that are worth a tap. */
+		.topbar__social {
+			display: none;
+		}
+
+		.mainbar__nav {
+			display: none;
+		}
+
+		.mainbar__inner {
+			/* Nothing is centred at this width -- the menu is in the drawer --
+			   so the logo and the controls keep their natural widths instead of
+			   the equal-column grid squeezing the logo. */
+			grid-template-columns: auto 1fr auto;
+			gap: var(--space-8);
+		}
+
+		.cta {
+			padding: 9px var(--space-12);
+			font-size: var(--fs-caption);
+		}
+
+		/* Without the script there is no drawer and no burger that works, so the
+		   menu has to stay on the page. */
+		:global(html:not(.js)) .mainbar__nav {
+			display: block;
+			justify-self: stretch;
+		}
+
+		:global(html:not(.js)) .mainbar__inner {
+			grid-template-columns: auto 1fr auto;
+			height: auto;
+			padding-block: var(--space-8);
+		}
+
+		:global(html:not(.js)) .mainbar__nav ul {
+			flex-wrap: wrap;
+		}
+
+		:global(html:not(.js)) .burger {
+			display: none;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.burger {
+			display: none;
+		}
+	}
+
+	@media (max-width: 559px) {
+		.topbar__email {
+			display: none;
+		}
+
+		.topbar__contact li + li {
+			padding-left: 0;
+			border-left: 0;
+		}
+	}
+</style>

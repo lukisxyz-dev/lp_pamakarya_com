@@ -1,0 +1,60 @@
+---
+/**
+ * Icon.astro -- the header's glyphs, inline SVG.
+ *
+ * Two kinds, deliberately kept apart:
+ *
+ *   Brand marks (instagram, whatsapp, store) are filled paths taken verbatim
+ *   from src/data/brand-icons.ts. Logos are not redrawn here; a hand-drawn
+ *   approximation of a logo reads as a mistake, so the paths are copied and
+ *   only wrapped in `currentColor`.
+ *
+ *   UI glyphs (menu, close) are geometry this file owns: axis-aligned lines
+ *   on the same 24 grid, stroked at 1.75, so the two draw as one family with
+ *   the brand row's optical weight.
+ *
+ * Every icon is `aria-hidden`: each one sits inside a link or button that
+ * already carries a name, so announcing the icon would only repeat it.
+ */
+import { brandIconPaths, type BrandIconName } from "../data/brand-icons";
+
+type GlyphName = "menu" | "close";
+
+interface Props {
+	name: GlyphName | BrandIconName;
+	/** Square size in px. 20 in the strip, 18–22 in controls. */
+	size?: number;
+}
+
+const { name, size = 20 } = Astro.props;
+
+const glyphs: Record<GlyphName, string> = {
+	menu: "M4 7h16M4 12h16M4 17h16",
+	close: "M6 6l12 12M18 6L6 18",
+};
+
+const isBrand = name in brandIconPaths;
+const d = isBrand ? brandIconPaths[name as BrandIconName] : glyphs[name as GlyphName];
+
+/** Brand marks are filled; authored glyphs are stroked. */
+const paint = isBrand
+	? ({ fill: "currentColor", stroke: "none" } as const)
+	: ({
+			fill: "none",
+			stroke: "currentColor",
+			"stroke-width": 1.75,
+			"stroke-linecap": "round",
+			"stroke-linejoin": "round",
+		} as const);
+---
+
+<svg width={size} height={size} viewBox="0 0 24 24" {...paint} aria-hidden="true" focusable="false">
+	<path d={d}></path>
+</svg>
+
+<style>
+	svg {
+		display: block;
+		flex: none;
+	}
+</style>

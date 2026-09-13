@@ -16,3 +16,8 @@ data.db-wal
 
 # Wrangler local state (created by dev/build)
 .wrangler
+
+# Local agent tooling, installed per machine (npx impeccable install).
+# The skill ships a platform binary; it is not project source.
+.agents/skills/impeccable/
+.codex/

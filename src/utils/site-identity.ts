@@ -3,6 +3,9 @@ export interface MediaReference {
 	mediaId: string;
 	alt?: string;
 	url?: string;
+	/** Intrinsic pixel size, resolved alongside the URL. */
+	width?: number;
+	height?: number;
 }
 
 export interface StarterSiteIdentitySettings {

@@ -1,0 +1,214 @@
+/*
+  theme.css -- the site's tokens plus the handful of base rules that belong to
+  the whole document. The starter ships without this file on purpose; this is
+  that file, created for the Pamakarya revamp.
+
+  Ground. Both brand colours are sampled from public/logo.png: the mark is
+  orange #F25719 on dark blue #14334B. Everything below is either one of those
+  two or derived from them -- there is no third hue, and no grey that is not a
+  tint of the navy.
+
+  The two oranges are not interchangeable:
+
+    --orange       #F25719   3.41:1 on white
+      Graphics only: brand marks, the focus ring, the active-nav rule. It
+      passes 1.4.11 (non-text, 3:1) in both the white bar and the navy strip,
+      and fails 1.4.3 the moment a label sits on it.
+
+    --orange-fill  #D1440D   4.62:1 with white text on it
+      Every filled CTA. Using brand orange as the button fill would put white
+      on 3.41:1, so the button keeps the hue and drops one step in value.
+
+    --orange-deep  #B33A0B   5.95:1
+      Where orange has to be text, or where a filled button is pressed. Both
+      directions clear 4.5:1, which is why it is one token and not two.
+
+  There is no dark theme and no theme toggle. The header two-tone -- dark navy
+  strip over a white bar -- is the design on every page in every OS setting,
+  because the logo only reads on white.
+
+  Only the tokens the current UI actually uses are defined. Section styles,
+  headings, and forms are added when the pages that need them exist.
+*/
+
+:root {
+	/* Brand */
+	--navy: #14334b;
+	--navy-deep: #0e2436;
+	--orange: #f25719;
+	--orange-fill: #d1440d;
+	--orange-deep: #b33a0b;
+
+	/* Surfaces and text */
+	--paper: #ffffff;
+	--paper-2: #f5f7f9;
+	--ink: #14334b;
+	--ink-2: #4c5a66;
+	--ink-3: #66747f;
+	--on-navy: #eaf1f6;
+	--on-navy-muted: #93a9bc;
+
+	/* Boundaries. --rule is decorative (1.3:1, cannot carry meaning);
+	   --rule-strong is every boundary that does (3.12:1 on paper). */
+	--rule: #dbe2e8;
+	--rule-strong: #8494a0;
+
+	/* On-navy hairlines: the strip's own boundaries */
+	--rule-navy: rgba(255, 255, 255, 0.16);
+
+	/* Type. Open Runde is the only family on the site and is registered by the
+	   font pipeline in astro.config.mjs, which emits --font-open-runde and the
+	   metric-matched fallback stack with it. */
+	--font-body: var(--font-open-runde);
+	--fw-regular: 400;
+	--fw-medium: 500;
+	--fw-semibold: 600;
+	--fw-bold: 700;
+
+	--fs-label: 0.75rem; /* 12px -- floor for any text on the site */
+	--fs-caption: 0.8125rem; /* 13px */
+	--fs-body-s: 0.9375rem; /* 15px */
+	--fs-body: 1rem;
+
+	--lh-tight: 1.3;
+	--lh-body: 1.6;
+
+	/* Space */
+	--space-4: 4px;
+	--space-8: 8px;
+	--space-12: 12px;
+	--space-16: 16px;
+	--space-24: 24px;
+	--space-32: 32px;
+	--space-48: 48px;
+	--space-64: 64px;
+
+	/* Layout */
+	--content-max: 1120px;
+	--gutter: 16px;
+	--gutter-lg: 24px;
+
+	/* Shape. Square by default, 2px on controls and only 2px. */
+	--radius: 0;
+	--radius-control: 2px;
+
+	/* Motion. One easing for chrome, one authored moment (the header's scroll
+	   reveal). Exponential ease-out, from an already-visible default. */
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--dur-chrome: 320ms;
+	--dur-control: 160ms;
+
+	--z-header: 60;
+
+	/* Chrome. The header's two bars are fixed heights so the strip can slide
+	   out of view with a transform instead of a height animation: the header
+	   reserves both bars' space once, and translating it up by the strip's
+	   height leaves the white bar at the top of the viewport with no layout
+	   shift under it. --chrome-h is what the mobile drawer hangs from. */
+	--topbar-h: 40px;
+	--mainbar-h: 76px;
+	--logo-h: 40px;
+	--chrome-h: calc(var(--topbar-h) + var(--mainbar-h));
+}
+
+@media (max-width: 899px) {
+	:root {
+		--topbar-h: 36px;
+		--mainbar-h: 60px;
+		--logo-h: 30px;
+	}
+}
+
+@media (min-width: 1024px) {
+	:root {
+		--gutter: var(--gutter-lg);
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: var(--fs-body);
+	font-weight: var(--fw-regular);
+	line-height: var(--lh-body);
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Browser surfaces belong to the palette too. */
+::selection {
+	background: var(--navy);
+	color: var(--paper);
+}
+
+:focus-visible {
+	outline: 2px solid var(--orange);
+	outline-offset: 2px;
+	border-radius: 1px;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* The page container every band and bar shares. */
+.shell {
+	width: 100%;
+	max-width: var(--content-max);
+	margin-inline: auto;
+	padding-inline: var(--gutter);
+}
+
+/* Revealed only on focus: the header is a lot of tab stops to walk through on
+   every page, so the way past it has to be the first thing a keyboard finds. */
+.skip-link {
+	position: absolute;
+	left: var(--gutter);
+	top: 0;
+	z-index: calc(var(--z-header) + 1);
+	padding: 10px var(--space-16);
+	background: var(--navy);
+	color: var(--paper);
+	font-size: var(--fs-body-s);
+	font-weight: var(--fw-medium);
+	text-decoration: none;
+	translate: 0 -120%;
+}
+
+.skip-link:focus-visible {
+	translate: 0 0;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}

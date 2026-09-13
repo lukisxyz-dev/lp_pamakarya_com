@@ -1,9 +1,11 @@
 ---
-import { getMenu, getSiteSettings } from "emdash";
+import { getSiteSettings } from "emdash";
 import { WidgetArea, EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
-import LiveSearch from "emdash/ui/search";
+import { Font } from "astro:assets";
+import Header from "../components/Header.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import "../styles/theme.css";
 
 interface Props {
 	title: string;
@@ -16,11 +18,9 @@ interface Props {
 }
 
 const { title, pageTitle, description, image, canonical, content } = Astro.props;
-const { siteTitle, siteTagline, siteLogo } = resolveStarterSiteIdentity(await getSiteSettings());
+const { siteTitle, siteTagline } = resolveStarterSiteIdentity(await getSiteSettings());
 const fullTitle = title.includes(siteTitle) ? title : `${title} — ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
-
-const menu = await getMenu("primary");
 
 const pageCtx = createPublicPageContext({
 	Astro,
@@ -37,41 +37,37 @@ const pageCtx = createPublicPageContext({
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="id">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{fullTitle}</title>
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
+		<Font
+			cssVariable="--font-open-runde"
+			preload={[
+				{ weight: 400, style: "normal" },
+				{ weight: 600, style: "normal" },
+			]}
+		/>
+		{/* Marks the document as scripted before first paint: the mobile menu
+		    lives behind a button, and a reader without the script must still
+		    get it, so the CSS that collapses the nav is gated on this class. */}
+		<script is:inline>
+			document.documentElement.classList.add("js");
+		</script>
 		<EmDashHead page={pageCtx} />
 	</head>
 	<body>
 		<EmDashBodyStart page={pageCtx} />
 
-		<header>
-			<nav>
-				<a href="/">
-					{siteLogo ? (
-						<img
-							src={siteLogo.url}
-							alt={siteLogo.alt || siteTitle}
-							style="height:48px;width:auto;margin:-8px 0;display:block;"
-						/>
-					) : (
-						siteTitle
-					)}
-				</a>
-				{menu?.items.map((item) => (
-					<a href={item.url} target={item.target}>
-						{item.label}
-					</a>
-				))}
-				<LiveSearch placeholder="Search..." collections={["posts", "pages"]} />
-			</nav>
-		</header>
+		<a class="skip-link" href="#main">
+			Lewati ke konten
+		</a>
+		<Header />
 
-		<main>
+		<main id="main">
 			<slot />
 		</main>
 

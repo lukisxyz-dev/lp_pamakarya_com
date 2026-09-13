@@ -7,8 +7,8 @@
 		"author": "EmDash"
 	},
 	"settings": {
-		"title": "My Site",
-		"tagline": "Built with EmDash"
+		"title": "Pamakarya",
+		"tagline": "Custom Laser Cutting & Fabrikasi"
 	},
 	"collections": [
 		{
@@ -104,22 +104,27 @@
 	"menus": [
 		{
 			"name": "primary",
-			"label": "Primary Navigation",
+			"label": "Navigasi Utama",
 			"items": [
 				{
 					"type": "custom",
-					"label": "Home",
-					"url": "/"
-				},
-				{
-					"type": "custom",
-					"label": "Posts",
-					"url": "/posts"
-				},
-				{
-					"type": "custom",
-					"label": "About",
+					"label": "Tentang Kami",
 					"url": "/about"
+				},
+				{
+					"type": "custom",
+					"label": "Layanan",
+					"url": "/jasa"
+				},
+				{
+					"type": "custom",
+					"label": "Portofolio",
+					"url": "/portfolio"
+				},
+				{
+					"type": "custom",
+					"label": "Kontak",
+					"url": "/contact"
 				}
 			]
 		}
