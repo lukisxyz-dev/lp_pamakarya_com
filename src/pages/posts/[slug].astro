@@ -58,10 +58,11 @@ const categories = post.data.terms?.category ?? [];
 			</time>
 		)}
 
+		{/* Labels only: this project has no taxonomy archive routes. */}
 		{categories.length > 0 && (
 			<div>
 				{categories.map((c) => (
-					<a href={`/category/${c.slug}`}>{c.label}</a>
+					<span>{c.label}</span>
 				))}
 			</div>
 		)}
@@ -71,7 +72,7 @@ const categories = post.data.terms?.category ?? [];
 		{tags.length > 0 && (
 			<div>
 				{tags.map((t) => (
-					<a href={`/tag/${t.slug}`}>{t.label}</a>
+					<span>{t.label}</span>
 				))}
 			</div>
 		)}

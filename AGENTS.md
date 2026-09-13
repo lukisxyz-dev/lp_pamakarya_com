@@ -55,24 +55,26 @@ This template ships with `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json`
 
 A general-purpose starting point with posts, pages, categories, and tags. Less opinionated than the themed templates -- a base for sites that want to define their own design.
 
-There is intentionally no `theme.css`, no custom font configuration, no styled layouts beyond browser defaults. The home, posts index, post detail, page, category, and tag pages all render with minimal styling. Start here if you want full control over the visual language; start with `blog`, `portfolio`, or `marketing` if you want a designed template to customise.
+There is intentionally no `theme.css`, no custom font configuration, no styled layouts beyond browser defaults. The home, posts index, post detail, and page routes all render with minimal styling. Start here if you want full control over the visual language; start with `blog`, `portfolio`, or `marketing` if you want a designed template to customise.
 
 ## Pages
 
-| Page        | Path               | What it shows                                  |
-| ----------- | ------------------ | ---------------------------------------------- |
-| Home        | `/`                | Site title + tagline, links into Posts / About |
-| All posts   | `/posts`           | Post list                                      |
-| Post detail | `/posts/[slug]`    | Post content                                   |
-| Page        | `/[slug]`          | Static page content (e.g. `/about`)            |
-| Category    | `/category/[slug]` | Posts filtered by category                     |
-| Tag         | `/tag/[slug]`      | Posts filtered by tag                          |
+| Page        | Path            | What it shows                                  |
+| ----------- | --------------- | ---------------------------------------------- |
+| Home        | `/`             | Site title + tagline, links into Posts / About |
+| All posts   | `/posts`        | Post list                                      |
+| Post detail | `/posts/[slug]` | Post content                                   |
+| Page        | `/[slug]`       | Static page content (e.g. `/about`)            |
 
 ## Schema
 
 - `posts` collection: `title`, `featured_image`, `content` (Portable Text), `excerpt` (text).
 - `pages` collection: `title`, `content` (Portable Text).
-- Taxonomies: `category`, `tag`.
+- Taxonomies: `category`, `tag`. They are defined in the seed and assigned to
+  posts, but there are no `/category/[slug]` or `/tag/[slug]` archive routes in
+  this project. Term labels therefore render as text, never as links -- a link
+  would point at a missing route. Do not add term links without adding the
+  archive route they target.
 - Single `primary` menu.
 
 Site settings have `title` and `tagline`.

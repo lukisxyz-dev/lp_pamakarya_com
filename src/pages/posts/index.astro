@@ -36,9 +36,10 @@ const postsWithTags = posts.map((post) => ({
 					</a>
 					{post.data.excerpt && <p>{post.data.excerpt}</p>}
 					{tags.length > 0 && (
+						// Labels only: this project has no taxonomy archive routes.
 						<div>
 							{tags.map((t) => (
-								<a href={`/tag/${t.slug}`}>{t.label}</a>
+								<span>{t.label}</span>
 							))}
 						</div>
 					)}

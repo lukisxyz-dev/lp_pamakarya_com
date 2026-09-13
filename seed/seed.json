@@ -137,11 +137,6 @@
 				},
 				{
 					"type": "component",
-					"componentId": "core:categories",
-					"title": "Categories"
-				},
-				{
-					"type": "component",
 					"componentId": "core:recent-posts",
 					"title": "Recent Posts",
 					"settings": {

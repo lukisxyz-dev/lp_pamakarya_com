@@ -6,7 +6,7 @@ A general-purpose starting point for building sites with [EmDash](https://github
 
 ## What's Included
 
-- Posts with category and tag archives
+- Posts with category and tag classification
 - Static pages via slug routing
 - Seed data with demo content
 - D1 database and R2 storage pre-configured
@@ -14,15 +14,13 @@ A general-purpose starting point for building sites with [EmDash](https://github
 
 ## Pages
 
-| Page             | Route             |
-| ---------------- | ----------------- |
-| Homepage         | `/`               |
-| All posts        | `/posts`          |
-| Single post      | `/posts/:slug`    |
-| Category archive | `/category/:slug` |
-| Tag archive      | `/tag/:slug`      |
-| Static pages     | `/:slug`          |
-| 404              | fallback          |
+| Page         | Route          |
+| ------------ | -------------- |
+| Homepage     | `/`            |
+| All posts    | `/posts`       |
+| Single post  | `/posts/:slug` |
+| Static pages | `/:slug`       |
+| 404          | fallback       |
 
 ## Infrastructure
 
