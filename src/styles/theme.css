@@ -105,7 +105,7 @@
 	   reserves both bars' space once, and translating it up by the strip's
 	   height leaves the white bar at the top of the viewport with no layout
 	   shift under it. --chrome-h is what the mobile drawer hangs from. */
-	--topbar-h: 40px;
+	--topbar-h: 32px;
 	--mainbar-h: 76px;
 	--logo-h: 40px;
 	--chrome-h: calc(var(--topbar-h) + var(--mainbar-h));
@@ -113,7 +113,7 @@
 
 @media (max-width: 899px) {
 	:root {
-		--topbar-h: 36px;
+		--topbar-h: 30px;
 		--mainbar-h: 60px;
 		--logo-h: 30px;
 	}

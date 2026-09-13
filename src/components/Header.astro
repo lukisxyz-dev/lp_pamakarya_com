@@ -92,7 +92,7 @@ const isCurrent = (href: string) => {
 				{socials.map((social) => (
 					<li>
 						<a href={social.href} aria-label={social.label} target="_blank" rel="noopener">
-							<Icon name={social.icon} size={20} />
+							<Icon name={social.icon} size={16} />
 						</a>
 					</li>
 				))}
@@ -350,8 +350,10 @@ const isCurrent = (href: string) => {
 	.topbar__social a {
 		display: grid;
 		place-items: center;
-		width: 32px;
-		height: 32px;
+		/* 28px box for a 16px mark: still over the 24px minimum target, without
+		   a strip tall enough to hold a bigger one. */
+		width: 28px;
+		height: 28px;
 		border-radius: var(--radius-control);
 		color: var(--on-navy-muted);
 		transition: color var(--dur-control) var(--ease-out);
