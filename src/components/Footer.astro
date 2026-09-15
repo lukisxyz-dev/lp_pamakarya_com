@@ -13,7 +13,7 @@
  * privacy, terms, or legal page on this site, so none is linked; a footer link
  * to a route that does not exist is worse than a short footer.
  */
-import { getMenu, getSiteSettings } from "emdash";
+import { getMenu, getSiteSettings, slugify } from "emdash";
 import Icon from "./Icon.astro";
 import { business, contact, whatsappLink } from "../data/site";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
@@ -82,7 +82,7 @@ const year = new Date().getFullYear();
 			<ul class="site-footer__list" role="list">
 				{business.serviceUnits.map((unit) => (
 					<li>
-						<a href="/jasa#layanan">{unit.name}</a>
+						<a href={`/jasa#${slugify(unit.name)}`}>{unit.name}</a>
 					</li>
 				))}
 			</ul>

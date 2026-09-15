@@ -141,7 +141,7 @@ export const business = {
 	/** The about page's own list of industries served. */
 	sectors: ["Otomotif", "Elektronik", "Arsitektur", "Interior", "Konstruksi", "Industri kreatif"],
 	/** The mark, and its real pixel size -- the size the file on disk has. */
-	logo: { path: "/logo.png", width: 1920, height: 768 },
+	logo: { path: "/logo.png", width: 450, height: 180 },
 } as const;
 
 /** One reason to choose the company. */

@@ -15,8 +15,8 @@ const menu = await getMenu("primary");
 /* A logo chosen in Settings wins; the bundled one is the fallback. */
 const logoUrl = siteLogo?.url ?? "/logo.png";
 const logoAlt = siteLogo?.alt || siteTitle;
-const logoWidth = siteLogo?.width ?? 1920;
-const logoHeight = siteLogo?.height ?? 768;
+const logoWidth = siteLogo?.width ?? 450;
+const logoHeight = siteLogo?.height ?? 180;
 
 /* One CTA on the chrome, and the visitor has read nothing yet: it asks. */
 const waHref = whatsappLink(

@@ -57,6 +57,25 @@ const services = business.serviceUnits.map((unit, index) => ({
 	</div>
 </section>
 
+<script>
+	const tiles = document.querySelectorAll<HTMLElement>(".services__cell");
+
+	if (tiles.length > 0) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					entry.target.classList.add("is-live");
+					observer.unobserve(entry.target);
+				}
+			},
+			{ rootMargin: "200px" },
+		);
+
+		for (const tile of tiles) observer.observe(tile);
+	}
+</script>
+
 <style>
 	.services__grid {
 		display: grid;
@@ -94,15 +113,20 @@ const services = business.serviceUnits.map((unit, index) => ({
 
 	.services__cell::before {
 		background: var(--still, none) center / cover no-repeat;
+		/* The six photos carry blown-out highlights in the rows the words sit
+		   on; dimming the layer is what lets one shared scrim hold 4.5:1. */
+		filter: brightness(0.9);
 		transition: scale var(--dur-control) var(--ease-out);
 	}
 
+	/* Must stay >=0.76 wherever the name or the sentence can land: at 0.6 the
+	   measured worst case was 4.11:1 (name) and 2.7:1 (index) on the fasad tile. */
 	.services__cell::after {
 		background: linear-gradient(
 			to top,
 			rgba(6, 20, 34, 0.94),
-			rgba(6, 20, 34, 0.6) 55%,
-			rgba(6, 20, 34, 0.22)
+			rgba(6, 20, 34, 0.76) 80%,
+			rgba(6, 20, 34, 0.2)
 		);
 	}
 
@@ -110,26 +134,34 @@ const services = business.serviceUnits.map((unit, index) => ({
 		position: relative;
 	}
 
-	/* Motion is opt-in: a still frame is the default, six loops are the upgrade. */
+	/* Motion is opt-in: a still frame is the default, six loops are the upgrade.
+	   `is-live` arrives from the observer below, so the band costs the still
+	   frames up front (~68 KB) instead of every loop (~1 MB) on page load. */
 	@media (prefers-reduced-motion: no-preference) {
-		.services__cell::before {
+		.services__cell.is-live::before {
 			background-image: var(--anim, none);
 		}
 
-		.services__cell:hover::before {
+		.services__cell.is-live:hover::before {
 			scale: 1.05;
 		}
 	}
 
-	/* The index is the only orange on the cell, and it is not the headline:
-	   it numbers the sheet, so it stays small and quiet. --orange, not
-	   --orange-deep, which is 2.7:1 on the navy tile. */
+	/* The index numbers the sheet, so it keeps the brand's orange -- as a filled
+	   disc carrying navy, the same control Process.astro draws. Orange on the
+	   scrim itself measured 1.0-1.7:1 over the photo tiles. */
 	.services__index {
-		color: var(--orange);
+		display: grid;
+		place-items: center;
+		align-self: flex-start;
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		background: var(--orange);
+		color: var(--navy-deep);
 		font-size: var(--fs-label);
 		font-weight: var(--fw-bold);
 		font-variant-numeric: tabular-nums;
-		letter-spacing: 0.08em;
 		margin-bottom: 12px;
 	}
 

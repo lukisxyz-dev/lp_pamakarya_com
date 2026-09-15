@@ -30,36 +30,17 @@ import { business, companyName, contact, faqs } from "../data/site";
 interface Props {
 	/** The page context the layout built. EmDash reads it for its own tags. */
 	page: ReturnType<typeof createPublicPageContext>;
-	/** The page's own name, without the site name. */
-	title: string;
-	siteTitle: string;
-	siteTagline?: string | null;
-	/** From Settings -> SEO. EmDash's own default is a vertical bar. */
-	titleSeparator?: string | null;
+	/** The document title, already resolved by Base.astro. */
+	fullTitle: string;
 	/** Pages that must stay out of the index, such as the 404. */
 	noindex?: boolean;
 	/** Adds a FAQPage node for the list `faqs` in src/data/site.ts. */
 	faqSchema?: boolean;
 }
 
-const { page, title, siteTitle, siteTagline, titleSeparator, noindex, faqSchema } = Astro.props;
+const { page, fullTitle, noindex, faqSchema } = Astro.props;
 
-const separator = titleSeparator ?? " | ";
 const siteUrl = (page.siteUrl ?? Astro.url.origin).replace(/\/+$/, "");
-
-/**
- * Titles read "<page> | Pamakarya". The homepage has no page name of its own,
- * so the tagline takes that slot rather than repeating the site name alone --
- * "Pamakarya | Custom Laser Cutting & Fabrikasi" is what the live site's own
- * `<title>` says, and it is the sentence a search result needs.
- */
-const pageName = title.trim();
-const fullTitle =
-	!pageName || pageName === siteTitle
-		? [siteTitle, siteTagline].filter(Boolean).join(separator)
-		: pageName.includes(siteTitle)
-			? pageName
-			: [pageName, siteTitle].join(separator);
 
 /**
  * A self-referencing canonical for every page that does not already have one.

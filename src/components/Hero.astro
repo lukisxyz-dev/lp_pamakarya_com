@@ -2,30 +2,39 @@
 /**
  * Hero.astro -- the homepage's first screen, mirroring the reference mock
  * (pamakarya-header-hero.html): a blurred workshop photo under a navy-tinted
- * gradient, copy on the left, trust list, WhatsApp CTA plus a ghost link.
+ * gradient, copy on the left, WhatsApp CTA plus a ghost link.
  *
- * Height contract: topbar + mainbar + hero == one viewport, exactly. The
- * hero's height is 100vh minus the chrome token (--chrome-h) the header
- * already exports; svh wins where supported, because on mobile it tracks the
- * visible viewport instead of the one the URL bar borrows.
+ * Height contract: topbar + mainbar + hero == one viewport, exactly. The copy
+ * scales with that same height, and 560px is the floor -- the hero is a
+ * min-height, so a longer copy grows the section instead of being clipped.
  *
- * The copy inside scales with that same height: padding, headline size and
- * the gaps between blocks are fractions of the viewport, so a short window
- * tightens the screen instead of spilling out of it. 560px is the floor --
- * below it the page scrolls rather than clipping the CTA.
+ * Contrast contract: the scrim keeps every string over the photo at 4.5:1
+ * (white and white@0.82) and the orange accent at 3:1. The ramp is anchored to
+ * the copy column rather than to viewport percentages, and the calc() stops
+ * fall past the end on narrow screens, where it degrades to a flat 0.94-0.88
+ * wash. Verified against the photo at 390 through 1920 with the copy box dark
+ * enough for the strictest of the three.
  */
+import { Image } from "astro:assets";
 import Icon from "./Icon.astro";
+import heroPhoto from "../assets/hero-laser.jpg";
 import { whatsappLink } from "../data/site";
 
-/*
- * Every line traces to what Pamakarya publishes (src/data/site.ts) or the
- * client's own words; no claims of experience it cannot evidence.
- */
 const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser cutting.");
 ---
 
 <section class="hero">
-	<div class="hero__photo" aria-hidden="true"></div>
+	<div class="hero__photo" aria-hidden="true">
+		<Image
+			class="hero__img"
+			src={heroPhoto}
+			alt=""
+			widths={[640, 960, 1280, 1920]}
+			sizes="100vw"
+			priority
+			fetchpriority="high"
+		/>
+	</div>
 	<div class="hero__overlay" aria-hidden="true"></div>
 
 	<div class="shell hero__inner">
@@ -60,7 +69,6 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		position: relative;
 		display: flex;
 		align-items: center;
-		overflow: hidden;
 		background: var(--navy-deep);
 		/* The rhythm is a share of the screen the hero has to fit into, so a
 		   short window tightens the copy rather than overflowing it. The maxima
@@ -68,51 +76,54 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		   below, these are the vh fallbacks. */
 		--hero-pad-y: clamp(24px, 5vh, 72px);
 		--hero-fs-h1: clamp(2rem, min(1.1rem + 3vw, 7vh), 3.25rem);
-		--hero-gap-xs: clamp(8px, 1.1vh, 12px);
 		--hero-gap-sm: clamp(12px, 1.8vh, 20px);
 		--hero-gap-md: clamp(14px, 2.4vh, 28px);
-		--hero-gap-lg: clamp(20px, 3.2vh, 36px);
 		/* Topbar + mainbar + hero == exactly one viewport. */
-		height: max(560px, calc(100vh - var(--chrome-h)));
+		min-height: max(560px, calc(100vh - var(--chrome-h)));
 	}
 
 	@supports (height: 100svh) {
 		.hero {
 			--hero-pad-y: clamp(24px, 5svh, 72px);
 			--hero-fs-h1: clamp(2rem, min(1.1rem + 3vw, 7svh), 3.25rem);
-			--hero-gap-xs: clamp(8px, 1.1svh, 12px);
 			--hero-gap-sm: clamp(12px, 1.8svh, 20px);
 			--hero-gap-md: clamp(14px, 2.4svh, 28px);
-			--hero-gap-lg: clamp(20px, 3.2svh, 36px);
-			height: max(560px, calc(100svh - var(--chrome-h)));
+			min-height: max(560px, calc(100svh - var(--chrome-h)));
 		}
 	}
 
-	/* The photo lives on its own layer so the softening filter never reaches
-	   the text above it; the overscan hides the blur's edge. */
+	/* The photo lives on its own clipped layer, so the softening filter never
+	   reaches the text and the blur cannot bleed past the section. */
 	.hero__photo {
 		position: absolute;
-		inset: -16px;
-		background: url("/hero-laser.jpg") center / cover no-repeat;
-		filter: blur(1.5px) grayscale(10%) brightness(0.82) saturate(1.05);
-		transform: scale(1.03);
+		inset: 0;
+		overflow: hidden;
 	}
 
+	.hero__img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transform: scale(1.03);
+		filter: blur(1.5px) grayscale(10%) brightness(0.82) saturate(1.05);
+	}
+
+	/* Dark through the copy column, thinning to the photo on the right. The
+	   calc() anchors keep the dark part under the text at every width; past the
+	   gradient's end they collapse, which is the flat wash narrow screens want. */
 	.hero__overlay {
 		position: absolute;
 		inset: 0;
 		background:
-			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04), transparent 40%),
+			radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.03), transparent 40%),
 			linear-gradient(
 				100deg,
-				rgba(14, 36, 54, 0.9) 0%,
-				rgba(14, 36, 54, 0.95) 24%,
-				rgba(14, 36, 54, 0.84) 44%,
-				rgba(14, 36, 54, 0.42) 64%,
-				rgba(14, 36, 54, 0.12) 82%,
+				rgba(14, 36, 54, 0.94) 0,
+				rgba(14, 36, 54, 0.88) calc(50% + 400px),
+				rgba(14, 36, 54, 0.46) calc(50% + 640px),
+				rgba(14, 36, 54, 0.14) calc(50% + 880px),
 				rgba(14, 36, 54, 0.05) 100%
-			),
-			radial-gradient(ellipse 900px 600px at 78% 40%, rgba(242, 87, 25, 0.16), transparent 62%);
+			);
 	}
 
 	.hero__inner {
@@ -148,27 +159,6 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		margin-bottom: var(--hero-gap-md);
 	}
 
-	.hero__badge {
-		flex: none;
-		width: 18px;
-		height: 18px;
-		border-radius: 50%;
-		background: var(--orange);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.hero__badge svg {
-		width: 10px;
-		height: 10px;
-		fill: none;
-		stroke: #fff;
-		stroke-width: 3;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
 	.hero__cta {
 		display: flex;
 		align-items: center;
@@ -191,10 +181,6 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 			animation-delay: 140ms;
 		}
 
-		.hero__content > *:nth-child(4) {
-			animation-delay: 210ms;
-		}
-
 		@keyframes hero-rise {
 			from {
 				opacity: 0;
@@ -208,12 +194,12 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		   560px holds: the widest floor wins, so the screen scrolls instead of
 		   cutting the CTA. */
 		.hero {
-			height: max(640px, calc(100vh - var(--chrome-h)));
+			min-height: max(640px, calc(100vh - var(--chrome-h)));
 		}
 
 		@supports (height: 100svh) {
 			.hero {
-				height: max(640px, calc(100svh - var(--chrome-h)));
+				min-height: max(640px, calc(100svh - var(--chrome-h)));
 			}
 		}
 

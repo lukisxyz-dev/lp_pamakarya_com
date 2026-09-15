@@ -20,14 +20,17 @@ The admin UI is at `http://localhost:4321/_emdash/admin`.
 
 ## Key Files
 
-| File                     | Purpose                                                                            |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| `astro.config.mjs`       | Astro config with `emdash()` integration, database, and storage                    |
-| `src/live.config.ts`     | EmDash loader registration (boilerplate -- don't modify)                           |
-| `seed/seed.json`         | Schema definition + demo content (collections, fields, taxonomies, menus, widgets) |
-| `emdash-env.d.ts`        | Generated types for collections (auto-regenerated on dev server start)             |
-| `src/layouts/Base.astro` | Base layout with EmDash wiring (menus, search, page contributions)                 |
-| `src/pages/`             | Astro pages -- all server-rendered                                                 |
+| File                              | Purpose                                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------------------ |
+| `astro.config.mjs`                | Astro config with `emdash()` integration, database, and storage                            |
+| `src/live.config.ts`              | EmDash loader registration (boilerplate -- don't modify)                                   |
+| `seed/seed.json`                  | Schema definition + demo content (collections, fields, taxonomies, menus, widgets)         |
+| `emdash-env.d.ts`                 | Generated types for collections (auto-regenerated on dev server start)                     |
+| `src/layouts/Base.astro`          | Base layout with EmDash wiring (menus, search, page contributions)                         |
+| `src/pages/`                      | Astro pages -- all server-rendered                                                         |
+| `src/pages/robots.txt.ts`         | Replaces EmDash's robots.txt so it can name both sitemaps                                  |
+| `src/pages/sitemap-static.xml.ts` | The four Astro routes; EmDash's `/sitemap.xml` lists CMS collections only                  |
+| `public/`                         | `logo.png`, the icon set (`favicon.ico`, `icon-192.png`, `apple-touch-icon.png`), `og.jpg` |
 
 ## Skills
 
@@ -50,7 +53,7 @@ This template ships with `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json`
 - All content pages must be server-rendered (`output: "server"`). No `getStaticPaths()` for CMS content.
 - Image fields are objects (`{ src, alt }`), not strings. Use `<Image image={...} />` from `"emdash/ui"`.
 - `entry.id` is the slug (for URLs). `entry.data.id` is the database ULID (for API calls like `getEntryTerms`).
-- Always call `Astro.cache.set(cacheHint)` on pages that query content.
+- `Astro.cache.set(cacheHint)` is per-route and merges across calls. `Base.astro` sets the settings and primary-menu tags for every route; pages that query a collection add their own `cacheHint` on top.
 - Taxonomy names in queries must match the seed's `"name"` field exactly (e.g., `"category"` not `"categories"`).
 - Comments: 3 lines maximum, only where the code cannot say it. No narration of the
   next line, no restating what a selector or a value already says. No comment is

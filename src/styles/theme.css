@@ -262,7 +262,9 @@ img {
 
 .band--ink .btn--ghost,
 .on-ink .btn--ghost {
-	border-color: rgba(255, 255, 255, 0.3);
+	/* 0.5 white is 4.99:1 on navy-deep; at 0.3 the outline measured 2.70:1,
+		   under the 3:1 a control's boundary needs. */
+	border-color: rgba(255, 255, 255, 0.5);
 }
 
 .band--ink .btn--ghost:hover,

@@ -1,5 +1,5 @@
 ---
-import { getSiteSettings } from "emdash";
+import { getMenuWithCacheHint, getSiteSettings, getSiteSettingsWithCacheHint } from "emdash";
 import { EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
@@ -47,12 +47,43 @@ const {
 const settings = await getSiteSettings();
 const { siteTitle, siteTagline } = resolveStarterSiteIdentity(settings);
 
+/* Settings -> General wins; a deployment without it canonicalises to itself. */
+const siteUrl = (settings.url ?? Astro.url.origin).replace(/\/+$/, "");
+
 /**
  * The description a page does not state itself. The business sentence beats
  * the tagline ("Custom Laser Cutting & Fabrikasi" is a slogan, not an answer),
  * and Seo.astro turns the tagline into the homepage's title instead.
  */
 const pageDescription = description ?? business.description;
+
+/**
+ * Titles read "<page> | Pamakarya". The homepage has no page name of its own,
+ * so the tagline takes that slot rather than repeating the site name alone --
+ * "Pamakarya | Custom Laser Cutting & Fabrikasi" is what the live site's own
+ * `<title>` says, and it is the sentence a search result needs.
+ */
+const separator = settings.seo?.titleSeparator ?? " | ";
+const pageName = title.trim();
+const fullTitle =
+	!pageName || pageName === siteTitle
+		? [siteTitle, siteTagline].filter(Boolean).join(separator)
+		: pageName.includes(siteTitle)
+			? pageName
+			: [pageName, siteTitle].join(separator);
+
+/* The page's own card, then the editor's Settings default, then the bundled one.
+   Crawlers read og:image as an absolute URL, so the fallback is qualified here. */
+const ogImage = image ?? (settings.seo?.defaultOgImage ? null : `${siteUrl}/og.jpg`);
+
+const { cacheHint: settingsHint } = await getSiteSettingsWithCacheHint();
+const { cacheHint: menuHint } = await getMenuWithCacheHint("primary");
+/* Settings and the menu are in the chrome of every route, so their tags belong
+   to every route's response -- including the four custom pages that never set a
+   hint of their own. */
+if (Astro.cache?.enabled) {
+	Astro.cache.set({ tags: [...(settingsHint.tags ?? []), ...(menuHint.tags ?? [])] });
+}
 
 const pageCtx = createPublicPageContext({
 	Astro,
@@ -62,12 +93,13 @@ const pageCtx = createPublicPageContext({
 	pageTitle: pageTitle ?? title,
 	description: pageDescription,
 	canonical,
-	image,
+	image: ogImage,
 	content,
 	articleMeta,
+	/* og:title wants the whole sentence, not the page name on its own. */
+	seo: { ogTitle: pageTitle ?? fullTitle },
 	siteName: siteTitle,
-	/* Settings -> General wins; a deployment without it canonicalises to itself. */
-	siteUrl: (settings.url ?? Astro.url.origin).replace(/\/+$/, ""),
+	siteUrl,
 });
 ---
 
@@ -76,15 +108,16 @@ const pageCtx = createPublicPageContext({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<Seo
-			page={pageCtx}
-			title={title}
-			siteTitle={siteTitle}
-			siteTagline={siteTagline}
-			titleSeparator={settings.seo?.titleSeparator}
-			noindex={noindex}
-			faqSchema={faqSchema}
-		/>
+		<Seo page={pageCtx} fullTitle={fullTitle} noindex={noindex} faqSchema={faqSchema} />
+		{/* Settings -> General owns the icon once it has one; the bundled set is
+		    the fallback, so `/favicon.ico` stops answering with the 404 page. */}
+		{!settings.favicon?.url && (
+			<>
+				<link rel="icon" href="/favicon.ico" sizes="32x32" />
+				<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+			</>
+		)}
 		<Font
 			cssVariable="--font-open-runde"
 			preload={[

@@ -29,15 +29,25 @@ Admin UI ada di `http://localhost:4321/_emdash/admin`.
 
 ## Struktur
 
-| Berkas                  | Peran                                                                                                    |
-| ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| `src/data/site.ts`      | Semua fakta perusahaan: kontak, unit layanan, material, sektor, alasan memilih, alur, FAQ, format berkas |
-| `src/data/portfolio.ts` | Dua belas foto dari `src/assets/portfolio` dan alt text-nya                                              |
-| `src/components/`       | Satu berkas per section; `WorkGrid.astro` dipakai beranda dan `/portfolio`                               |
-| `src/styles/theme.css`  | Token warna, tipe, spasi, plus primitif `.band`, `.btn`, dan `.on-ink`                                   |
-| `seed/seed.json`        | Skema koleksi, menu, dan konten contoh                                                                   |
+| Berkas                            | Peran                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `src/data/site.ts`                | Semua fakta perusahaan: kontak, unit layanan, material, sektor, alasan memilih, alur, FAQ, format berkas |
+| `src/data/portfolio.ts`           | Dua belas foto dari `src/assets/portfolio` dan alt text-nya                                              |
+| `src/components/`                 | Satu berkas per section; `WorkGrid.astro` dipakai beranda dan `/portfolio`                               |
+| `src/styles/theme.css`            | Token warna, tipe, spasi, plus primitif `.band`, `.btn`, dan `.on-ink`                                   |
+| `src/pages/robots.txt.ts`         | robots.txt; menggantikan milik EmDash agar bisa menunjuk dua sitemap                                     |
+| `src/pages/sitemap-static.xml.ts` | Sitemap empat rute Astro, yang tidak bisa ditulis EmDash karena bukan entri koleksi                      |
+| `seed/seed.json`                  | Skema koleksi, menu, dan konten contoh                                                                   |
 
 Section memakai primitif bersama di `theme.css`: `.band` untuk irama vertikal, `.band__title`/`.band__lede` untuk kepala section, `.btn`/`.btn--primary`/`.btn--ghost` untuk tombol, dan `.on-ink` sebagai kontrak warna untuk apa pun yang dicat di atas navy.
+
+## Sitemap dan robots
+
+EmDash menulis `/sitemap.xml` sebagai indeks berisi satu sitemap per koleksi CMS, dan itu hanya memuat entri koleksi. Empat rute Astro (`/`, `/jasa`, `/portfolio`, `/contact`) bukan entri, jadi `sitemap-static.xml.ts` yang mendaftarkannya dan `robots.txt.ts` yang menunjuk keduanya. Robots.txt tetap menghormati Settings → SEO saat memuat isinya sendiri.
+
+## Ikon dan kartu sosial
+
+`public/` memuat `favicon.ico` (16/32/48), `icon-192.png`, `apple-touch-icon.png`, dan `og.jpg` (1200×630). Semuanya diturunkan dari `public/logo.png` dan foto hero, bukan aset baru. `Base.astro` memasangnya sebagai cadangan: begitu Settings → General punya favicon atau Settings → SEO punya gambar OG default, milik editor yang dipakai.
 
 ## Alt text portofolio
 
