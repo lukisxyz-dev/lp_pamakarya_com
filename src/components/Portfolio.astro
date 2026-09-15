@@ -1,0 +1,54 @@
+---
+/**
+ * Portfolio.astro -- the homepage's work band, anchored #portofolio.
+ *
+ * It shows the first `limit` photos and links to /portfolio for the rest; the
+ * grid itself lives in WorkGrid.astro, which the full page also renders. The
+ * photos and the reasoning behind their alt text are in src/data/portfolio.ts.
+ */
+import { portfolio } from "../data/portfolio";
+import WorkGrid from "./WorkGrid.astro";
+
+interface Props {
+	/** How many photos to show before deferring to /portfolio. */
+	limit?: number;
+}
+
+const { limit } = Astro.props;
+const items = typeof limit === "number" ? portfolio.slice(0, limit) : portfolio;
+const hasMore = items.length < portfolio.length;
+---
+
+<section class="band band--paper" id="portofolio">
+	<div class="shell">
+		<header class="band__head">
+			<h2 class="band__title">Portofolio</h2>
+			<p class="band__lede">
+				Sebagian hasil pengerjaan kami: laser cutting, laser marking, dan fabrikasi custom untuk
+				kebutuhan industri maupun satuan.
+			</p>
+		</header>
+
+		<WorkGrid
+			items={items}
+			sizes="(max-width: 399px) 92vw, (max-width: 719px) 45vw, (max-width: 1023px) 30vw, 260px"
+		/>
+
+		{hasMore && (
+			<p class="work__more">
+				<a class="btn btn--ghost" href="/portfolio">
+					Lihat semua portofolio
+					<svg class="btn--icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M5 12h14M13 6l6 6-6 6"></path>
+					</svg>
+				</a>
+			</p>
+		)}
+	</div>
+</section>
+
+<style>
+	.work__more {
+		margin: clamp(28px, 3vw, 40px) 0 0;
+	}
+</style>

@@ -1,0 +1,135 @@
+---
+/**
+ * Cta.astro -- the closing band, the last thing before the footer.
+ *
+ * The heading and the sentence under it are the live homepage's own closing
+ * block, verbatim: the "Mewujudkan Produk dengan Presisi Tinggi dan Hasil
+ * Terbaik" section and the sentence beneath it. Nothing here is written for
+ * this site except the two button labels and the three ledger labels.
+ *
+ * The ledger states what the live site's FAQ answers: the consultation is free,
+ * and the design files it asks for are AI, DXF, SVG, PDF. No lead time or
+ * response time is claimed -- the live site publishes none per channel.
+ */
+import Icon from "./Icon.astro";
+import { whatsappLink, contact, fileFormats } from "../data/site";
+
+const waHref = whatsappLink(
+	"Halo Pamakarya, saya mau konsultasi gratis soal laser cutting dan fabrikasi custom.",
+);
+
+const facts = [
+	{ label: "Konsultasi", value: "Gratis" },
+	{ label: "Kirim desain", value: fileFormats.join(", ") },
+	{ label: "WhatsApp", value: contact.whatsappDisplay },
+] as const;
+---
+
+<section class="band band--ink cta on-ink">
+	<div class="shell cta__inner">
+		<div class="cta__copy">
+			<h2 class="cta__title">Mewujudkan Produk dengan Presisi Tinggi dan Hasil Terbaik</h2>
+			<p class="cta__lede">
+				Jika Anda sedang mencari jasa laser cutting terdekat, jasa laser marking terbaik, atau
+				layanan manufaktur dan fabrikasi custom berkualitas tinggi, Pamakarya adalah solusi yang
+				tepat.
+			</p>
+
+			<div class="cta__actions">
+				<a class="btn btn--primary" href={waHref} target="_blank" rel="noopener">
+					<Icon name="whatsapp" size={18} />
+					<span>Konsultasi Gratis</span>
+				</a>
+				<a class="btn btn--ghost" href="/contact">
+					Lihat kontak lain
+					<svg class="btn--icon" viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M5 12h14M13 6l6 6-6 6"></path>
+					</svg>
+				</a>
+			</div>
+		</div>
+
+		<dl class="cta__facts">
+			{facts.map((fact) => (
+				<div class="cta__fact">
+					<dt class="cta__factLabel">{fact.label}</dt>
+					<dd class="cta__factValue">{fact.value}</dd>
+				</div>
+			))}
+		</dl>
+	</div>
+</section>
+
+<style>
+	.cta__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+		gap: clamp(40px, 6vw, 88px);
+		align-items: center;
+	}
+
+	.cta__title {
+		margin: 0 0 16px;
+		color: var(--on-navy);
+		font-size: clamp(1.75rem, 1.1rem + 2.2vw, 2.5rem); /* 28 -> 40px */
+		font-weight: var(--fw-bold);
+		line-height: 1.18;
+		letter-spacing: -0.01em;
+		text-wrap: balance;
+	}
+
+	.cta__lede {
+		margin: 0 0 28px;
+		max-width: 54ch;
+		color: rgba(255, 255, 255, 0.82);
+		font-size: var(--fs-body);
+		line-height: var(--lh-body);
+	}
+
+	.cta__actions {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		flex-wrap: wrap;
+	}
+
+	/* A ruled ledger, the same voice as About's spec sheet: three rows, a
+	   hairline between them, label over value. */
+	.cta__facts {
+		margin: 0;
+		border-top: 1px solid rgba(255, 255, 255, 0.22);
+	}
+
+	.cta__fact {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-16);
+		padding-block: 14px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+	}
+
+	.cta__factLabel {
+		color: rgba(255, 255, 255, 0.72);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.cta__factValue {
+		margin: 0;
+		color: var(--on-navy);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-medium);
+		font-variant-numeric: tabular-nums;
+		text-align: right;
+	}
+
+	@media (max-width: 899px) {
+		.cta__inner {
+			grid-template-columns: minmax(0, 1fr);
+			gap: clamp(28px, 5vw, 40px);
+		}
+	}
+</style>

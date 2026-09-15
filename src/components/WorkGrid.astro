@@ -1,0 +1,90 @@
+---
+/**
+ * WorkGrid.astro -- the square photo grid, used by the homepage band and by
+ * /portfolio at different lengths.
+ *
+ * The <Image /> here is astro:assets, not emdash/ui: these are bundled build
+ * assets with a known intrinsic size, not CMS media references, so the Astro
+ * component is what emits the responsive srcset the config asks for.
+ */
+import { Image } from "astro:assets";
+import type { PortfolioItem } from "../data/portfolio";
+
+interface Props {
+	items: PortfolioItem[];
+	/** `sizes` for <Image />; the two call sites sit in different columns. */
+	sizes: string;
+}
+
+const { items, sizes } = Astro.props;
+---
+
+<ul class="work-grid" role="list">
+	{items.map((item) => (
+		<li class="work-grid__cell">
+			<Image
+				class="work-grid__img"
+				src={item.src}
+				alt={item.alt}
+				widths={[320, 480, 640]}
+				{sizes}
+				loading="lazy"
+				decoding="async"
+			/>
+			{item.caption && <p class="work-grid__caption">{item.caption}</p>}
+		</li>
+	))}
+</ul>
+
+<style>
+	.work-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: clamp(8px, 1.2vw, 14px);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.work-grid__cell {
+		display: flex;
+		flex-direction: column;
+		background: var(--paper-2);
+	}
+
+	/* Square crops: the source photos are 1000x1000, and a fixed ratio keeps
+	   the grid lines even when a replacement file is not. `display: block`
+	   kills the inline baseline gap under the image. */
+	.work-grid__img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+	}
+
+	.work-grid__caption {
+		margin: 0;
+		padding: 10px 12px;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-tight);
+	}
+
+	@media (max-width: 1023px) {
+		.work-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 719px) {
+		.work-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 399px) {
+		.work-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

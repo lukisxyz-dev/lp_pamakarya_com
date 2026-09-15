@@ -1,34 +1,7 @@
 /*
-  theme.css -- the site's tokens plus the handful of base rules that belong to
-  the whole document. The starter ships without this file on purpose; this is
-  that file, created for the Pamakarya revamp.
-
-  Ground. Both brand colours are sampled from public/logo.png: the mark is
-  orange #F25719 on dark blue #14334B. Everything below is either one of those
-  two or derived from them -- there is no third hue, and no grey that is not a
-  tint of the navy.
-
-  The two oranges are not interchangeable:
-
-    --orange       #F25719   3.41:1 on white
-      Graphics only: brand marks, the focus ring, the active-nav rule. It
-      passes 1.4.11 (non-text, 3:1) in both the white bar and the navy strip,
-      and fails 1.4.3 the moment a label sits on it.
-
-    --orange-fill  #D1440D   4.62:1 with white text on it
-      Every filled CTA. Using brand orange as the button fill would put white
-      on 3.41:1, so the button keeps the hue and drops one step in value.
-
-    --orange-deep  #B33A0B   5.95:1
-      Where orange has to be text, or where a filled button is pressed. Both
-      directions clear 4.5:1, which is why it is one token and not two.
-
-  There is no dark theme and no theme toggle. The header two-tone -- dark navy
-  strip over a white bar -- is the design on every page in every OS setting,
-  because the logo only reads on white.
-
-  Only the tokens the current UI actually uses are defined. Section styles,
-  headings, and forms are added when the pages that need them exist.
+  theme.css -- the site's tokens and base rules. Brand colours are sampled from
+  public/logo.png and the oranges are not interchangeable: --orange graphics
+  only, --orange-fill buttons (4.62:1 with white), --orange-deep orange text.
 */
 
 :root {
@@ -45,20 +18,15 @@
 	--ink: #14334b;
 	--ink-2: #4c5a66;
 	--ink-3: #66747f;
-	--on-navy: #eaf1f6;
-	--on-navy-muted: #93a9bc;
+	/* The navy strip is --navy-deep and every string on it is white: 15.9:1. */
+	--on-navy: #ffffff;
 
-	/* Boundaries. --rule is decorative (1.3:1, cannot carry meaning);
-	   --rule-strong is every boundary that does (3.12:1 on paper). */
+	/* --rule is decorative (1.3:1, cannot carry meaning); --rule-strong is every
+	   boundary that does (3.12:1 on paper). */
 	--rule: #dbe2e8;
 	--rule-strong: #8494a0;
 
-	/* On-navy hairlines: the strip's own boundaries */
-	--rule-navy: rgba(255, 255, 255, 0.16);
-
-	/* Type. Open Runde is the only family on the site and is registered by the
-	   font pipeline in astro.config.mjs, which emits --font-open-runde and the
-	   metric-matched fallback stack with it. */
+	/* Registered by the font pipeline in astro.config.mjs. */
 	--font-body: var(--font-open-runde);
 	--fw-regular: 400;
 	--fw-medium: 500;
@@ -74,6 +42,8 @@
 	--lh-body: 1.6;
 
 	/* Space */
+	/* One vertical value for every band, so stacked sections keep one rhythm. */
+	--section-y: clamp(64px, 7vw, 104px);
 	--space-4: 4px;
 	--space-8: 8px;
 	--space-12: 12px;
@@ -100,22 +70,28 @@
 
 	--z-header: 60;
 
-	/* Chrome. The header's two bars are fixed heights so the strip can slide
-	   out of view with a transform instead of a height animation: the header
-	   reserves both bars' space once, and translating it up by the strip's
-	   height leaves the white bar at the top of the viewport with no layout
-	   shift under it. --chrome-h is what the mobile drawer hangs from. */
-	--topbar-h: 32px;
-	--mainbar-h: 76px;
+	/* Both bars are fixed height so the strip slides out with a transform and
+	   nothing below shifts. --chrome-h is what the drawer hangs from. The bar is
+	   sized around the logo: 40px in 58px leaves 9px of air above and below. */
+	--topbar-h: 30px;
+	--mainbar-h: 58px;
 	--logo-h: 40px;
 	--chrome-h: calc(var(--topbar-h) + var(--mainbar-h));
 }
 
-@media (max-width: 899px) {
+/* Below this the menu moves into the drawer, so the chrome can be thinner. */
+@media (max-width: 1023px) {
 	:root {
-		--topbar-h: 30px;
-		--mainbar-h: 60px;
+		--topbar-h: 28px;
+		--mainbar-h: 52px;
 		--logo-h: 30px;
+	}
+}
+
+/* 320px is the reflow floor (1.4.10); the bar has no slack left there. */
+@media (max-width: 359px) {
+	:root {
+		--logo-h: 28px;
 	}
 }
 
@@ -133,6 +109,7 @@
 
 html {
 	-webkit-text-size-adjust: 100%;
+	scroll-behavior: smooth;
 }
 
 body {
@@ -171,8 +148,150 @@ img {
 	padding-inline: var(--gutter);
 }
 
-/* Revealed only on focus: the header is a lot of tab stops to walk through on
-   every page, so the way past it has to be the first thing a keyboard finds. */
+/* A band of the page: one vertical rhythm for every section stacked below the
+   hero, so the homepage reads as one document and not seven stitched ones. */
+.band {
+	padding-block: var(--section-y);
+	border-top: 1px solid var(--rule);
+}
+
+.band--paper {
+	background: var(--paper);
+}
+
+.band--tint {
+	background: var(--paper-2);
+}
+
+.band--ink {
+	background: var(--navy-deep);
+	border-top-color: var(--navy-deep);
+	color: var(--on-navy);
+}
+
+/* Two ink bands in a row would read as one plate: /jasa runs the Process rail
+   straight into the closing CTA, both navy. The second one draws the rule. */
+.band--ink + .band--ink {
+	border-top-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Context, not decoration: anything painted on navy carries `on-ink`, and the
+   controls inside it inherit white ink and a white hairline. The hero is navy
+   without being a band, so this cannot live on `band--ink` alone. */
+.on-ink {
+	color: var(--on-navy);
+}
+
+/* The heading and standfirst that open a band. One rule for all of them: the
+   size is the band title's size wherever it appears, so no section invents
+   its own scale. */
+.band__head {
+	max-width: 62ch;
+	margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.band__title {
+	margin: 0 0 16px;
+	color: inherit;
+	font-size: clamp(1.75rem, 1rem + 2.4vw, 2.75rem); /* 28 -> 44px */
+	font-weight: var(--fw-bold);
+	line-height: 1.18;
+	letter-spacing: -0.01em;
+}
+
+.band__lede {
+	margin: 0;
+	color: var(--ink-2);
+	font-size: var(--fs-body);
+	line-height: var(--lh-body);
+}
+
+.on-ink .band__lede {
+	color: rgba(255, 255, 255, 0.82);
+}
+
+/* Buttons. One pair, used by the hero, the closing CTA, and the contact page:
+   a filled orange control and an outline that borrows its surroundings' colour,
+   so the same two classes work on paper and on navy. */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	border-radius: var(--radius-control);
+	font-size: var(--fs-body-s);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-tight);
+	text-decoration: none;
+	white-space: nowrap;
+	transition:
+		background-color var(--dur-control) var(--ease-out),
+		border-color var(--dur-control) var(--ease-out),
+		color var(--dur-control) var(--ease-out),
+		translate var(--dur-control) var(--ease-out);
+}
+
+.btn--primary {
+	padding: 14px 24px;
+	background: var(--orange-fill);
+	color: var(--paper);
+}
+
+.btn--primary:hover {
+	background: var(--orange-deep);
+	translate: 0 -1px;
+}
+
+/* Inset white ring: the global orange one vanishes on this fill. */
+.btn--primary:focus-visible {
+	outline: 2px solid var(--paper);
+	outline-offset: -3px;
+}
+
+/* Outlined, inheriting the band's own ink: on navy it draws white, on paper it
+   draws the border rule. Used to be hero-only; three bands need it now. */
+.btn--ghost {
+	padding: 14px 22px;
+	border: 1px solid var(--rule-strong);
+	color: inherit;
+}
+
+.btn--ghost:hover {
+	border-color: var(--orange);
+	color: inherit;
+}
+
+.band--ink .btn--ghost,
+.on-ink .btn--ghost {
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+.band--ink .btn--ghost:hover,
+.on-ink .btn--ghost:hover {
+	border-color: rgba(255, 255, 255, 0.7);
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* The arrow inside a ghost button slides on hover; each section supplies its
+   own path, so this only animates whatever `currentColor` draws. */
+.btn--ghost svg {
+	transition: translate var(--dur-control) var(--ease-out);
+}
+
+.btn--ghost:hover svg {
+	translate: 3px 0;
+}
+
+.btn--icon {
+	width: 18px;
+	height: 18px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.75;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+/* The way past the header, and the first thing a keyboard finds. */
 .skip-link {
 	position: absolute;
 	left: var(--gutter);
@@ -204,6 +323,9 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
 	*,
 	*::before,
 	*::after {

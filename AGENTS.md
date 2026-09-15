@@ -45,11 +45,19 @@ This template ships with `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json`
 
 ## Rules
 
+- The user verifies UI changes themselves. Do NOT open a browser, screenshot, curl, or otherwise self-verify visual output. Diagnose and build from code; ask the user to check.
+
 - All content pages must be server-rendered (`output: "server"`). No `getStaticPaths()` for CMS content.
 - Image fields are objects (`{ src, alt }`), not strings. Use `<Image image={...} />` from `"emdash/ui"`.
 - `entry.id` is the slug (for URLs). `entry.data.id` is the database ULID (for API calls like `getEntryTerms`).
 - Always call `Astro.cache.set(cacheHint)` on pages that query content.
 - Taxonomy names in queries must match the seed's `"name"` field exactly (e.g., `"category"` not `"categories"`).
+- Comments: 3 lines maximum, only where the code cannot say it. No narration of the
+  next line, no restating what a selector or a value already says. No comment is
+  better than a short one.
+- Do NOT open a browser or screenshot pages to verify UI changes. The user
+  verifies visually themselves. Confirm only what the build/CLI can answer
+  (HTTP status, compile errors); then hand off.
 
 ## This Template
 

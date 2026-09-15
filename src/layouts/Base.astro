@@ -1,9 +1,10 @@
 ---
 import { getSiteSettings } from "emdash";
-import { WidgetArea, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
+import { EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
 import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 import Seo from "../components/Seo.astro";
 import { business } from "../data/site";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
@@ -25,6 +26,8 @@ interface Props {
 	};
 	/** Keeps a page out of the index, such as the 404. */
 	noindex?: boolean;
+	/** Emit FAQPage markup. Only the page showing the FAQ list should ask. */
+	faqSchema?: boolean;
 	/** Pass content reference for plugin page contributions on content pages */
 	content?: { collection: string; id: string; slug?: string | null };
 }
@@ -38,6 +41,7 @@ const {
 	pageType = "website",
 	articleMeta,
 	noindex,
+	faqSchema,
 	content,
 } = Astro.props;
 const settings = await getSiteSettings();
@@ -79,6 +83,7 @@ const pageCtx = createPublicPageContext({
 			siteTagline={siteTagline}
 			titleSeparator={settings.seo?.titleSeparator}
 			noindex={noindex}
+			faqSchema={faqSchema}
 		/>
 		<Font
 			cssVariable="--font-open-runde"
@@ -106,9 +111,7 @@ const pageCtx = createPublicPageContext({
 			<slot />
 		</main>
 
-		<footer>
-			<WidgetArea name="sidebar" />
-		</footer>
+		<Footer />
 
 		<EmDashBodyEnd page={pageCtx} />
 	</body>

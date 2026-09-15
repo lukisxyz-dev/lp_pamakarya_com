@@ -1,0 +1,164 @@
+---
+/**
+ * Process.astro -- the "Alur Pemesanan" band, on the ink plate.
+ *
+ * The five steps are processSteps in src/data/site.ts, which are the live
+ * site's own answer to "Bagaimana cara memesan?". That answer opens with
+ * WhatsApp, which is why the CTA beside it is a WhatsApp link: the company
+ * takes orders no other way.
+ *
+ * Look: a rail across the band. Orange connector between the numbers, one
+ * number per step, and the band is the only ink plate between the hero and the
+ * closing CTA -- it marks the middle of the page.
+ */
+import Icon from "./Icon.astro";
+import { whatsappLink, processSteps, fileFormats } from "../data/site";
+
+const waHref = whatsappLink(
+	"Halo Pamakarya, saya mau konsultasi soal fabrikasi custom dan minta penawaran harga.",
+);
+
+const steps = processSteps.map((step, index) => ({
+	...step,
+	index: String(index + 1).padStart(2, "0"),
+}));
+
+/* The first step is the one a visitor can act on right now. */
+const [firstStep] = processSteps;
+---
+
+<section class="band band--ink process on-ink" id="alur">
+	<div class="shell">
+		<header class="band__head">
+			<h2 class="band__title">Cara memesan</h2>
+			<p class="band__lede">
+				{firstStep?.description} Kirim gambar kerja Anda, kami tinjau, lalu produksi berjalan.
+			</p>
+		</header>
+
+		<ol class="process__list" role="list">
+			{steps.map((step) => (
+				<li class="process__step">
+					<span class="process__num" aria-hidden="true">
+						{step.index}
+					</span>
+					<h3 class="process__title">{step.title}</h3>
+					<p class="process__desc">{step.description}</p>
+				</li>
+			))}
+		</ol>
+
+		<div class="process__actions">
+			<a class="btn btn--primary" href={waHref} target="_blank" rel="noopener">
+				<Icon name="whatsapp" size={18} />
+				<span>Konsultasi Gratis</span>
+			</a>
+			<p class="process__note">
+				Format desain yang kami terima: {fileFormats.join(", ")}. Belum punya gambar kerja? Kirim
+				saja sketsanya, kami bantu olah.
+			</p>
+		</div>
+	</div>
+</section>
+
+<style>
+	.process__list {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: clamp(20px, 2.4vw, 32px);
+		margin: 0 0 clamp(32px, 4vw, 48px);
+		padding: 0;
+		list-style: none;
+	}
+
+	.process__step {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* The rail: a hairline leaving each step, stopping before the next number.
+	   Drawn on the step rather than between the grid cells so a wrapped row
+	   cannot orphan a segment. */
+	.process__step::after {
+		content: "";
+		position: absolute;
+		top: 13px;
+		left: 40px;
+		right: calc(-1 * clamp(20px, 2.4vw, 32px));
+		height: 1px;
+		background: rgba(255, 255, 255, 0.22);
+	}
+
+	.process__step:last-child::after {
+		content: none;
+	}
+
+	/* A filled disc, not a ring: on navy it reads at 20px where a hairline
+	   ring would disappear. */
+	.process__num {
+		display: grid;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		margin-bottom: 16px;
+		border-radius: 50%;
+		background: var(--orange);
+		color: var(--navy-deep);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-bold);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.process__title {
+		margin: 0;
+		color: var(--on-navy);
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+		line-height: 1.35;
+		text-wrap: balance;
+	}
+
+	.process__desc {
+		margin: 8px 0 0;
+		color: rgba(255, 255, 255, 0.76);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	.process__actions {
+		display: flex;
+		align-items: center;
+		gap: clamp(16px, 3vw, 32px);
+		flex-wrap: wrap;
+		padding-top: clamp(24px, 3vw, 36px);
+		border-top: 1px solid rgba(255, 255, 255, 0.22);
+	}
+
+	.process__note {
+		margin: 0;
+		max-width: 52ch;
+		color: rgba(255, 255, 255, 0.76);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	/* Five columns collapse to two, then one; the rail only makes sense while
+	   the steps still sit on one line. */
+	@media (max-width: 1023px) {
+		.process__list {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: clamp(24px, 4vw, 32px);
+		}
+
+		.process__step::after {
+			content: none;
+		}
+	}
+
+	@media (max-width: 559px) {
+		.process__list {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

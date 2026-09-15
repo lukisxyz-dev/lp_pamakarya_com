@@ -1,0 +1,202 @@
+---
+/**
+ * /jasa -- the services page the primary menu has always pointed at.
+ *
+ * This is the detailed half of what the homepage's Services band summarises:
+ * each unit one to a row with its own number and sentence, then the material
+ * and industry ledgers About already uses, then the ordering flow.
+ *
+ * The eight units are business.serviceUnits in src/data/site.ts. Two of them
+ * carry a name and no description, because the live site publishes none -- they
+ * render as a name with an em dash rather than a sentence nobody wrote.
+ */
+import Base from "../layouts/Base.astro";
+import Process from "../components/Process.astro";
+import Cta from "../components/Cta.astro";
+import { business, fileFormats } from "../data/site";
+
+const services = business.serviceUnits.map((unit, index) => ({
+	...unit,
+	index: String(index + 1).padStart(2, "0"),
+}));
+
+const description =
+	"Jasa laser cutting plat, akrilik, dan metal, laser marking, CNC routing, serta fabrikasi custom. Material akrilik, MDF, kayu, stainless steel, dan aluminium.";
+---
+
+<Base title="Layanan" description={description}>
+	<section class="band band--paper service-detail" id="layanan">
+		<div class="shell">
+			<header class="band__head">
+				<h1 class="band__title">Layanan</h1>
+				<p class="band__lede">
+					Pamakarya melayani pengerjaan laser cutting, laser marking, CNC routing, dan fabrikasi
+					custom untuk kebutuhan satuan maupun produksi. Semua pengerjaan mengikuti gambar kerja
+					atau skema yang Anda miliki.
+				</p>
+			</header>
+
+			<ol class="service-detail__list" role="list">
+				{services.map((service) => (
+					<li class="service-detail__row">
+						<span class="service-detail__index" aria-hidden="true">
+							{service.index}
+						</span>
+						<div class="service-detail__body">
+							<h2 class="service-detail__name">{service.name}</h2>
+							{service.description ? (
+								<p class="service-detail__desc">{service.description}</p>
+							) : (
+								<p class="service-detail__desc service-detail__desc--quiet">
+									Hubungi kami untuk detail pengerjaan layanan ini.
+								</p>
+							)}
+						</div>
+					</li>
+				))}
+			</ol>
+		</div>
+	</section>
+
+	<section class="band band--tint">
+		<div class="shell service-spec">
+			<div class="service-spec__col">
+				<h2 class="service-spec__heading">Material yang kami proses</h2>
+				<ul class="service-spec__list" role="list">
+					{business.materials.map((material) => (
+						<li>{material}</li>
+					))}
+				</ul>
+			</div>
+
+			<div class="service-spec__col">
+				<h2 class="service-spec__heading">Industri yang kami layani</h2>
+				<ul class="service-spec__list" role="list">
+					{business.sectors.map((sector) => (
+						<li>{sector}</li>
+					))}
+				</ul>
+			</div>
+
+			<div class="service-spec__col">
+				<h2 class="service-spec__heading">Format desain</h2>
+				<ul class="service-spec__list" role="list">
+					{fileFormats.map((format) => (
+						<li>{format}</li>
+					))}
+				</ul>
+				<p class="service-spec__note">
+					Belum punya gambar kerja? Kirim saja sketsa atau fotonya, kami bantu olah.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<Process />
+
+	<Cta />
+</Base>
+
+<style>
+	.service-detail__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid var(--rule);
+	}
+
+	.service-detail__row {
+		display: grid;
+		grid-template-columns: 72px minmax(0, 1fr);
+		gap: clamp(16px, 3vw, 40px);
+		padding-block: clamp(20px, 2.4vw, 30px);
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.service-detail__index {
+		color: var(--orange-deep);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-bold);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.08em;
+		line-height: 1.4;
+	}
+
+	.service-detail__name {
+		margin: 0;
+		color: var(--ink);
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+		line-height: 1.4;
+	}
+
+	.service-detail__desc {
+		margin: 6px 0 0;
+		max-width: 68ch;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	/* The two units the live site never describes: stated as an absence rather
+	   than dressed up as a feature. */
+	.service-detail__desc--quiet {
+		color: var(--ink-3);
+	}
+
+	.service-spec {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(28px, 4vw, 56px);
+	}
+
+	.service-spec__heading {
+		margin: 0 0 12px;
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.service-spec__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.service-spec__list li {
+		padding-block: var(--space-12);
+		border-bottom: 1px solid var(--rule);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-tight);
+	}
+
+	.service-spec__list li:first-child {
+		border-top: 2px solid var(--orange);
+	}
+
+	.service-spec__note {
+		margin: 12px 0 0;
+		color: var(--ink-3);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	@media (max-width: 899px) {
+		.service-spec {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 559px) {
+		.service-spec {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.service-detail__row {
+			grid-template-columns: 40px minmax(0, 1fr);
+		}
+	}
+</style>

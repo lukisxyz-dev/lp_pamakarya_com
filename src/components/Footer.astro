@@ -1,0 +1,230 @@
+---
+/**
+ * Footer.astro -- the closing frame for every page.
+ *
+ * It replaces the starter's global <WidgetArea name="sidebar" />, which was
+ * rendering a search box and a recent-posts list as the site footer. The widget
+ * area still exists and is still correct in one place -- the aside beside a
+ * post body -- so it stays there and only the footer changes.
+ *
+ * Everything here is a link that resolves: the `primary` menu provides the
+ * navigation, so the footer follows the same editor-owned list the header does
+ * rather than hard-coding a second copy of the site's structure. There is no
+ * privacy, terms, or legal page on this site, so none is linked; a footer link
+ * to a route that does not exist is worse than a short footer.
+ */
+import { getMenu, getSiteSettings } from "emdash";
+import Icon from "./Icon.astro";
+import { business, contact, whatsappLink } from "../data/site";
+import { resolveStarterSiteIdentity } from "../utils/site-identity";
+
+const { siteTitle } = resolveStarterSiteIdentity(await getSiteSettings());
+const menu = await getMenu("primary");
+
+const waHref = whatsappLink(
+	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
+);
+
+const socials = [
+	{
+		icon: "instagram",
+		label: `Instagram ${contact.instagramHandle}`,
+		href: contact.instagramUrl,
+	},
+	{
+		icon: "store",
+		label: `Tokopedia ${contact.tokopediaHandle}`,
+		href: contact.tokopediaUrl,
+	},
+	{
+		icon: "whatsapp",
+		label: `WhatsApp ${contact.whatsappDisplay}`,
+		href: waHref,
+	},
+] as const;
+
+const navItems = menu?.items ?? [];
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+	<div class="shell site-footer__inner">
+		<div class="site-footer__brand">
+			<p class="site-footer__name">{siteTitle}</p>
+			<p class="site-footer__desc">{business.description}</p>
+
+			<ul class="site-footer__social" role="list">
+				{socials.map((social) => (
+					<li>
+						<a href={social.href} aria-label={social.label} target="_blank" rel="noopener">
+							<Icon name={social.icon} size={20} />
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+
+		<nav class="site-footer__col" aria-label="Navigasi footer">
+			<h2 class="site-footer__heading">Halaman</h2>
+			<ul class="site-footer__list" role="list">
+				{navItems.map((item) => (
+					<li>
+						<a href={item.url} target={item.target}>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+
+		<div class="site-footer__col">
+			<h2 class="site-footer__heading">Layanan</h2>
+			<ul class="site-footer__list" role="list">
+				{business.serviceUnits.map((unit) => (
+					<li>
+						<a href="/jasa#layanan">{unit.name}</a>
+					</li>
+				))}
+			</ul>
+		</div>
+
+		<div class="site-footer__col">
+			<h2 class="site-footer__heading">Kontak</h2>
+			<ul class="site-footer__list" role="list">
+				<li>
+					<a href={waHref} target="_blank" rel="noopener">
+						WhatsApp {contact.whatsappDisplay}
+					</a>
+				</li>
+				<li>
+					<a href={`tel:${contact.phone}`}>{contact.phone}</a>
+				</li>
+				<li>
+					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="shell site-footer__base">
+		<p>
+			© {year} {siteTitle}. Seluruh hak cipta dilindungi.
+		</p>
+	</div>
+</footer>
+
+<style>
+	.site-footer {
+		background: var(--navy-deep);
+		color: var(--on-navy);
+		/* The closing CTA band above is the same navy, so without a rule the
+		   two merge into one plate. Same hairline the rules on navy already
+		   use; against a light section above it is invisible and does no harm. */
+		border-top: 1px solid rgba(255, 255, 255, 0.22);
+		padding-block: clamp(48px, 5vw, 72px) 0;
+	}
+
+	.site-footer__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 4fr) repeat(3, minmax(0, 2.5fr));
+		gap: clamp(32px, 4vw, 56px);
+	}
+
+	.site-footer__name {
+		margin: 0 0 12px;
+		font-size: var(--fs-body);
+		font-weight: var(--fw-bold);
+		letter-spacing: 0.02em;
+	}
+
+	.site-footer__desc {
+		margin: 0;
+		max-width: 42ch;
+		color: rgba(255, 255, 255, 0.76);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	.site-footer__social {
+		display: flex;
+		gap: 12px;
+		margin: 24px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	/* A bordered square per mark, so three different-weight logos still read as
+	   one row -- the same fix the drawer uses on paper. */
+	.site-footer__social a {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border: 1px solid rgba(255, 255, 255, 0.28);
+		color: var(--on-navy);
+		transition:
+			border-color var(--dur-control) var(--ease-out),
+			color var(--dur-control) var(--ease-out);
+	}
+
+	.site-footer__social a:hover {
+		border-color: var(--orange);
+		color: var(--orange);
+	}
+
+	.site-footer__heading {
+		margin: 0 0 12px;
+		color: rgba(255, 255, 255, 0.72);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.site-footer__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.site-footer__list li + li {
+		margin-top: 8px;
+	}
+
+	.site-footer__list a {
+		color: rgba(255, 255, 255, 0.88);
+		font-size: var(--fs-body-s);
+		line-height: 1.5;
+		text-decoration: none;
+	}
+
+	.site-footer__list a:hover {
+		color: var(--orange);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.site-footer__base {
+		margin-top: clamp(40px, 5vw, 64px);
+		padding-block: 20px;
+		border-top: 1px solid rgba(255, 255, 255, 0.18);
+	}
+
+	.site-footer__base p {
+		margin: 0;
+		color: rgba(255, 255, 255, 0.66);
+		font-size: var(--fs-caption);
+	}
+
+	@media (max-width: 1023px) {
+		.site-footer__inner {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 559px) {
+		.site-footer__inner {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

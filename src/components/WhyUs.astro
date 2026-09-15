@@ -1,0 +1,96 @@
+---
+/**
+ * WhyUs.astro -- the "Kenapa Pamakarya" band.
+ *
+ * The five reasons are whyUs in src/data/site.ts, which are the live site's own
+ * "Penyedia Jasa Laser Cutting Terbaik" list. Its sixth claim, "10 tahun
+ * pengalaman", is left out: the client rejects it.
+ *
+ * Look: a ledger, deliberately not the grid Services uses one band above. Big
+ * tabular numbers down the left, a hairline rule between rows, the reason set
+ * in ink and its sentence under it in --ink-2.
+ */
+import { whyUs } from "../data/site";
+
+const reasons = whyUs.map((reason, index) => ({
+	...reason,
+	index: String(index + 1).padStart(2, "0"),
+}));
+---
+
+<section class="band band--paper why" id="kenapa-kami">
+	<div class="shell">
+		<header class="band__head">
+			<h2 class="band__title">Kenapa memilih Pamakarya?</h2>
+			<p class="band__lede">
+				Kami mengerjakan setiap pesanan dengan mesin CNC presisi tinggi dan perangkat lunak desain
+				mutakhir, dari konsultasi sampai produk akhir sampai di tangan Anda.
+			</p>
+		</header>
+
+		<ol class="why__list" role="list">
+			{reasons.map((reason) => (
+				<li class="why__row">
+					<span class="why__num" aria-hidden="true">
+						{reason.index}
+					</span>
+					<div class="why__body">
+						<h3 class="why__title">{reason.title}</h3>
+						<p class="why__desc">{reason.description}</p>
+					</div>
+				</li>
+			))}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.why__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid var(--rule);
+	}
+
+	.why__row {
+		display: grid;
+		/* A fixed number column, so every title starts on the same axis no
+		   matter how wide the numeral gets. */
+		grid-template-columns: 72px minmax(0, 1fr);
+		gap: clamp(16px, 3vw, 40px);
+		padding-block: clamp(20px, 2.4vw, 30px);
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.why__num {
+		color: var(--orange-deep);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-bold);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.08em;
+		/* The numeral sits on the title's baseline, not the row's top edge. */
+		line-height: 1.4;
+	}
+
+	.why__title {
+		margin: 0;
+		color: var(--ink);
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+		line-height: 1.4;
+	}
+
+	.why__desc {
+		margin: 6px 0 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+		max-width: 68ch;
+	}
+
+	@media (max-width: 559px) {
+		.why__row {
+			grid-template-columns: 40px minmax(0, 1fr);
+		}
+	}
+</style>

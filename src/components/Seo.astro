@@ -25,7 +25,7 @@
  */
 import { EmDashHead } from "emdash/ui";
 import { createPublicPageContext, safeJsonLdSerialize } from "emdash/page";
-import { business, companyName, contact } from "../data/site";
+import { business, companyName, contact, faqs } from "../data/site";
 
 interface Props {
 	/** The page context the layout built. EmDash reads it for its own tags. */
@@ -38,9 +38,11 @@ interface Props {
 	titleSeparator?: string | null;
 	/** Pages that must stay out of the index, such as the 404. */
 	noindex?: boolean;
+	/** Adds a FAQPage node for the list `faqs` in src/data/site.ts. */
+	faqSchema?: boolean;
 }
 
-const { page, title, siteTitle, siteTagline, titleSeparator, noindex } = Astro.props;
+const { page, title, siteTitle, siteTagline, titleSeparator, noindex, faqSchema } = Astro.props;
 
 const separator = titleSeparator ?? " | ";
 const siteUrl = (page.siteUrl ?? Astro.url.origin).replace(/\/+$/, "");
@@ -69,6 +71,26 @@ const canonical = `${siteUrl}${path === "/" ? "/" : path}`;
 
 const areaServed = { "@type": "Country", name: "Indonesia" };
 const organizationId = `${siteUrl}/#organization`;
+
+/**
+ * The FAQPage node, added only where the page actually shows the list -- markup
+ * for questions a page does not answer is a guideline violation, not a bonus.
+ * The answer text is the site's own `faqs`: the summary sentence, then the
+ * points the live site writes under it.
+ */
+const faqPage = faqSchema
+	? {
+			"@type": "FAQPage",
+			mainEntity: faqs.map((item) => ({
+				"@type": "Question",
+				name: item.question,
+				acceptedAnswer: {
+					"@type": "Answer",
+					text: [item.answer, ...(item.points ?? [])].join(" "),
+				},
+			})),
+		}
+	: null;
 
 /**
  * One graph, one entity. The OfferCatalog is the service list as the live site
@@ -128,6 +150,7 @@ const graph = {
 				})),
 			},
 		},
+		...(faqPage ? [faqPage] : []),
 	],
 };
 ---

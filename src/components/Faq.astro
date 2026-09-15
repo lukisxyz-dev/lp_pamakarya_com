@@ -1,0 +1,163 @@
+---
+/**
+ * Faq.astro -- "Paling Sering Ditanyakan", anchored #faq.
+ *
+ * The questions and answers are `faqs` in src/data/site.ts, which is the live
+ * homepage's own FAQ with its 10-year line removed (the client rejects that
+ * claim). Nothing here is authored for this site.
+ *
+ * <details>/<summary> rather than a scripted accordion: the browser gives
+ * keyboard operation, screen-reader semantics, and find-in-page expansion for
+ * free, and the page ships no JS for it. `name` makes it a single-open group
+ * in browsers that support it; elsewhere every item simply opens on its own.
+ *
+ * The FAQPage graph is a page-level concern, so it is not built here: the page
+ * asks <Base> for it with `faqSchema`.
+ */
+import { faqs } from "../data/site";
+---
+
+<section class="band band--tint faq" id="faq">
+	<div class="shell faq__inner">
+		<header class="band__head faq__head">
+			<h2 class="band__title">Paling sering ditanyakan</h2>
+			<p class="band__lede">
+				Pertanyaan yang paling sering masuk lewat WhatsApp, beserta jawabannya.
+			</p>
+		</header>
+
+		<div class="faq__list">
+			{faqs.map((item, index) => (
+				<details class="faq__item" name="faq" open={index === 0}>
+					<summary class="faq__q">
+						<span>{item.question}</span>
+						<svg class="faq__mark" viewBox="0 0 24 24" aria-hidden="true">
+							<path class="faq__bar" d="M5 12h14"></path>
+							<path class="faq__stem" d="M12 5v14"></path>
+						</svg>
+					</summary>
+					<div class="faq__a">
+						<p>{item.answer}</p>
+						{item.points && (
+							<ul class="faq__points" role="list">
+								{item.points.map((point) => (
+									<li>{point}</li>
+								))}
+							</ul>
+						)}
+					</div>
+				</details>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.faq__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		gap: clamp(32px, 5vw, 72px);
+		align-items: start;
+	}
+
+	.faq__head {
+		margin-bottom: 0;
+	}
+
+	.faq__list {
+		border-top: 1px solid var(--rule);
+	}
+
+	.faq__item {
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.faq__q {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: var(--space-16);
+		padding-block: clamp(16px, 2vw, 22px);
+		color: var(--ink);
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+		line-height: 1.4;
+		cursor: pointer;
+		/* The default triangle is the one piece of browser chrome this design
+		   does not want; the plus below replaces it. */
+		list-style: none;
+	}
+
+	.faq__q::-webkit-details-marker {
+		display: none;
+	}
+
+	.faq__q:hover {
+		color: var(--orange-deep);
+	}
+
+	/* Plus, turned into a minus by hiding the vertical stroke when open. */
+	.faq__mark {
+		flex: none;
+		width: 20px;
+		height: 20px;
+		margin-top: 1px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.75;
+		stroke-linecap: round;
+		transition: color var(--dur-control) var(--ease-out);
+	}
+
+	.faq__item[open] .faq__stem {
+		display: none;
+	}
+
+	.faq__a {
+		padding-bottom: clamp(16px, 2vw, 22px);
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	.faq__a p {
+		margin: 0;
+		max-width: 68ch;
+	}
+
+	.faq__points {
+		margin: 12px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.faq__points li {
+		position: relative;
+		padding-left: 18px;
+		max-width: 68ch;
+	}
+
+	.faq__points li + li {
+		margin-top: 6px;
+	}
+
+	/* A square, not a disc: the same rule the rest of the site draws to. */
+	.faq__points li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.6em;
+		width: 5px;
+		height: 5px;
+		background: var(--orange);
+	}
+
+	/* The two columns need the wide shell; below it the heading sits above the
+	   list, which is the order it reads in anyway. */
+	@media (max-width: 899px) {
+		.faq__inner {
+			grid-template-columns: minmax(0, 1fr);
+			gap: clamp(24px, 4vw, 40px);
+		}
+	}
+</style>

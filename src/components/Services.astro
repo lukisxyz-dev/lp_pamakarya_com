@@ -1,0 +1,187 @@
+---
+/**
+ * Services.astro -- the "Layanan Kami" band, anchored #layanan.
+ *
+ * Every unit comes from business.serviceUnits, which holds the live site's own
+ * names, its own sentences, and its own card media. Two units (Laser CO2, CNC
+ * Routing) have no description and no image anywhere on the live site, so their
+ * cells carry the name over a flat navy tile: an absence, not a substitute.
+ *
+ * Look: tiles of the work itself. The photo is the cell's background, the index
+ * number and the sentence sit on a scrim at the bottom, and the 1px grid gap
+ * lets the band show through instead of drawing hairlines over photographs.
+ */
+import { business } from "../data/site";
+
+const services = business.serviceUnits.map((unit, index) => ({
+	...unit,
+	/** The index printed on the cell: 01, 02, ... */
+	index: String(index + 1).padStart(2, "0"),
+	/** Background layers, absent where the live site publishes no image. */
+	media: unit.image
+		? `--anim: url(${unit.image.animated}); --still: url(${unit.image.still})`
+		: undefined,
+}));
+---
+
+<section class="band band--tint services" id="layanan">
+	<div class="shell">
+		<header class="band__head">
+			<h2 class="band__title">Layanan Kami</h2>
+			<p class="band__lede">
+				Mulai berkarya bersama Pamakarya, di mana presisi bertemu inovasi. Kami menyediakan solusi
+				laser cutting, fabrikasi, dan manufaktur custom untuk mewujudkan ide Anda.
+			</p>
+		</header>
+
+		<ul class="services__grid" role="list">
+			{services.map((service) => (
+				<li class="services__cell" style={service.media}>
+					<span class="services__index" aria-hidden="true">
+						{service.index}
+					</span>
+					<h3 class="services__name">{service.name}</h3>
+					{service.description && <p class="services__desc">{service.description}</p>}
+				</li>
+			))}
+		</ul>
+
+		<p class="services__more">
+			<a class="services__link" href="/jasa">
+				Lihat detail layanan
+				<svg class="btn--icon" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M5 12h14M13 6l6 6-6 6"></path>
+				</svg>
+			</a>
+		</p>
+	</div>
+</section>
+
+<style>
+	.services__grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		/* Equal rows: the two units the live site never describes would
+		   otherwise leave their row shorter than the rest. */
+		grid-auto-rows: 1fr;
+		/* The band shows through the gap: a photo cell cannot carry a hairline. */
+		gap: 1px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.services__cell {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		min-height: clamp(190px, 17vw, 240px);
+		padding: clamp(20px, 2.2vw, 28px);
+		/* The tile under every photo -- and the whole cell where there is none. */
+		background: var(--navy-deep);
+		overflow: hidden;
+	}
+
+	/* Two layers: the photo, then the scrim the words sit on. Photographs run
+	   from blown-out to near-black, so the scrim is what guarantees contrast. */
+	.services__cell::before,
+	.services__cell::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	.services__cell::before {
+		background: var(--still, none) center / cover no-repeat;
+		transition: scale var(--dur-control) var(--ease-out);
+	}
+
+	.services__cell::after {
+		background: linear-gradient(
+			to top,
+			rgba(6, 20, 34, 0.94),
+			rgba(6, 20, 34, 0.6) 55%,
+			rgba(6, 20, 34, 0.22)
+		);
+	}
+
+	.services__cell > * {
+		position: relative;
+	}
+
+	/* Motion is opt-in: a still frame is the default, six loops are the upgrade. */
+	@media (prefers-reduced-motion: no-preference) {
+		.services__cell::before {
+			background-image: var(--anim, none);
+		}
+
+		.services__cell:hover::before {
+			scale: 1.05;
+		}
+	}
+
+	/* The index is the only orange on the cell, and it is not the headline:
+	   it numbers the sheet, so it stays small and quiet. --orange, not
+	   --orange-deep, which is 2.7:1 on the navy tile. */
+	.services__index {
+		color: var(--orange);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-bold);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.08em;
+		margin-bottom: 12px;
+	}
+
+	.services__name {
+		margin: 0;
+		color: var(--on-navy);
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		text-wrap: balance;
+	}
+
+	.services__desc {
+		margin: 10px 0 0;
+		color: rgba(255, 255, 255, 0.78);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	.services__more {
+		margin: clamp(28px, 3vw, 40px) 0 0;
+	}
+
+	.services__link {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--orange-deep);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-semibold);
+		text-decoration: none;
+	}
+
+	.services__link:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.services__link:hover .btn--icon {
+		translate: 3px 0;
+	}
+
+	/* Four columns need the wide shell; below it the sheet halves, then stacks. */
+	@media (max-width: 1023px) {
+		.services__grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 559px) {
+		.services__grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

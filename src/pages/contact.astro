@@ -1,0 +1,261 @@
+---
+/**
+ * /contact -- the target of the primary menu's "Kontak".
+ *
+ * There is no form. The company takes orders by WhatsApp and email and
+ * publishes no other channel, so this page is those channels stated plainly,
+ * plus the facts that decide whether a visitor can hand the work over at all.
+ *
+ * Deliberately absent: street address, city, opening hours, and a map. The live
+ * site publishes none of them, and a map to nowhere is a worse answer than no
+ * map. The WhatsApp number is the phone number -- see src/data/site.ts.
+ */
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import Faq from "../components/Faq.astro";
+import Cta from "../components/Cta.astro";
+import { business, contact, whatsappLink, fileFormats } from "../data/site";
+
+const waHref = whatsappLink(
+	"Halo Pamakarya, saya mau konsultasi soal laser cutting dan fabrikasi custom.",
+);
+
+const channels = [
+	{
+		kind: "whatsapp" as const,
+		label: "WhatsApp",
+		value: contact.whatsappDisplay,
+		href: waHref,
+		external: true,
+		note: "Cara tercepat. Kirim pesan, lengkapi gambar kerjanya bila sudah ada.",
+	},
+	{
+		kind: "store" as const,
+		label: "Tokopedia",
+		value: contact.tokopediaHandle,
+		href: contact.tokopediaUrl,
+		external: true,
+		note: "Untuk pembelian produk yang sudah kami publikasikan di toko.",
+	},
+	{
+		kind: "instagram" as const,
+		label: "Instagram",
+		value: contact.instagramHandle,
+		href: contact.instagramUrl,
+		external: true,
+		note: "Lihat pengerjaan terbaru dan kirim pesan lewat DM.",
+	},
+] as const;
+
+const waFacts = [
+	{ label: "Konsultasi", value: "Gratis" },
+	{ label: "Format desain", value: fileFormats.join(", ") },
+	{ label: "Material", value: business.materials.slice(0, 4).join(", ") },
+] as const;
+---
+
+<Base
+	title="Kontak"
+	description="Hubungi Pamakarya lewat WhatsApp atau email untuk konsultasi gratis jasa laser cutting, laser marking, dan fabrikasi custom."
+	faqSchema
+>
+	<section class="band band--paper">
+		<div class="shell">
+			<header class="band__head">
+				<h1 class="band__title">Hubungi kami</h1>
+				<p class="band__lede">
+					Konsultasi dan penawaran harga tidak dikenakan biaya. Sebutkan kebutuhan Anda, dan
+					lampirkan gambar kerja bila sudah ada.
+				</p>
+			</header>
+
+			<div class="contact__primary">
+				<a class="btn btn--primary" href={waHref} target="_blank" rel="noopener">
+					<Icon name="whatsapp" size={18} />
+					<span>Mulai lewat WhatsApp</span>
+				</a>
+				<p class="contact__email">
+					<span>Atau kirim email ke</span>
+					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				</p>
+			</div>
+
+			<dl class="contact__facts">
+				{waFacts.map((fact) => (
+					<div class="contact__fact">
+						<dt>{fact.label}</dt>
+						<dd>{fact.value}</dd>
+					</div>
+				))}
+			</dl>
+		</div>
+	</section>
+
+	<section class="band band--tint">
+		<div class="shell">
+			<h2 class="contact__heading">Cara lain menghubungi kami</h2>
+			<ul class="contact__channels" role="list">
+				{channels.map((channel) => (
+					<li class="contact__channel">
+						<a
+							class="contact__channelHead"
+							href={channel.href}
+							target={channel.external ? "_blank" : undefined}
+							rel={channel.external ? "noopener" : undefined}
+						>
+							<span class="contact__channelIcon" aria-hidden="true">
+								<Icon name={channel.kind} size={20} />
+							</span>
+							<span class="contact__channelName">{channel.label}</span>
+							<span class="contact__channelValue">{channel.value}</span>
+						</a>
+						<p class="contact__channelNote">{channel.note}</p>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<Faq />
+
+	<Cta />
+</Base>
+
+<style>
+	.contact__primary {
+		display: flex;
+		align-items: center;
+		gap: clamp(16px, 3vw, 28px);
+		flex-wrap: wrap;
+		margin-bottom: clamp(32px, 4vw, 48px);
+	}
+
+	.contact__email {
+		margin: 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+	}
+
+	.contact__email a {
+		color: var(--orange-deep);
+		font-weight: var(--fw-semibold);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.contact__facts {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(20px, 3vw, 40px);
+		margin: 0;
+		padding-top: clamp(24px, 3vw, 32px);
+		border-top: 1px solid var(--rule);
+	}
+
+	.contact__fact dt {
+		color: var(--ink-3);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		margin-bottom: 6px;
+	}
+
+	.contact__fact dd {
+		margin: 0;
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-medium);
+		line-height: var(--lh-tight);
+	}
+
+	.contact__heading {
+		margin: 0 0 clamp(20px, 3vw, 28px);
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-bold);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.contact__channels {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(16px, 2.4vw, 24px);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.contact__channel {
+		display: flex;
+		flex-direction: column;
+		padding: clamp(20px, 2.2vw, 28px);
+		background: var(--paper);
+		border: 1px solid var(--rule);
+	}
+
+	.contact__channelHead {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 12px;
+		color: var(--ink);
+		text-decoration: none;
+	}
+
+	.contact__channelIcon {
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		border: 1px solid var(--rule-strong);
+		color: var(--ink);
+		transition:
+			border-color var(--dur-control) var(--ease-out),
+			color var(--dur-control) var(--ease-out);
+	}
+
+	.contact__channelHead:hover .contact__channelIcon {
+		border-color: var(--orange);
+		color: var(--orange-deep);
+	}
+
+	.contact__channelName {
+		font-size: var(--fs-body);
+		font-weight: var(--fw-semibold);
+	}
+
+	.contact__channelValue {
+		margin-left: auto;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.contact__channelNote {
+		margin: 12px 0 0;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	@media (max-width: 899px) {
+		.contact__channels,
+		.contact__facts {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 559px) {
+		.contact__channels,
+		.contact__facts {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.contact__channelValue {
+			margin-left: 0;
+			flex-basis: 100%;
+		}
+	}
+</style>

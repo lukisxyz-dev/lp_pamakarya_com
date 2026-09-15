@@ -1,25 +1,8 @@
 ---
 /**
- * Header.astro -- the site's two-layer header.
- *
- *   Top strip (navy)   email and the reachable phone number, then the three
- *                      profiles Pamakarya actually publishes.
- *   Main bar (white)   logo, the primary menu centred, WhatsApp CTA.
- *
- * Why the strip is navy and the bar is white: the logo is orange on dark blue
- * and only reads on white. The strip carries the brand's other colour, so the
- * two layers are the brand rather than an arbitrary band.
- *
- * Behaviour
- *   - Both bars are inside one sticky header. On scroll down the header
- *     translates up by exactly the strip's height, so the strip leaves and the
- *     white bar stays; on scroll up it comes back. Transform, not height, so
- *     nothing below the header moves.
- *   - The strip is decoration around contact details that are also in the
- *     drawer (mobile) and always present in the DOM, so hiding it costs no
- *     information.
- *   - Menu items come from the EmDash `primary` menu. Editors own the labels
- *     and order; this file owns how they render.
+ * Header.astro -- two layers: a navy strip (contact, profiles) over a white bar
+ * (logo, `primary` menu, WhatsApp CTA), joined by a 2px orange seam. Sticky; on
+ * scroll down the strip translates away and the white bar stays.
  */
 import { getMenu, getSiteSettings } from "emdash";
 import Icon from "./Icon.astro";
@@ -29,32 +12,34 @@ import { resolveStarterSiteIdentity } from "../utils/site-identity";
 const { siteTitle, siteLogo } = resolveStarterSiteIdentity(await getSiteSettings());
 const menu = await getMenu("primary");
 
-/* The bundled logo is the fallback the site is designed around; a logo chosen
-   in Settings wins, because that is the field the admin exposes. */
+/* A logo chosen in Settings wins; the bundled one is the fallback. */
 const logoUrl = siteLogo?.url ?? "/logo.png";
 const logoAlt = siteLogo?.alt || siteTitle;
 const logoWidth = siteLogo?.width ?? 1920;
 const logoHeight = siteLogo?.height ?? 768;
 
-/* The generic opener. This is the one CTA on the site chrome: a visitor who
-   taps it has not read a section yet, so the message asks, it does not quote. */
+/* One CTA on the chrome, and the visitor has read nothing yet: it asks. */
 const waHref = whatsappLink(
 	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
 );
 
+/* `name` prints in the strip, `label` names the link and heads the drawer row. */
 const socials = [
 	{
 		icon: "instagram",
+		name: "Instagram",
 		label: `Instagram ${contact.instagramHandle}`,
 		href: contact.instagramUrl,
 	},
 	{
 		icon: "store",
+		name: "Tokopedia",
 		label: `Tokopedia ${contact.tokopediaHandle}`,
 		href: contact.tokopediaUrl,
 	},
 	{
 		icon: "whatsapp",
+		name: "WhatsApp",
 		label: `WhatsApp ${contact.whatsappDisplay}`,
 		href: waHref,
 	},
@@ -78,31 +63,35 @@ const isCurrent = (href: string) => {
 	<div class="topbar">
 		<div class="shell topbar__inner">
 			<ul class="topbar__contact">
-				<li class="topbar__email">
-					<a href={`mailto:${contact.email}`}>{contact.email}</a>
-				</li>
 				<li>
 					<a class="topbar__phone" href={`tel:${contact.phone}`}>
 						{contact.whatsappDisplay}
 					</a>
 				</li>
+				<li class="topbar__email">
+					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				</li>
 			</ul>
 
-			<ul class="topbar__social">
-				{socials.map((social) => (
-					<li>
-						<a href={social.href} aria-label={social.label} target="_blank" rel="noopener">
-							<Icon name={social.icon} size={16} />
-						</a>
-					</li>
-				))}
-			</ul>
+			<div class="topbar__reach">
+				<span class="topbar__reachLabel">Ikuti kami</span>
+				<ul class="topbar__social">
+					{socials.map((social) => (
+						<li>
+							<a href={social.href} aria-label={social.label} target="_blank" rel="noopener">
+								<Icon name={social.icon} size={16} />
+								<span>{social.name}</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
 		</div>
 	</div>
 
 	<div class="mainbar">
 		<div class="shell mainbar__inner">
-			<a class="mainbar__logo" href="/" aria-label={`${siteTitle} — beranda`}>
+			<a class="mainbar__logo" href="/" aria-label={`${siteTitle}: beranda`}>
 				<img
 					src={logoUrl}
 					alt={logoAlt}
@@ -131,7 +120,7 @@ const isCurrent = (href: string) => {
 
 			<div class="mainbar__actions">
 				<a class="cta" href={waHref} target="_blank" rel="noopener">
-					<Icon name="whatsapp" size={18} />
+					<Icon name="whatsapp" size={20} />
 					<span>Konsultasi Gratis</span>
 				</a>
 
@@ -173,10 +162,10 @@ const isCurrent = (href: string) => {
 		</h2>
 		<ul class="drawer__contact" aria-labelledby="drawer-contact">
 			<li>
-				<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				<a href={`tel:${contact.phone}`}>{contact.whatsappDisplay}</a>
 			</li>
 			<li>
-				<a href={`tel:${contact.phone}`}>{contact.whatsappDisplay}</a>
+				<a href={`mailto:${contact.email}`}>{contact.email}</a>
 			</li>
 		</ul>
 
@@ -266,8 +255,9 @@ const isCurrent = (href: string) => {
 		});
 
 		// Resizing past the breakpoint brings the inline nav back; a modal still
-		// open over it would be inert decoration.
-		matchMedia("(min-width: 900px)").addEventListener("change", (event) => {
+		// open over it would be inert decoration. 1024px is the width the bar
+		// needs for the logo, four labels and the CTA on one row.
+		matchMedia("(min-width: 1024px)").addEventListener("change", (event) => {
 			if (event.matches) setOpen(false);
 		});
 	}
@@ -290,8 +280,19 @@ const isCurrent = (href: string) => {
 	/* Top strip ------------------------------------------------------------ */
 
 	.topbar {
-		background: var(--navy);
+		position: relative;
+		background: var(--navy-deep);
 		color: var(--on-navy);
+	}
+
+	/* The seam: 2px of orange drawn over the bar's top 2px, so the strip keeps
+	   its exact height and the sticky transform stays on whole numbers. */
+	.topbar::after {
+		content: "";
+		position: absolute;
+		inset: auto 0 -2px 0;
+		height: 2px;
+		background: var(--orange);
 	}
 
 	.topbar__inner {
@@ -300,84 +301,113 @@ const isCurrent = (href: string) => {
 		justify-content: space-between;
 		gap: var(--space-24);
 		height: var(--topbar-h);
+		font-size: var(--fs-caption);
 	}
 
-	.topbar__contact,
-	.topbar__social {
-		display: flex;
-		align-items: center;
-		gap: var(--space-16);
+	.topbar ul {
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
 	.topbar__contact {
+		display: flex;
+		align-items: center;
+		/* White for both, told apart by weight, not by a lighter tint. */
+		gap: var(--space-16);
+		height: 100%;
 		min-width: 0;
-		font-size: var(--fs-caption);
 	}
 
-	/* The divider carries structure between two values of the same kind, so it
-	   is a hairline in the strip's own ink rather than a grey. */
-	.topbar__contact li + li {
-		padding-left: var(--space-16);
-		border-left: 1px solid var(--rule-navy);
+	.topbar__contact li {
+		display: flex;
+		align-items: stretch;
+		height: 100%;
 	}
 
 	.topbar__contact a {
-		display: block;
-		max-width: 46ch;
+		display: flex;
+		align-items: center;
+		max-width: 40ch;
 		overflow: hidden;
-		color: inherit;
+		color: var(--on-navy);
 		text-decoration: none;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	.topbar__phone {
+	/* The number a visitor can actually reach leads, and says so by weight. */
+	.topbar__contact a.topbar__phone {
+		font-weight: var(--fw-medium);
 		font-variant-numeric: tabular-nums;
 	}
 
-	.topbar__contact a:hover,
-	.topbar__social a:hover {
-		color: var(--orange);
+	.topbar__contact a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.topbar__reach {
+		display: flex;
+		align-items: center;
+		gap: var(--space-16);
+		height: 100%;
+	}
+
+	.topbar__reachLabel {
+		color: var(--on-navy);
+		font-size: var(--fs-label);
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 	}
 
 	.topbar__social {
-		gap: var(--space-4);
+		display: flex;
+		align-items: stretch;
+		height: 100%;
+		gap: var(--space-16);
+	}
+
+	.topbar__social li {
+		display: flex;
 	}
 
 	.topbar__social a {
-		display: grid;
-		place-items: center;
-		/* 28px box for a 16px mark: still over the 24px minimum target, without
-		   a strip tall enough to hold a bigger one. */
-		width: 28px;
-		height: 28px;
-		border-radius: var(--radius-control);
-		color: var(--on-navy-muted);
-		transition: color var(--dur-control) var(--ease-out);
+		display: flex;
+		align-items: center;
+		gap: var(--space-8);
+		color: var(--on-navy);
+		text-decoration: none;
+	}
+
+	/* On hover the glyph takes brand orange (3.84:1 clears the 3:1 graphics
+	   floor) and the label underlines. The glyph lives in Icon.astro, so the
+	   selector reaches out of this file's scope. */
+	.topbar__social a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.topbar__social a:hover :global(svg) {
+		color: var(--orange);
 	}
 
 	/* Main bar ------------------------------------------------------------- */
 
 	.mainbar {
 		background: var(--paper);
-		border-bottom: 1px solid var(--rule);
 	}
 
-	/* Two 1fr columns around the menu is what centres it on the page rather
-	   than on whatever space the logo and the CTA happen to leave. */
 	.mainbar__inner {
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		display: flex;
 		align-items: center;
-		gap: var(--space-16);
+		gap: var(--space-24);
 		height: var(--mainbar-h);
 	}
 
 	.mainbar__logo {
-		justify-self: start;
+		flex: none;
 		display: block;
 	}
 
@@ -390,34 +420,66 @@ const isCurrent = (href: string) => {
 		object-fit: contain;
 	}
 
+	/* The menu is a rail bolted to the logo: a full-height hairline, then the
+	   labels. Stretched, not centred, so each item is a column of the bar. */
 	.mainbar__nav {
-		justify-self: center;
+		align-self: stretch;
+		display: flex;
+		min-width: 0;
+		border-left: 1px solid var(--rule);
+		/* A menu an editor grows past the bar scrolls instead of overflowing;
+		   keyboard focus still brings each item into view. */
+		overflow-x: auto;
+		scrollbar-width: none;
 	}
 
 	.mainbar__nav ul {
 		display: flex;
-		align-items: center;
-		gap: var(--space-4);
+		align-items: stretch;
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
+	.mainbar__nav li {
+		display: flex;
+	}
+
 	.mainbar__nav a {
-		display: block;
-		padding: 8px var(--space-12);
-		border-radius: var(--radius-control);
+		position: relative;
+		display: flex;
+		align-items: center;
+		padding: 0 var(--space-16);
 		color: var(--ink);
 		font-size: var(--fs-body-s);
 		font-weight: var(--fw-medium);
 		text-decoration: none;
+		white-space: nowrap;
 		transition:
 			background-color var(--dur-control) var(--ease-out),
 			color var(--dur-control) var(--ease-out);
 	}
 
+	/* The current item's rule lands on the bar's bottom border, so the cut line
+	   marks the shelf the item sits on. Hover draws the same rule. */
+	.mainbar__nav a::after {
+		content: "";
+		position: absolute;
+		inset: auto 0 0 0;
+		height: 2px;
+		background: var(--orange);
+		transform: scaleX(0);
+		transform-origin: left center;
+		transition: transform var(--dur-control) var(--ease-out);
+	}
+
 	.mainbar__nav a:hover {
 		background: var(--paper-2);
+	}
+
+	.mainbar__nav a:hover::after,
+	.mainbar__nav a[aria-current="page"]::after {
+		transform: scaleX(1);
 	}
 
 	.mainbar__nav a[aria-current="page"] {
@@ -425,19 +487,30 @@ const isCurrent = (href: string) => {
 		font-weight: var(--fw-semibold);
 	}
 
+	/* The nav scrolls on x, and a scroll container clips: an offset ring would
+	   lose its top and bottom edges. Inset instead, still 3.41:1 on white. */
+	.mainbar__nav a:focus-visible {
+		outline-offset: -3px;
+	}
+
 	.mainbar__actions {
-		justify-self: end;
+		margin-left: auto;
+		/* Stretched, not centred: the CTA inside is the bar's full height, so
+		   this row has to be the bar's full height for it to fill. */
+		align-self: stretch;
 		display: flex;
-		align-items: center;
+		align-items: stretch;
 		gap: var(--space-8);
 	}
 
+	/* The one filled control on the chrome, and it fills the bar: a square
+	   orange block flush with the bar's top and bottom edges. A 15px label in a
+	   40px pill among four menu items is a third menu item; this is not. */
 	.cta {
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-8);
-		padding: 10px var(--space-16);
-		border-radius: var(--radius-control);
+		padding: 0 var(--space-24);
 		background: var(--orange-fill);
 		color: var(--paper);
 		font-size: var(--fs-body-s);
@@ -452,11 +525,15 @@ const isCurrent = (href: string) => {
 		background: var(--orange-deep);
 	}
 
-	.cta:active {
-		transform: translateY(1px);
+	/* Inset white ring: the global orange one is invisible on this fill, and an
+	   offset navy one loses its top edge under the seam. White on it is 4.62:1. */
+	.cta:focus-visible {
+		outline: 2px solid var(--paper);
+		outline-offset: -3px;
 	}
 
 	.burger {
+		align-self: center;
 		display: grid;
 		place-items: center;
 		width: 40px;
@@ -551,11 +628,15 @@ const isCurrent = (href: string) => {
 		font-weight: var(--fw-semibold);
 	}
 
+	/* Small caps over a hairline, the same voice as the strip: the drawer is
+	   the strip's content continued, not a second design. */
 	.drawer__heading {
 		margin: var(--space-24) 0 var(--space-8);
 		color: var(--ink-3);
 		font-size: var(--fs-label);
 		font-weight: var(--fw-semibold);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 	}
 
 	.drawer__contact {
@@ -569,7 +650,7 @@ const isCurrent = (href: string) => {
 		text-decoration: none;
 	}
 
-	.drawer__contact li:last-child a {
+	.drawer__contact li:first-child a {
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -591,45 +672,66 @@ const isCurrent = (href: string) => {
 
 	/* Breakpoints ---------------------------------------------------------- */
 
-	@media (max-width: 899px) {
-		/* The profiles are labelled rows in the drawer at this width; the strip
-		   only has room for the two details that are worth a tap. */
-		.topbar__social {
+	/* Below 1024 the bar cannot hold the logo, four labels and the CTA on one
+	   row: the menu moves into the drawer, the strip keeps only the details
+	   worth a tap, and the CTA sheds its padding to stay a full-height block. */
+	@media (max-width: 1023px) {
+		.topbar__reach {
 			display: none;
+		}
+
+		.mainbar__inner {
+			/* The bar is 52px here; 24px between the three clusters is space the
+			   logo and the CTA can use on a 360px screen. */
+			gap: var(--space-16);
 		}
 
 		.mainbar__nav {
 			display: none;
 		}
 
-		.mainbar__inner {
-			/* Nothing is centred at this width -- the menu is in the drawer --
-			   so the logo and the controls keep their natural widths instead of
-			   the equal-column grid squeezing the logo. */
-			grid-template-columns: auto 1fr auto;
-			gap: var(--space-8);
-		}
-
 		.cta {
-			padding: 9px var(--space-12);
+			padding: 0 var(--space-16);
 			font-size: var(--fs-caption);
 		}
 
-		/* Without the script there is no drawer and no burger that works, so the
-		   menu has to stay on the page. */
-		:global(html:not(.js)) .mainbar__nav {
-			display: block;
-			justify-self: stretch;
+		.cta :global(svg) {
+			width: 18px;
+			height: 18px;
 		}
 
+		/* Without the script there is no drawer and no burger that works, so the
+		   menu has to stay on the page: it takes its own row under the logo. */
 		:global(html:not(.js)) .mainbar__inner {
-			grid-template-columns: auto 1fr auto;
+			flex-wrap: wrap;
 			height: auto;
-			padding-block: var(--space-8);
+			padding-block: var(--space-12);
+			row-gap: var(--space-4);
+		}
+
+		:global(html:not(.js)) .mainbar__nav {
+			order: 3;
+			display: block;
+			flex-basis: 100%;
+			border-left: 0;
+			overflow-x: visible;
 		}
 
 		:global(html:not(.js)) .mainbar__nav ul {
 			flex-wrap: wrap;
+		}
+
+		:global(html:not(.js)) .mainbar__nav a {
+			padding: 8px var(--space-12);
+		}
+
+		:global(html:not(.js)) .mainbar__nav a::after {
+			content: none;
+		}
+
+		:global(html:not(.js)) .cta {
+			align-self: center;
+			height: 44px;
 		}
 
 		:global(html:not(.js)) .burger {
@@ -637,20 +739,38 @@ const isCurrent = (href: string) => {
 		}
 	}
 
-	@media (min-width: 900px) {
+	@media (min-width: 1024px) {
 		.burger {
 			display: none;
 		}
 	}
 
-	@media (max-width: 559px) {
+	/* The email is the longest string in the chrome; below this it is the first
+	   thing to go, and the phone number stands alone. */
+	@media (max-width: 639px) {
 		.topbar__email {
 			display: none;
 		}
 
-		.topbar__contact li + li {
-			padding-left: 0;
-			border-left: 0;
+		.cta {
+			padding: 0 var(--space-12);
+			font-size: var(--fs-label);
+		}
+
+		.cta :global(svg) {
+			width: 16px;
+			height: 16px;
+		}
+	}
+
+	/* At the 320px reflow floor the logo, the CTA and the burger only just fit. */
+	@media (max-width: 359px) {
+		.mainbar__inner {
+			gap: var(--space-12);
+		}
+
+		.cta {
+			padding: 0 10px;
 		}
 	}
 </style>

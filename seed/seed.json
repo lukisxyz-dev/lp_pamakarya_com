@@ -109,8 +109,13 @@
 			"items": [
 				{
 					"type": "custom",
+					"label": "Beranda",
+					"url": "/"
+				},
+				{
+					"type": "custom",
 					"label": "Tentang Kami",
-					"url": "/about"
+					"url": "/#tentang-kami"
 				},
 				{
 					"type": "custom",
