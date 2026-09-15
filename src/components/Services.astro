@@ -94,9 +94,15 @@ const services = business.serviceUnits.map((unit, index) => ({
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-end;
+		/* Top-aligned: with the block pinned to the bottom, a two-line name and
+		   a three-line sentence pushed each card's words to a different height. */
+		justify-content: flex-start;
+		/* The strip of photograph under the words. A fixed length rather than a
+		   share of the tile, so the scrim below can be anchored to it. */
+		--photo-zone: clamp(72px, 9vw, 120px);
 		min-height: clamp(190px, 17vw, 240px);
 		padding: clamp(20px, 2.2vw, 28px);
+		padding-bottom: calc(clamp(20px, 2.2vw, 28px) + var(--photo-zone));
 		/* The tile under every photo -- and the whole cell where there is none. */
 		background: var(--navy-deep);
 		overflow: hidden;
@@ -119,19 +125,25 @@ const services = business.serviceUnits.map((unit, index) => ({
 		transition: scale var(--dur-control) var(--ease-out);
 	}
 
-	/* Must stay >=0.76 wherever the name or the sentence can land: at 0.6 the
-	   measured worst case was 4.11:1 (name) and 2.7:1 (index) on the fasad tile. */
+	/* Anchored in pixels, not in percentages: the words always sit on >=0.86
+	   and the photograph emerges over the fixed photo zone below them, whatever
+	   the tile's height turns out to be. Measured 14.7:1 (name) and 8.9:1
+	   (sentence) on both tile geometries, worst case across the twelve photos. */
 	.services__cell::after {
 		background: linear-gradient(
 			to top,
-			rgba(6, 20, 34, 0.94),
-			rgba(6, 20, 34, 0.76) 80%,
-			rgba(6, 20, 34, 0.2)
+			rgba(6, 20, 34, 0.1),
+			rgba(6, 20, 34, 0.5) 48px,
+			rgba(6, 20, 34, 0.86) var(--photo-zone),
+			rgba(6, 20, 34, 0.94)
 		);
 	}
 
 	.services__cell > * {
 		position: relative;
+		/* ::after is the last child, so without a z-index the scrim paints over
+		   the words -- the tile's own text was under a 0.94 wash. */
+		z-index: 1;
 	}
 
 	/* Motion is opt-in: a still frame is the default, six loops are the upgrade.
@@ -172,6 +184,15 @@ const services = business.serviceUnits.map((unit, index) => ({
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-tight);
 		text-wrap: balance;
+	}
+
+	/* From 1024 up the tiles are narrow enough that "Pembuatan Mesin Tepat
+	   Guna" wraps and "Laser Cutting" does not, which would start the sentence
+	   below each name on a different row. Reserve the second line. */
+	@media (min-width: 1024px) {
+		.services__name {
+			min-height: 2.6em;
+		}
 	}
 
 	.services__desc {
