@@ -57,25 +57,6 @@ const services = business.serviceUnits.map((unit, index) => ({
 	</div>
 </section>
 
-<script>
-	const tiles = document.querySelectorAll<HTMLElement>(".services__cell");
-
-	if (tiles.length > 0) {
-		const observer = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					if (!entry.isIntersecting) continue;
-					entry.target.classList.add("is-live");
-					observer.unobserve(entry.target);
-				}
-			},
-			{ rootMargin: "200px" },
-		);
-
-		for (const tile of tiles) observer.observe(tile);
-	}
-</script>
-
 <style>
 	.services__grid {
 		display: grid;
@@ -146,15 +127,12 @@ const services = business.serviceUnits.map((unit, index) => ({
 		z-index: 1;
 	}
 
-	/* Motion is opt-in: a still frame is the default, six loops are the upgrade.
-	   `is-live` arrives from the observer below, so the band costs the still
-	   frames up front (~68 KB) instead of every loop (~1 MB) on page load. */
-	@media (prefers-reduced-motion: no-preference) {
-		.services__cell.is-live::before {
+	/* Motion on intent, never ambient: the loops used to run behind the words
+	   while someone was reading them. `(hover: hover)` also keeps the ~1.3 MB of
+	   loops off touch devices, where nothing can hover them anyway. */
+	@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+		.services__cell:hover::before {
 			background-image: var(--anim, none);
-		}
-
-		.services__cell.is-live:hover::before {
 			scale: 1.05;
 		}
 	}
