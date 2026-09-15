@@ -30,7 +30,6 @@ import { business, companyName, contact, faqs } from "../data/site";
 interface Props {
 	/** The page context the layout built. EmDash reads it for its own tags. */
 	page: ReturnType<typeof createPublicPageContext>;
-	/** The document title, already resolved by Base.astro. */
 	fullTitle: string;
 	/** Pages that must stay out of the index, such as the 404. */
 	noindex?: boolean;

@@ -3,17 +3,6 @@
  * Hero.astro -- the homepage's first screen, mirroring the reference mock
  * (pamakarya-header-hero.html): a blurred workshop photo under a navy-tinted
  * gradient, copy on the left, WhatsApp CTA plus a ghost link.
- *
- * Height contract: topbar + mainbar + hero == one viewport, exactly. The copy
- * scales with that same height, and 560px is the floor -- the hero is a
- * min-height, so a longer copy grows the section instead of being clipped.
- *
- * Contrast contract: the scrim keeps every string over the photo at 4.5:1
- * (white and white@0.82) and the orange accent at 3:1. The ramp is anchored to
- * the copy column rather than to viewport percentages, and the calc() stops
- * fall past the end on narrow screens, where it degrades to a flat 0.94-0.88
- * wash. Verified against the photo at 390 through 1920 with the copy box dark
- * enough for the strictest of the three.
  */
 import { Image } from "astro:assets";
 import Icon from "./Icon.astro";
@@ -92,8 +81,6 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		}
 	}
 
-	/* The photo lives on its own clipped layer, so the softening filter never
-	   reaches the text and the blur cannot bleed past the section. */
 	.hero__photo {
 		position: absolute;
 		inset: 0;
@@ -108,9 +95,6 @@ const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser
 		filter: blur(1.5px) grayscale(10%) brightness(0.82) saturate(1.05);
 	}
 
-	/* Dark through the copy column, thinning to the photo on the right. The
-	   calc() anchors keep the dark part under the text at every width; past the
-	   gradient's end they collapse, which is the flat wash narrow screens want. */
 	.hero__overlay {
 		position: absolute;
 		inset: 0;

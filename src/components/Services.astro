@@ -41,7 +41,7 @@ const services = business.serviceUnits.map((unit, index) => ({
 						{service.index}
 					</span>
 					<h3 class="services__name">{service.name}</h3>
-					{service.description && <p class="services__desc">{service.description}</p>}
+					<p class="services__desc">{service.description}</p>
 				</li>
 			))}
 		</ul>
@@ -75,15 +75,12 @@ const services = business.serviceUnits.map((unit, index) => ({
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		/* Top-aligned: with the block pinned to the bottom, a two-line name and
-		   a three-line sentence pushed each card's words to a different height. */
-		justify-content: flex-start;
-		/* The strip of photograph under the words. A fixed length rather than a
-		   share of the tile, so the scrim below can be anchored to it. */
+		justify-content: flex-end;
 		--photo-zone: clamp(72px, 9vw, 120px);
+		--text-zone: 137px;
 		min-height: clamp(190px, 17vw, 240px);
 		padding: clamp(20px, 2.2vw, 28px);
-		padding-bottom: calc(clamp(20px, 2.2vw, 28px) + var(--photo-zone));
+		padding-top: calc(clamp(20px, 2.2vw, 28px) + var(--photo-zone));
 		/* The tile under every photo -- and the whole cell where there is none. */
 		background: var(--navy-deep);
 		overflow: hidden;
@@ -100,36 +97,24 @@ const services = business.serviceUnits.map((unit, index) => ({
 
 	.services__cell::before {
 		background: var(--still, none) center / cover no-repeat;
-		/* The six photos carry blown-out highlights in the rows the words sit
-		   on; dimming the layer is what lets one shared scrim hold 4.5:1. */
 		filter: brightness(0.9);
 		transition: scale var(--dur-control) var(--ease-out);
 	}
 
-	/* Anchored in pixels, not in percentages: the words always sit on >=0.86
-	   and the photograph emerges over the fixed photo zone below them, whatever
-	   the tile's height turns out to be. Measured 14.7:1 (name) and 8.9:1
-	   (sentence) on both tile geometries, worst case across the twelve photos. */
 	.services__cell::after {
 		background: linear-gradient(
 			to top,
-			rgba(6, 20, 34, 0.1),
-			rgba(6, 20, 34, 0.5) 48px,
-			rgba(6, 20, 34, 0.86) var(--photo-zone),
-			rgba(6, 20, 34, 0.94)
+			rgba(6, 20, 34, 0.94),
+			rgba(6, 20, 34, 0.86) var(--text-zone),
+			rgba(6, 20, 34, 0.12)
 		);
 	}
 
 	.services__cell > * {
 		position: relative;
-		/* ::after is the last child, so without a z-index the scrim paints over
-		   the words -- the tile's own text was under a 0.94 wash. */
 		z-index: 1;
 	}
 
-	/* Motion on intent, never ambient: the loops used to run behind the words
-	   while someone was reading them. `(hover: hover)` also keeps the ~1.3 MB of
-	   loops off touch devices, where nothing can hover them anyway. */
 	@media (prefers-reduced-motion: no-preference) and (hover: hover) {
 		.services__cell:hover::before {
 			background-image: var(--anim, none);
@@ -137,9 +122,6 @@ const services = business.serviceUnits.map((unit, index) => ({
 		}
 	}
 
-	/* The index numbers the sheet, so it keeps the brand's orange -- as a filled
-	   disc carrying navy, the same control Process.astro draws. Orange on the
-	   scrim itself measured 1.0-1.7:1 over the photo tiles. */
 	.services__index {
 		display: grid;
 		place-items: center;
@@ -164,17 +146,23 @@ const services = business.serviceUnits.map((unit, index) => ({
 		text-wrap: balance;
 	}
 
-	/* From 1024 up the tiles are narrow enough that "Pembuatan Mesin Tepat
-	   Guna" wraps and "Laser Cutting" does not, which would start the sentence
-	   below each name on a different row. Reserve the second line. */
 	@media (min-width: 1024px) {
+		.services__cell {
+			--text-zone: 190px;
+		}
+
 		.services__name {
 			min-height: 2.6em;
+		}
+
+		.services__desc {
+			min-height: 4.8em;
 		}
 	}
 
 	.services__desc {
 		margin: 10px 0 0;
+		min-height: 3.2em;
 		color: rgba(255, 255, 255, 0.78);
 		font-size: var(--fs-body-s);
 		line-height: var(--lh-body);

@@ -19,8 +19,6 @@ import { business, fileFormats } from "../data/site";
 const services = business.serviceUnits.map((unit, index) => ({
 	...unit,
 	index: String(index + 1).padStart(2, "0"),
-	/* The footer links each service by name (`/jasa#laser-cutting`), so the row
-	   it lands on has to carry the slug `slugify` produces from that name. */
 	anchor: slugify(unit.name),
 }));
 
@@ -113,7 +111,6 @@ const description =
 		display: grid;
 		grid-template-columns: 72px minmax(0, 1fr);
 		gap: clamp(16px, 3vw, 40px);
-		/* A linked row has to clear the sticky mainbar when it is the target. */
 		scroll-margin-top: calc(var(--mainbar-h) + 16px);
 		padding-block: clamp(20px, 2.4vw, 30px);
 		border-bottom: 1px solid var(--rule);

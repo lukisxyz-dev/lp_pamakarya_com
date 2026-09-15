@@ -1,14 +1,6 @@
 import type { APIRoute } from "astro";
 import { getSiteSettings } from "emdash";
 
-/**
- * The sitemap EmDash cannot write. `/sitemap.xml` is an index of the CMS
- * collections, and these four are Astro pages rather than entries, so nothing
- * else lists them -- `/` is the page this site exists for.
- *
- * No `lastmod`: the only honest timestamp would be a build time, and a wrong
- * lastmod costs more than a missing one.
- */
 export const prerender = false;
 
 const PATHS = ["/", "/jasa", "/portfolio", "/contact"];

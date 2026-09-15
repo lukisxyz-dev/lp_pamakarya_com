@@ -1,14 +1,6 @@
 import type { APIRoute } from "astro";
 import { getSiteSettings } from "emdash";
 
-/**
- * robots.txt -- EmDash injects this route itself, and this replaces it for one
- * reason: its `Sitemap:` line can only name `/sitemap.xml`, while the four
- * Astro pages live in `/sitemap-static.xml` beside it.
- *
- * Settings -> SEO -> robots.txt still wins, and both sitemap lines are appended
- * to it when it carries none, which is what EmDash's own route does.
- */
 export const prerender = false;
 
 export const GET: APIRoute = async ({ url }) => {

@@ -57,12 +57,6 @@ const siteUrl = (settings.url ?? Astro.url.origin).replace(/\/+$/, "");
  */
 const pageDescription = description ?? business.description;
 
-/**
- * Titles read "<page> | Pamakarya". The homepage has no page name of its own,
- * so the tagline takes that slot rather than repeating the site name alone --
- * "Pamakarya | Custom Laser Cutting & Fabrikasi" is what the live site's own
- * `<title>` says, and it is the sentence a search result needs.
- */
 const separator = settings.seo?.titleSeparator ?? " | ";
 const pageName = title.trim();
 const fullTitle =
@@ -72,15 +66,10 @@ const fullTitle =
 			? pageName
 			: [pageName, siteTitle].join(separator);
 
-/* The page's own card, then the editor's Settings default, then the bundled one.
-   Crawlers read og:image as an absolute URL, so the fallback is qualified here. */
 const ogImage = image ?? (settings.seo?.defaultOgImage ? null : `${siteUrl}/og.jpg`);
 
 const { cacheHint: settingsHint } = await getSiteSettingsWithCacheHint();
 const { cacheHint: menuHint } = await getMenuWithCacheHint("primary");
-/* Settings and the menu are in the chrome of every route, so their tags belong
-   to every route's response -- including the four custom pages that never set a
-   hint of their own. */
 if (Astro.cache?.enabled) {
 	Astro.cache.set({ tags: [...(settingsHint.tags ?? []), ...(menuHint.tags ?? [])] });
 }
@@ -96,7 +85,6 @@ const pageCtx = createPublicPageContext({
 	image: ogImage,
 	content,
 	articleMeta,
-	/* og:title wants the whole sentence, not the page name on its own. */
 	seo: { ogTitle: pageTitle ?? fullTitle },
 	siteName: siteTitle,
 	siteUrl,
@@ -109,8 +97,6 @@ const pageCtx = createPublicPageContext({
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<Seo page={pageCtx} fullTitle={fullTitle} noindex={noindex} faqSchema={faqSchema} />
-		{/* Settings -> General owns the icon once it has one; the bundled set is
-		    the fallback, so `/favicon.ico` stops answering with the 404 page. */}
 		{!settings.favicon?.url && (
 			<>
 				<link rel="icon" href="/favicon.ico" sizes="32x32" />
