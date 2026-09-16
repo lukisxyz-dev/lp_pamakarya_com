@@ -7,12 +7,10 @@
  * assets with a known intrinsic size, not CMS media references, so the Astro
  * component is what emits the responsive srcset the config asks for.
  */
-import { Image } from "astro:assets";
 import type { PortfolioItem } from "../data/portfolio";
 
 interface Props {
 	items: PortfolioItem[];
-	/** `sizes` for <Image />; the two call sites sit in different columns. */
 	sizes: string;
 }
 
@@ -22,12 +20,13 @@ const { items, sizes } = Astro.props;
 <ul class="work-grid" role="list">
 	{items.map((item) => (
 		<li class="work-grid__cell">
-			<Image
+			<img
 				class="work-grid__img"
-				src={item.src}
+				src={item.src.src}
 				alt={item.alt}
-				widths={[320, 480, 640]}
-				{sizes}
+				width={item.src.width}
+				height={item.src.height}
+				sizes={sizes}
 				loading="lazy"
 				decoding="async"
 			/>
