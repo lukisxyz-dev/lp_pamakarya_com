@@ -1,23 +1,12 @@
-import cloudflare from "@astrojs/cloudflare";
-import react from "@astrojs/react";
-import { d1, r2 } from "@emdash-cms/cloudflare";
-import { defineConfig, fontProviders } from "astro/config";
-import emdash from "emdash/astro";
+// @ts-check
+import { defineConfig, fontProviders } from 'astro/config';
 
+// https://astro.build/config
 export default defineConfig({
-	output: "server",
-	adapter: cloudflare(),
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
 	},
-	/**
-	 * Open Runde (https://github.com/lauridskern/open-runde), self-hosted from
-	 * src/fonts -- it is not on Google Fonts, so the local provider is the only
-	 * option. Four static weights bound to one CSS variable; the metric-matched
-	 * fallback Astro generates from those files is what keeps the header from
-	 * reflowing before the font lands.
-	 */
 	fonts: [
 		{
 			provider: fontProviders.local(),
@@ -45,13 +34,6 @@ export default defineConfig({
 				],
 			},
 		},
-	],
-	integrations: [
-		react(),
-		emdash({
-			database: d1({ binding: "DB", session: "auto" }),
-			storage: r2({ binding: "MEDIA" }),
-		}),
 	],
 	devToolbar: { enabled: false },
 });

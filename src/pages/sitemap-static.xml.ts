@@ -1,13 +1,12 @@
 import type { APIRoute } from "astro";
-import { getSiteSettings } from "emdash";
+import { siteUrl } from "../utils/site-identity";
 
-export const prerender = false;
+export const prerender = true;
 
 const PATHS = ["/", "/jasa", "/portfolio", "/contact"];
 
-export const GET: APIRoute = async ({ url }) => {
-	const settings = await getSiteSettings();
-	const origin = (settings.url || url.origin).replace(/\/+$/, "");
+export const GET: APIRoute = () => {
+	const origin = siteUrl.replace(/\/+$/, "");
 	const body = [
 		'<?xml version="1.0" encoding="UTF-8"?>',
 		'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

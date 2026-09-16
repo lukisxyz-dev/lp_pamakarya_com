@@ -13,7 +13,7 @@
 import Base from "../layouts/Base.astro";
 import Process from "../components/Process.astro";
 import Cta from "../components/Cta.astro";
-import { slugify } from "emdash";
+import { slugify } from "../utils/site-identity";
 import { business, fileFormats } from "../data/site";
 
 const services = business.serviceUnits.map((unit, index) => ({

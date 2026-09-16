@@ -1,13 +1,10 @@
 ---
-import { getMenuWithCacheHint, getSiteSettings, getSiteSettingsWithCacheHint } from "emdash";
-import { EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
-import { createPublicPageContext } from "emdash/page";
 import { Font } from "astro:assets";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Seo from "../components/Seo.astro";
 import { business } from "../data/site";
-import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import { siteTitle, siteTagline, siteUrl, titleSeparator } from "../utils/site-identity";
 import "../styles/theme.css";
 
 interface Props {
@@ -16,20 +13,8 @@ interface Props {
 	description?: string | null;
 	image?: string | null;
 	canonical?: string | null;
-	/** "article" for posts: it swaps og:type and the BlogPosting graph. */
-	pageType?: "website" | "article";
-	/** Published / modified / author, for article pages. */
-	articleMeta?: {
-		publishedTime?: string | null;
-		modifiedTime?: string | null;
-		author?: string | null;
-	};
-	/** Keeps a page out of the index, such as the 404. */
 	noindex?: boolean;
-	/** Emit FAQPage markup. Only the page showing the FAQ list should ask. */
 	faqSchema?: boolean;
-	/** Pass content reference for plugin page contributions on content pages */
-	content?: { collection: string; id: string; slug?: string | null };
 }
 
 const {
@@ -38,57 +23,24 @@ const {
 	description,
 	image,
 	canonical,
-	pageType = "website",
-	articleMeta,
 	noindex,
 	faqSchema,
-	content,
 } = Astro.props;
-const settings = await getSiteSettings();
-const { siteTitle, siteTagline } = resolveStarterSiteIdentity(settings);
 
-/* Settings -> General wins; a deployment without it canonicalises to itself. */
-const siteUrl = (settings.url ?? Astro.url.origin).replace(/\/+$/, "");
-
-/**
- * The description a page does not state itself. The business sentence beats
- * the tagline ("Custom Laser Cutting & Fabrikasi" is a slogan, not an answer),
- * and Seo.astro turns the tagline into the homepage's title instead.
- */
 const pageDescription = description ?? business.description;
 
-const separator = settings.seo?.titleSeparator ?? " | ";
 const pageName = title.trim();
 const fullTitle =
 	!pageName || pageName === siteTitle
-		? [siteTitle, siteTagline].filter(Boolean).join(separator)
+		? [siteTitle, siteTagline].filter(Boolean).join(titleSeparator)
 		: pageName.includes(siteTitle)
 			? pageName
-			: [pageName, siteTitle].join(separator);
+			: [pageName, siteTitle].join(titleSeparator);
 
-const ogImage = image ?? (settings.seo?.defaultOgImage ? null : `${siteUrl}/og.jpg`);
-
-const { cacheHint: settingsHint } = await getSiteSettingsWithCacheHint();
-const { cacheHint: menuHint } = await getMenuWithCacheHint("primary");
-if (Astro.cache?.enabled) {
-	Astro.cache.set({ tags: [...(settingsHint.tags ?? []), ...(menuHint.tags ?? [])] });
-}
-
-const pageCtx = createPublicPageContext({
-	Astro,
-	kind: content ? "content" : "custom",
-	pageType,
-	title: pageTitle ?? title,
-	pageTitle: pageTitle ?? title,
-	description: pageDescription,
-	canonical,
-	image: ogImage,
-	content,
-	articleMeta,
-	seo: { ogTitle: pageTitle ?? fullTitle },
-	siteName: siteTitle,
-	siteUrl,
-});
+const origin = siteUrl;
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const pageCanonical = canonical ?? `${origin}${path === "/" ? "/" : path}`;
+const ogImage = image ?? `${origin}/og.jpg`;
 ---
 
 <!doctype html>
@@ -96,14 +48,17 @@ const pageCtx = createPublicPageContext({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<Seo page={pageCtx} fullTitle={fullTitle} noindex={noindex} faqSchema={faqSchema} />
-		{!settings.favicon?.url && (
-			<>
-				<link rel="icon" href="/favicon.ico" sizes="32x32" />
-				<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
-				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-			</>
-		)}
+		<Seo
+			fullTitle={fullTitle}
+			description={pageDescription}
+			canonical={pageCanonical}
+			image={ogImage}
+			noindex={noindex}
+			faqSchema={faqSchema}
+		/>
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<Font
 			cssVariable="--font-open-runde"
 			preload={[
@@ -111,16 +66,11 @@ const pageCtx = createPublicPageContext({
 				{ weight: 600, style: "normal" },
 			]}
 		/>
-		{/* Marks the document as scripted before first paint: the mobile menu
-		    lives behind a button, and a reader without the script must still
-		    get it, so the CSS that collapses the nav is gated on this class. */}
 		<script is:inline>
 			document.documentElement.classList.add("js");
 		</script>
 	</head>
 	<body>
-		<EmDashBodyStart page={pageCtx} />
-
 		<a class="skip-link" href="#main">
 			Lewati ke konten
 		</a>
@@ -131,7 +81,5 @@ const pageCtx = createPublicPageContext({
 		</main>
 
 		<Footer />
-
-		<EmDashBodyEnd page={pageCtx} />
 	</body>
 </html>

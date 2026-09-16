@@ -1,63 +1,21 @@
 ---
-/**
- * Seo.astro -- every tag this template gives a crawler, in one file.
- *
- * The split with EmDash: the CMS owns the values an editor can change and the
- * tags that follow from them -- meta description, canonical, og:*, twitter:*,
- * hreflang, the WebSite/BlogPosting graph, favicons, and the search-console
- * verification values from Settings -> SEO. This file renders the `<title>`,
- * the locale, the canonical fallback, the robots rule, and the business graph
- * that no editor field could describe (what the company is and what it sells).
- * It then hands the page context to `<EmDashHead />`, so plugin head
- * contributions and visual-editing data still land in the right order.
- *
- * Nothing is emitted twice: `<title>` is not EmDash's to write, the canonical
- * link and the robots meta are only written here when the page context does
- * not already carry them, and the Organization node is a separate entity from
- * EmDash's WebSite node, which it references by `@id`.
- *
- * Grounding. `business` in src/data/site.ts holds the company description, the
- * service lines, the materials and the sectors, each traced to the live site.
- * The graph states those and nothing more: no address, no opening hours, no
- * price range, and no `LocalBusiness` -- that type requires a street address
- * Pamakarya has never published. The day it does, `LocalBusiness` with
- * `address` and `geo` belongs right here.
- */
-import { EmDashHead } from "emdash/ui";
-import { createPublicPageContext, safeJsonLdSerialize } from "emdash/page";
 import { business, companyName, contact, faqs } from "../data/site";
+import { siteUrl } from "../utils/site-identity";
 
 interface Props {
-	/** The page context the layout built. EmDash reads it for its own tags. */
-	page: ReturnType<typeof createPublicPageContext>;
 	fullTitle: string;
-	/** Pages that must stay out of the index, such as the 404. */
+	description: string;
+	canonical: string;
+	image: string;
 	noindex?: boolean;
-	/** Adds a FAQPage node for the list `faqs` in src/data/site.ts. */
 	faqSchema?: boolean;
 }
 
-const { page, fullTitle, noindex, faqSchema } = Astro.props;
-
-const siteUrl = (page.siteUrl ?? Astro.url.origin).replace(/\/+$/, "");
-
-/**
- * A self-referencing canonical for every page that does not already have one.
- * Trailing slashes are stripped so `/about` and `/about/` cannot both be
- * indexed; the root keeps its slash.
- */
-const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
-const canonical = `${siteUrl}${path === "/" ? "/" : path}`;
+const { fullTitle, description, canonical, image, noindex, faqSchema } = Astro.props;
 
 const areaServed = { "@type": "Country", name: "Indonesia" };
 const organizationId = `${siteUrl}/#organization`;
 
-/**
- * The FAQPage node, added only where the page actually shows the list -- markup
- * for questions a page does not answer is a guideline violation, not a bonus.
- * The answer text is the site's own `faqs`: the summary sentence, then the
- * points the live site writes under it.
- */
 const faqPage = faqSchema
 	? {
 			"@type": "FAQPage",
@@ -72,11 +30,6 @@ const faqPage = faqSchema
 		}
 	: null;
 
-/**
- * One graph, one entity. The OfferCatalog is the service list as the live site
- * groups it, written as Offer -> itemOffered -> Service, which is the shape
- * Google's structured-data guidance uses for a business's services.
- */
 const graph = {
 	"@context": "https://schema.org",
 	"@graph": [
@@ -94,7 +47,6 @@ const graph = {
 			},
 			email: contact.email,
 			telephone: contact.phone,
-			/* The live site's own <title>: "Pamakarya - Custom Laser Cutting & Fabrikasi". */
 			slogan: "Custom Laser Cutting & Fabrikasi",
 			contactPoint: [
 				{
@@ -108,7 +60,6 @@ const graph = {
 			],
 			sameAs: [contact.instagramUrl, contact.tokopediaUrl],
 			areaServed,
-			/* What the company can be asked for, in the words of its own pages. */
 			knowsAbout: [...business.serviceUnits.map((unit) => unit.name), ...business.materials],
 			hasOfferCatalog: {
 				"@type": "OfferCatalog",
@@ -121,7 +72,6 @@ const graph = {
 						...(unit.description ? { description: unit.description } : {}),
 						provider: { "@id": organizationId },
 						areaServed,
-						/* Who the work is for. The about page names these itself. */
 						serviceAudience: {
 							"@type": "BusinessAudience",
 							name: business.sectors.join(", "),
@@ -136,9 +86,22 @@ const graph = {
 ---
 
 <title>{fullTitle}</title>
-{noindex && !page.seo?.robots && <meta name="robots" content="noindex, follow" />}
-{!page.canonical && !noindex && <link rel="canonical" href={canonical} />}
-{!page.canonical && !noindex && <meta property="og:url" content={canonical} />}
+<meta name="description" content={description} />
+{noindex ? (
+	<meta name="robots" content="noindex, follow" />
+) : (
+	<>
+		<link rel="canonical" href={canonical} />
+		<meta property="og:url" content={canonical} />
+	</>
+)}
+<meta property="og:type" content="website" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
 <meta property="og:locale" content="id_ID" />
-<script is:inline type="application/ld+json" set:html={safeJsonLdSerialize(graph)}></script>
-<EmDashHead page={page} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+<script is:inline type="application/ld+json" set:html={JSON.stringify(graph)}></script>

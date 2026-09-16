@@ -2,8 +2,18 @@
 import Base from "../layouts/Base.astro";
 ---
 
-<Base title="Not Found" noindex>
-	<h1>Page not found</h1>
-	<p>The page you're looking for doesn't exist.</p>
-	<a href="/">Go home</a>
+<Base title="Halaman tidak ditemukan" noindex>
+	<section class="band band--paper">
+		<div class="shell">
+			<header class="band__head">
+				<h1 class="band__title">Halaman tidak ditemukan</h1>
+				<p class="band__lede">
+					Alamat yang Anda buka tidak ada. Kembali ke beranda atau lihat layanan kami.
+				</p>
+			</header>
+			<p>
+				<a class="btn btn--primary" href="/">Ke beranda</a>
+			</p>
+		</div>
+	</section>
 </Base>

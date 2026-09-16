@@ -13,13 +13,11 @@
  * privacy, terms, or legal page on this site, so none is linked; a footer link
  * to a route that does not exist is worse than a short footer.
  */
-import { getMenu, getSiteSettings, slugify } from "emdash";
 import Icon from "./Icon.astro";
 import { business, contact, whatsappLink } from "../data/site";
-import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import { siteTitle, primaryMenu, slugify } from "../utils/site-identity";
 
-const { siteTitle } = resolveStarterSiteIdentity(await getSiteSettings());
-const menu = await getMenu("primary");
+const menu = { items: primaryMenu };
 
 const waHref = whatsappLink(
 	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,

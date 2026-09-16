@@ -116,6 +116,35 @@ const waFacts = [
 		</div>
 	</section>
 
+	<section class="band band--paper">
+		<div class="shell">
+			<h2 class="contact__heading">Kirim pesan</h2>
+			<form class="contact__form" id="contact-form">
+				<label class="contact__field">
+					<span>Nama</span>
+					<input type="text" name="name" autocomplete="name" required />
+				</label>
+				<label class="contact__field">
+					<span>WhatsApp</span>
+					<input type="tel" name="whatsapp" autocomplete="tel" required />
+				</label>
+				<label class="contact__field">
+					<span>Pesan</span>
+					<textarea name="message" rows="5" required></textarea>
+				</label>
+				<button class="btn btn--primary" type="submit">Kirim</button>
+			</form>
+		</div>
+	</section>
+
+	<script is:inline>
+		function handleContactSubmit(event) {
+			event.preventDefault();
+			// Fill here: backend integration belum ada.
+		}
+		document.getElementById("contact-form")?.addEventListener("submit", handleContactSubmit);
+	</script>
+
 	<Faq />
 
 	<Cta />
@@ -239,7 +268,28 @@ const waFacts = [
 		font-size: var(--fs-body-s);
 		line-height: var(--lh-body);
 	}
+	.contact__form {
+		display: grid;
+		gap: 16px;
+		max-width: 560px;
+	}
 
+	.contact__field {
+		display: grid;
+		gap: 8px;
+		color: var(--ink);
+		font-size: var(--fs-body-s);
+		font-weight: var(--fw-medium);
+	}
+
+	.contact__field input,
+	.contact__field textarea {
+		padding: 12px 14px;
+		border: 1px solid var(--rule-strong);
+		background: var(--paper);
+		color: var(--ink);
+		font: inherit;
+	}
 	@media (max-width: 899px) {
 		.contact__channels,
 		.contact__facts {

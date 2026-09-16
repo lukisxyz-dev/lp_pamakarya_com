@@ -1,23 +1,24 @@
-node_modules
-dist
-.astro
-.emdash/migrations.json
-uploads
-data.db
-data.db-shm
-data.db-wal
+# build output
+dist/
+# generated types
+.astro/
 
-# Environment / Wrangler secrets
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
 .env
-.env.*
-!.env.example
-.dev.vars
-.dev.vars.*
+.env.production
 
-# Wrangler local state (created by dev/build)
-.wrangler
+# macOS-specific files
+.DS_Store
 
-# Local agent tooling, installed per machine (npx impeccable install).
-# The skill ships a platform binary; it is not project source.
-.agents/skills/impeccable/
-.codex/
+# jetbrains setting folder
+.idea/

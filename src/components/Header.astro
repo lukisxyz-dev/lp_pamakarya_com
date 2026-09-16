@@ -4,21 +4,17 @@
  * (logo, `primary` menu, WhatsApp CTA), joined by a 2px orange seam. Sticky; on
  * scroll down the strip translates away and the white bar stays.
  */
-import { getMenu, getSiteSettings } from "emdash";
 import Icon from "./Icon.astro";
 import { contact, whatsappLink } from "../data/site";
-import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import { siteTitle, primaryMenu } from "../utils/site-identity";
 
-const { siteTitle, siteLogo } = resolveStarterSiteIdentity(await getSiteSettings());
-const menu = await getMenu("primary");
+const menu = { items: primaryMenu };
 
-/* A logo chosen in Settings wins; the bundled one is the fallback. */
-const logoUrl = siteLogo?.url ?? "/logo.png";
-const logoAlt = siteLogo?.alt || siteTitle;
-const logoWidth = siteLogo?.width ?? 450;
-const logoHeight = siteLogo?.height ?? 180;
+const logoUrl = "/logo.png";
+const logoAlt = siteTitle;
+const logoWidth = 450;
+const logoHeight = 180;
 
-/* One CTA on the chrome, and the visitor has read nothing yet: it asks. */
 const waHref = whatsappLink(
 	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
 );

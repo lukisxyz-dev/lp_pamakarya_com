@@ -1,27 +1,26 @@
-/** Resolved media reference from getSiteSettings() */
-export interface MediaReference {
-	mediaId: string;
-	alt?: string;
-	url?: string;
-	/** Intrinsic pixel size, resolved alongside the URL. */
-	width?: number;
-	height?: number;
+export const siteTitle = "Pamakarya";
+export const siteTagline = "Custom Laser Cutting & Fabrikasi";
+export const siteUrl = "https://pamakarya.com";
+export const titleSeparator = " | ";
+
+export interface MenuItem {
+	label: string;
+	url: string;
+	target?: string;
 }
 
-export interface StarterSiteIdentitySettings {
-	title?: string;
-	tagline?: string;
-	logo?: MediaReference;
-	favicon?: MediaReference;
-}
+export const primaryMenu: MenuItem[] = [
+	{ label: "Beranda", url: "/" },
+	{ label: "Tentang Kami", url: "/#tentang-kami" },
+	{ label: "Jasa", url: "/#jasa" },
+	{ label: "Portofolio", url: "/#portofolio" },
+	{ label: "Kontak", url: "/#kontak" },
+];
 
-const DEFAULT_SITE_TITLE = "My Site";
-const DEFAULT_SITE_TAGLINE = "Built with EmDash";
-
-export function resolveStarterSiteIdentity(settings?: StarterSiteIdentitySettings) {
-	return {
-		siteTitle: settings?.title ?? DEFAULT_SITE_TITLE,
-		siteTagline: settings?.tagline ?? DEFAULT_SITE_TAGLINE,
-		siteLogo: settings?.logo?.url ? settings.logo : null,
-	};
+export function slugify(value: string): string {
+	return value
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "");
 }
