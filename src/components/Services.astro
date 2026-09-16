@@ -1,6 +1,6 @@
 ---
 /**
- * Services.astro -- the "Layanan Kami" band, anchored #layanan.
+ * Services.astro -- the "Layanan Kami" band, anchored #jasa.
  *
  * Every unit comes from business.serviceUnits, which holds the live site's own
  * names, its own sentences, and its own card media. Two units (Laser CO2, CNC
@@ -24,7 +24,7 @@ const services = business.serviceUnits.map((unit, index) => ({
 }));
 ---
 
-<section class="band band--tint services" id="layanan">
+<section class="band band--tint services" id="jasa">
 	<div class="shell">
 		<header class="band__head">
 			<h2 class="band__title">Layanan Kami</h2>
@@ -58,6 +58,11 @@ const services = business.serviceUnits.map((unit, index) => ({
 </section>
 
 <style>
+	.services {
+		/* Menu target: clear the fixed mainbar. */
+		scroll-margin-top: calc(var(--mainbar-h) + 8px);
+	}
+
 	.services__grid {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));

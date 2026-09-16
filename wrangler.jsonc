@@ -1,13 +1,14 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-emdash-site",
+	"name": "pamakarya",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
 	"compatibility_flags": ["nodejs_compat"],
 	"d1_databases": [
 		{
-			"binding": "DB",
-			"database_name": "my-emdash-site",
+			"binding": "pamakarya",
+			"database_name": "pamakarya",
+			"database_id": "ecfa4b85-f239-4d07-8e22-ee0e7867947a",
 		},
 	],
 	"r2_buckets": [

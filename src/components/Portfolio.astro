@@ -19,7 +19,7 @@ const items = typeof limit === "number" ? portfolio.slice(0, limit) : portfolio;
 const hasMore = items.length < portfolio.length;
 ---
 
-<section class="band band--paper" id="portofolio">
+<section class="band band--paper portfolio" id="portofolio">
 	<div class="shell">
 		<header class="band__head">
 			<h2 class="band__title">Portofolio</h2>
@@ -48,6 +48,11 @@ const hasMore = items.length < portfolio.length;
 </section>
 
 <style>
+	.portfolio {
+		/* Menu target: clear the fixed mainbar. */
+		scroll-margin-top: calc(var(--mainbar-h) + 8px);
+	}
+
 	.work__more {
 		margin: clamp(28px, 3vw, 40px) 0 0;
 	}

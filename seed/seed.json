@@ -119,18 +119,18 @@
 				},
 				{
 					"type": "custom",
-					"label": "Layanan",
-					"url": "/jasa"
+					"label": "Jasa",
+					"url": "/#jasa"
 				},
 				{
 					"type": "custom",
 					"label": "Portofolio",
-					"url": "/portfolio"
+					"url": "/#portofolio"
 				},
 				{
 					"type": "custom",
 					"label": "Kontak",
-					"url": "/contact"
+					"url": "/#kontak"
 				}
 			]
 		}
