@@ -1,8 +1,11 @@
 #:schema node_modules/wrangler/config-schema.json
-# Wrangler config for the Keystatic admin's on-demand routes and the static
-# site around them. The Astro build writes dist/server/wrangler.json with the
-# bindings it needs (ASSETS, SESSION, IMAGES); this file is what `wrangler
-# deploy` reads, and the Astro adapter merges its own settings in at build.
+# Wrangler config for local dev bindings. The deploy config is the one the
+# Astro build writes to dist/server/wrangler.json (it carries the real `main`
+# and the assets directory), so deploy with:
+#   npx wrangler deploy -c dist/server/wrangler.json
+# Keeping `main` out of this file is deliberate: astro dev reads it through
+# the Cloudflare vite plugin, which fails when main points at a build output
+# that does not exist yet.
 #
 # Secrets are NOT here -- set them per environment instead:
 #   wrangler secret put KEYSTATIC_GITHUB_CLIENT_ID
@@ -12,14 +15,10 @@
 #   PUBLIC_KEYSTATIC_GITHUB_APP_SLUG
 name = "pamakarya"
 compatibility_date = "2026-09-16"
-main = "dist/server/entry.mjs"
-
-[assets]
-directory = "dist/client"
-binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "SESSION"
 
 [images]
 binding = "IMAGES"
+
