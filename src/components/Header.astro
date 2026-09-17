@@ -5,18 +5,22 @@
  * scroll down the strip translates away and the white bar stays.
  */
 import Icon from "./Icon.astro";
-import { contact, whatsappLink } from "../data/site";
-import { siteTitle, primaryMenu } from "../utils/site-identity";
+import { whatsappLink } from "../data/site";
+import { getSettings } from "../utils/content";
+import { primaryMenu } from "../utils/site-identity";
+
+const settings = await getSettings();
 
 const menu = { items: primaryMenu };
 
 const logoUrl = "/logo.png";
-const logoAlt = siteTitle;
+const logoAlt = settings.companyName;
 const logoWidth = 450;
 const logoHeight = 180;
 
 const waHref = whatsappLink(
-	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
+	settings,
+	`Halo ${settings.companyName}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
 );
 
 /* `name` prints in the strip, `label` names the link and heads the drawer row. */
@@ -24,19 +28,19 @@ const socials = [
 	{
 		icon: "instagram",
 		name: "Instagram",
-		label: `Instagram ${contact.instagramHandle}`,
-		href: contact.instagramUrl,
+		label: `Instagram ${settings.instagramHandle}`,
+		href: settings.instagramUrl,
 	},
 	{
 		icon: "store",
 		name: "Tokopedia",
-		label: `Tokopedia ${contact.tokopediaHandle}`,
-		href: contact.tokopediaUrl,
+		label: `Tokopedia ${settings.tokopediaHandle}`,
+		href: settings.tokopediaUrl,
 	},
 	{
 		icon: "whatsapp",
 		name: "WhatsApp",
-		label: `WhatsApp ${contact.whatsappDisplay}`,
+		label: `WhatsApp ${settings.whatsappDisplay}`,
 		href: waHref,
 	},
 ] as const;
@@ -60,12 +64,12 @@ const isCurrent = (href: string) => {
 		<div class="shell topbar__inner">
 			<ul class="topbar__contact">
 				<li>
-					<a class="topbar__phone" href={`tel:${contact.phone}`}>
-						{contact.whatsappDisplay}
+					<a class="topbar__phone" href={`tel:${settings.phone}`}>
+						{settings.whatsappDisplay}
 					</a>
 				</li>
 				<li class="topbar__email">
-					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+					<a href={`mailto:${settings.email}`}>{settings.email}</a>
 				</li>
 			</ul>
 
@@ -87,7 +91,7 @@ const isCurrent = (href: string) => {
 
 	<div class="mainbar">
 		<div class="shell mainbar__inner">
-			<a class="mainbar__logo" href="/" aria-label={`${siteTitle}: beranda`}>
+			<a class="mainbar__logo" href="/" aria-label={`${settings.companyName}: beranda`}>
 				<img
 					src={logoUrl}
 					alt={logoAlt}
@@ -158,10 +162,10 @@ const isCurrent = (href: string) => {
 		</h2>
 		<ul class="drawer__contact" aria-labelledby="drawer-contact">
 			<li>
-				<a href={`tel:${contact.phone}`}>{contact.whatsappDisplay}</a>
+				<a href={`tel:${settings.phone}`}>{settings.whatsappDisplay}</a>
 			</li>
 			<li>
-				<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				<a href={`mailto:${settings.email}`}>{settings.email}</a>
 			</li>
 		</ul>
 

@@ -3,8 +3,8 @@ import { Font } from "astro:assets";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Seo from "../components/Seo.astro";
-import { business } from "../data/site";
-import { siteTitle, siteTagline, siteUrl, titleSeparator } from "../utils/site-identity";
+import { getSettings } from "../utils/content";
+import { siteUrl, titleSeparator } from "../utils/site-identity";
 import "../styles/theme.css";
 
 interface Props {
@@ -27,12 +27,15 @@ const {
 	faqSchema,
 } = Astro.props;
 
-const pageDescription = description ?? business.description;
+const settings = await getSettings();
+const siteTitle = settings.companyName;
+
+const pageDescription = description ?? settings.description;
 
 const pageName = title.trim();
 const fullTitle =
 	!pageName || pageName === siteTitle
-		? [siteTitle, siteTagline].filter(Boolean).join(titleSeparator)
+		? [siteTitle, settings.tagline].filter(Boolean).join(titleSeparator)
 		: pageName.includes(siteTitle)
 			? pageName
 			: [pageName, siteTitle].join(titleSeparator);

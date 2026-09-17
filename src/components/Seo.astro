@@ -1,6 +1,6 @@
 ---
-import { business, companyName, contact, faqs } from "../data/site";
-import { getAllServices } from "../utils/content";
+import { logo } from "../data/site";
+import { getAllFaqs, getAllServices, getSettings } from "../utils/content";
 import { siteUrl } from "../utils/site-identity";
 
 interface Props {
@@ -15,6 +15,8 @@ interface Props {
 const { fullTitle, description, canonical, image, noindex, faqSchema } = Astro.props;
 
 const services = await getAllServices();
+const settings = await getSettings();
+const faqs = (await getAllFaqs()).map((entry) => entry.data);
 
 const areaServed = { "@type": "Country", name: "Indonesia" };
 const organizationId = `${siteUrl}/#organization`;
@@ -39,34 +41,34 @@ const graph = {
 		{
 			"@type": "Organization",
 			"@id": organizationId,
-			name: companyName,
+			name: settings.companyName,
 			url: siteUrl,
-			description: business.description,
+			description: settings.description,
 			logo: {
 				"@type": "ImageObject",
-				url: `${siteUrl}${business.logo.path}`,
-				width: business.logo.width,
-				height: business.logo.height,
+				url: `${siteUrl}${logo.path}`,
+				width: logo.width,
+				height: logo.height,
 			},
-			email: contact.email,
-			telephone: contact.phone,
+			email: settings.email,
+			telephone: settings.phone,
 			slogan: "Custom Laser Cutting & Fabrikasi",
 			contactPoint: [
 				{
 					"@type": "ContactPoint",
 					contactType: "customer service",
-					telephone: contact.phone,
-					email: contact.email,
+					telephone: settings.phone,
+					email: settings.email,
 					availableLanguage: "id",
 					areaServed,
 				},
 			],
-			sameAs: [contact.instagramUrl, contact.tokopediaUrl],
+			sameAs: [settings.instagramUrl, settings.tokopediaUrl],
 			areaServed,
-			knowsAbout: [...services.map((entry) => entry.data.title), ...business.materials],
+			knowsAbout: [...services.map((entry) => entry.data.title), ...settings.materials],
 			hasOfferCatalog: {
 				"@type": "OfferCatalog",
-				name: `Layanan ${companyName}`,
+				name: `Layanan ${settings.companyName}`,
 				itemListElement: services.map((entry) => ({
 					"@type": "Offer",
 					itemOffered: {
@@ -77,7 +79,7 @@ const graph = {
 						areaServed,
 						serviceAudience: {
 							"@type": "BusinessAudience",
-							name: business.sectors.join(", "),
+							name: settings.sectors.join(", "),
 						},
 					},
 				})),

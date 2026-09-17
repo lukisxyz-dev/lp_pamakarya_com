@@ -12,16 +12,19 @@
  * response time is claimed -- the live site publishes none per channel.
  */
 import Icon from "./Icon.astro";
-import { whatsappLink, contact, fileFormats } from "../data/site";
+import { whatsappLink } from "../data/site";
+import { getSettings } from "../utils/content";
 
+const settings = await getSettings();
 const waHref = whatsappLink(
-	"Halo Pamakarya, saya mau konsultasi gratis soal laser cutting dan fabrikasi custom.",
+	settings,
+	`Halo ${settings.companyName}, saya mau konsultasi gratis soal laser cutting dan fabrikasi custom.`,
 );
 
 const facts = [
 	{ label: "Konsultasi", value: "Gratis" },
-	{ label: "Kirim desain", value: fileFormats.join(", ") },
-	{ label: "WhatsApp", value: contact.whatsappDisplay },
+	{ label: "Kirim desain", value: settings.fileFormats.join(", ") },
+	{ label: "WhatsApp", value: settings.whatsappDisplay },
 ] as const;
 ---
 

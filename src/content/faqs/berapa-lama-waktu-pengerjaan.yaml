@@ -1,0 +1,7 @@
+question: "Berapa lama waktu pengerjaan?"
+answer: "Waktu pengerjaan tergantung tingkat kesulitan dan jumlah pesanan."
+points:
+  - "1-2 hari untuk desain simpel dengan jumlah kecil"
+  - "3-5 hari untuk pesanan sedang"
+  - "7 hari atau lebih untuk produksi massal"
+order: 4

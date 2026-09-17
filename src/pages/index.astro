@@ -21,16 +21,18 @@ import Process from "../components/Process.astro";
 import Portfolio from "../components/Portfolio.astro";
 import Faq from "../components/Faq.astro";
 import Cta from "../components/Cta.astro";
-import { siteTitle } from "../utils/site-identity";
+import { getSettings } from "../utils/content";
+
+const settings = await getSettings();
 ---
 
-<Base title={siteTitle} faqSchema>
+<Base title={settings.companyName} faqSchema>
 	<Hero />
 	<About />
 	<Services />
 	<WhyUs />
 	<Process />
-	<Portfolio limit={8} />
+	<Portfolio />
 	<Faq />
 	<Cta />
 </Base>

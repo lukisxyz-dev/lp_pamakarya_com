@@ -1,5 +1,9 @@
-export const siteTitle = "Pamakarya";
-export const siteTagline = "Custom Laser Cutting & Fabrikasi";
+/**
+ * site-identity.ts -- the site's own address and navigation, which are code
+ * concerns rather than content: the canonical origin, the title separator,
+ * and the menu. The company name and tagline are the client's words and live
+ * in the "Pengaturan situs" Keystatic entry (see src/utils/content.ts).
+ */
 export const siteUrl = "https://pamakarya.com";
 export const titleSeparator = " | ";
 

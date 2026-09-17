@@ -12,14 +12,20 @@
  * closing CTA -- it marks the middle of the page.
  */
 import Icon from "./Icon.astro";
-import { whatsappLink, processSteps, fileFormats } from "../data/site";
+import { whatsappLink } from "../data/site";
+import { getAllSteps, getSettings } from "../utils/content";
 
+const settings = await getSettings();
 const waHref = whatsappLink(
-	"Halo Pamakarya, saya mau konsultasi soal fabrikasi custom dan minta penawaran harga.",
+	settings,
+	`Halo ${settings.companyName}, saya mau konsultasi soal fabrikasi custom dan minta penawaran harga.`,
 );
 
+const processSteps = await getAllSteps();
+
 const steps = processSteps.map((step, index) => ({
-	...step,
+	title: step.data.title,
+	description: step.data.description,
 	index: String(index + 1).padStart(2, "0"),
 }));
 
@@ -32,7 +38,7 @@ const [firstStep] = processSteps;
 		<header class="band__head">
 			<h2 class="band__title">Cara memesan</h2>
 			<p class="band__lede">
-				{firstStep?.description} Kirim gambar kerja Anda, kami tinjau, lalu produksi berjalan.
+				{firstStep?.data.description} Kirim gambar kerja Anda, kami tinjau, lalu produksi berjalan.
 			</p>
 		</header>
 
@@ -54,7 +60,7 @@ const [firstStep] = processSteps;
 				<span>Konsultasi Gratis</span>
 			</a>
 			<p class="process__note">
-				Format desain yang kami terima: {fileFormats.join(", ")}. Belum punya gambar kerja? Kirim
+				Format desain yang kami terima: {settings.fileFormats.join(", ")}. Belum punya gambar kerja? Kirim
 				saja sketsanya, kami bantu olah.
 			</p>
 		</div>

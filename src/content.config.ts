@@ -10,7 +10,8 @@
  */
 import type { ImageMetadata } from "astro";
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
+import { load as parseYaml } from "js-yaml";
 
 const portfolio = defineCollection({
 	loader: glob({ pattern: "*.yaml", base: "./src/content/portfolio" }),
@@ -45,4 +46,60 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { portfolio, services, blog };
+const reasons = defineCollection({
+	loader: glob({ pattern: "*.yaml", base: "./src/content/reasons" }),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
+		order: z.number().optional(),
+	}),
+});
+
+const steps = defineCollection({
+	loader: glob({ pattern: "*.yaml", base: "./src/content/steps" }),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
+		order: z.number().optional(),
+	}),
+});
+
+const faqs = defineCollection({
+	loader: glob({ pattern: "*.yaml", base: "./src/content/faqs" }),
+	schema: z.object({
+		question: z.string(),
+		answer: z.string(),
+		points: z.array(z.string()).optional(),
+		order: z.number().optional(),
+	}),
+});
+
+const settings = defineCollection({
+	/**
+	 * `file()` reads a YAML object as a map of entries, so the singleton's
+	 * fields are nested under one id. The object is written by Keystatic's
+	 * "Pengaturan situs" singleton (src/content/settings.yaml); getSettings()
+	 * in src/utils/content.ts unwraps the single entry.
+	 */
+	loader: file("./src/content/settings.yaml", {
+		parser: (text) => ({ settings: parseYaml(text) }),
+	}),
+	schema: z.object({
+		companyName: z.string(),
+		tagline: z.string(),
+		description: z.string(),
+		materials: z.array(z.string()),
+		sectors: z.array(z.string()),
+		fileFormats: z.array(z.string()),
+		whatsappDisplay: z.string(),
+		whatsappNumber: z.string(),
+		phone: z.string(),
+		email: z.string(),
+		instagramHandle: z.string(),
+		instagramUrl: z.string(),
+		tokopediaHandle: z.string(),
+		tokopediaUrl: z.string(),
+	}),
+});
+
+export const collections = { portfolio, services, blog, reasons, steps, faqs, settings };

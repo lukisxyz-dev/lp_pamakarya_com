@@ -7,8 +7,13 @@
 import Icon from "./Icon.astro";
 import heroPhoto from "../assets/hero-laser.jpg";
 import { whatsappLink } from "../data/site";
+import { getSettings } from "../utils/content";
 
-const waHref = whatsappLink("Halo Pamakarya, saya mau konsultasi soal jasa laser cutting.");
+const settings = await getSettings();
+const waHref = whatsappLink(
+	settings,
+	`Halo ${settings.companyName}, saya mau konsultasi soal jasa laser cutting.`,
+);
 ---
 
 <section class="hero">

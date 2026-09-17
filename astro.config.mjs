@@ -6,9 +6,18 @@ import keystatic from '@keystatic/astro';
 import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
+/*
+  The Cloudflare adapter is only applied for a build. Left installed during
+  `astro dev`, it runs every on-demand route inside the workerd runtime, where
+  Node's `fs` does not exist -- which is exactly what Keystatic's local-mode
+  API needs to list and write src/content. Astro's own dev server handles
+  `prerender = false` routes in Node, so dev keeps working without it.
+*/
+const isBuild = process.argv.includes("build") || process.argv.includes("preview");
+
 export default defineConfig({
 	output: "static",
-	adapter: cloudflare(),
+	...(isBuild ? { adapter: cloudflare() } : {}),
 	image: {
 		service: passthroughImageService(),
 		layout: "constrained",

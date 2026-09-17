@@ -10,10 +10,11 @@
  * tabular numbers down the left, a hairline rule between rows, the reason set
  * in ink and its sentence under it in --ink-2.
  */
-import { whyUs } from "../data/site";
+import { getAllReasons } from "../utils/content";
 
-const reasons = whyUs.map((reason, index) => ({
-	...reason,
+const reasons = (await getAllReasons()).map((entry, index) => ({
+	title: entry.data.title,
+	description: entry.data.description,
 	index: String(index + 1).padStart(2, "0"),
 }));
 ---

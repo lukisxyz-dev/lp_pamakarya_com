@@ -52,6 +52,41 @@ export async function getAllPosts(): Promise<PostEntry[]> {
 	);
 }
 
+export type ReasonEntry = CollectionEntry<"reasons">;
+export type StepEntry = CollectionEntry<"steps">;
+export type FaqEntry = CollectionEntry<"faqs">;
+export type Settings = CollectionEntry<"settings">["data"];
+
+/** Urutan kecil dulu; entri tanpa urutan ditaruh paling belakang. */
+const byOrder = <T extends { data: { order?: number } }>(a: T, b: T) =>
+	(a.data.order ?? Number.MAX_SAFE_INTEGER) - (b.data.order ?? Number.MAX_SAFE_INTEGER);
+
+export async function getAllReasons(): Promise<ReasonEntry[]> {
+	return (await getCollection("reasons")).sort(byOrder);
+}
+
+export async function getAllSteps(): Promise<StepEntry[]> {
+	return (await getCollection("steps")).sort(byOrder);
+}
+
+export async function getAllFaqs(): Promise<FaqEntry[]> {
+	return (await getCollection("faqs")).sort(byOrder);
+}
+
+/**
+ * The single "Pengaturan situs" entry: company name, contact channels, and
+ * the three ledgers (materials, sectors, accepted file formats). Throws when
+ * it is missing -- every page needs it, so a silent fallback would ship a
+ * site with a blank header instead of failing the build.
+ */
+export async function getSettings(): Promise<Settings> {
+	const [entry] = await getCollection("settings");
+	if (!entry) {
+		throw new Error("Entry 'Pengaturan situs' tidak ditemukan di src/content/settings/.");
+	}
+	return entry.data;
+}
+
 /**
  * Portfolio photos as the grid wants them: the stored
  * `/src/assets/portfolio/<file>.webp` path resolved to real ImageMetadata, so

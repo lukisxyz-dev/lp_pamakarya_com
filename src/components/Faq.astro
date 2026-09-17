@@ -14,7 +14,9 @@
  * The FAQPage graph is a page-level concern, so it is not built here: the page
  * asks <Base> for it with `faqSchema`.
  */
-import { faqs } from "../data/site";
+import { getAllFaqs } from "../utils/content";
+
+const faqs = (await getAllFaqs()).map((entry) => entry.data);
 ---
 
 <section class="band band--tint faq" id="faq">

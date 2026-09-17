@@ -10,7 +10,9 @@
  * ledger like a spec sheet, the copy sits behind a heavy orange rule, and the
  * type is weighted rather than airy. No eyebrows, no pills, no soft shadows.
  */
-import { business } from "../data/site";
+import { getSettings } from "../utils/content";
+
+const settings = await getSettings();
 ---
 
 <section class="band band--paper about" id="tentang-kami">
@@ -34,7 +36,7 @@ import { business } from "../data/site";
 			<div class="about__col">
 				<h3 class="about__heading">Material yang kami proses</h3>
 				<ul class="about__list" role="list">
-					{business.materials.map((material) => (
+					{settings.materials.map((material) => (
 						<li>{material}</li>
 					))}
 				</ul>
@@ -43,7 +45,7 @@ import { business } from "../data/site";
 			<div class="about__col">
 				<h3 class="about__heading">Industri yang kami layani</h3>
 				<ul class="about__list" role="list">
-					{business.sectors.map((sector) => (
+					{settings.sectors.map((sector) => (
 						<li>{sector}</li>
 					))}
 				</ul>

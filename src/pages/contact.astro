@@ -14,17 +14,21 @@ import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
 import Faq from "../components/Faq.astro";
 import Cta from "../components/Cta.astro";
-import { business, contact, whatsappLink, fileFormats } from "../data/site";
+import { whatsappLink } from "../data/site";
+import { getSettings } from "../utils/content";
+
+const settings = await getSettings();
 
 const waHref = whatsappLink(
-	"Halo Pamakarya, saya mau konsultasi soal laser cutting dan fabrikasi custom.",
+	settings,
+	`Halo ${settings.companyName}, saya mau konsultasi soal laser cutting dan fabrikasi custom.`,
 );
 
 const channels = [
 	{
 		kind: "whatsapp" as const,
 		label: "WhatsApp",
-		value: contact.whatsappDisplay,
+		value: settings.whatsappDisplay,
 		href: waHref,
 		external: true,
 		note: "Cara tercepat. Kirim pesan, lengkapi gambar kerjanya bila sudah ada.",
@@ -32,16 +36,16 @@ const channels = [
 	{
 		kind: "store" as const,
 		label: "Tokopedia",
-		value: contact.tokopediaHandle,
-		href: contact.tokopediaUrl,
+		value: settings.tokopediaHandle,
+		href: settings.tokopediaUrl,
 		external: true,
 		note: "Untuk pembelian produk yang sudah kami publikasikan di toko.",
 	},
 	{
 		kind: "instagram" as const,
 		label: "Instagram",
-		value: contact.instagramHandle,
-		href: contact.instagramUrl,
+		value: settings.instagramHandle,
+		href: settings.instagramUrl,
 		external: true,
 		note: "Lihat pengerjaan terbaru dan kirim pesan lewat DM.",
 	},
@@ -49,8 +53,8 @@ const channels = [
 
 const waFacts = [
 	{ label: "Konsultasi", value: "Gratis" },
-	{ label: "Format desain", value: fileFormats.join(", ") },
-	{ label: "Material", value: business.materials.slice(0, 4).join(", ") },
+	{ label: "Format desain", value: settings.fileFormats.join(", ") },
+	{ label: "Material", value: settings.materials.slice(0, 4).join(", ") },
 ] as const;
 ---
 
@@ -76,7 +80,7 @@ const waFacts = [
 				</a>
 				<p class="contact__email">
 					<span>Atau kirim email ke</span>
-					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+					<a href={`mailto:${settings.email}`}>{settings.email}</a>
 				</p>
 			</div>
 

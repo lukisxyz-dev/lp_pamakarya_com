@@ -14,9 +14,11 @@
  * to a route that does not exist is worse than a short footer.
  */
 import Icon from "./Icon.astro";
-import { business, contact, whatsappLink } from "../data/site";
-import { getAllServices } from "../utils/content";
-import { siteTitle, primaryMenu } from "../utils/site-identity";
+import { whatsappLink } from "../data/site";
+import { getAllServices, getSettings } from "../utils/content";
+import { primaryMenu } from "../utils/site-identity";
+
+const settings = await getSettings();
 
 const serviceLinks = (await getAllServices()).map((entry) => ({
 	label: entry.data.title,
@@ -26,23 +28,24 @@ const serviceLinks = (await getAllServices()).map((entry) => ({
 const menu = { items: primaryMenu };
 
 const waHref = whatsappLink(
-	`Halo ${siteTitle}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
+	settings,
+	`Halo ${settings.companyName}, saya mau tanya soal jasa laser cutting dan fabrikasi.`,
 );
 
 const socials = [
 	{
 		icon: "instagram",
-		label: `Instagram ${contact.instagramHandle}`,
-		href: contact.instagramUrl,
+		label: `Instagram ${settings.instagramHandle}`,
+		href: settings.instagramUrl,
 	},
 	{
 		icon: "store",
-		label: `Tokopedia ${contact.tokopediaHandle}`,
-		href: contact.tokopediaUrl,
+		label: `Tokopedia ${settings.tokopediaHandle}`,
+		href: settings.tokopediaUrl,
 	},
 	{
 		icon: "whatsapp",
-		label: `WhatsApp ${contact.whatsappDisplay}`,
+		label: `WhatsApp ${settings.whatsappDisplay}`,
 		href: waHref,
 	},
 ] as const;
@@ -54,8 +57,8 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
 	<div class="shell site-footer__inner">
 		<div class="site-footer__brand">
-			<p class="site-footer__name">{siteTitle}</p>
-			<p class="site-footer__desc">{business.description}</p>
+			<p class="site-footer__name">{settings.companyName}</p>
+			<p class="site-footer__desc">{settings.description}</p>
 
 			<ul class="site-footer__social" role="list">
 				{socials.map((social) => (
@@ -97,14 +100,14 @@ const year = new Date().getFullYear();
 			<ul class="site-footer__list" role="list">
 				<li>
 					<a href={waHref} target="_blank" rel="noopener">
-						WhatsApp {contact.whatsappDisplay}
+						WhatsApp {settings.whatsappDisplay}
 					</a>
 				</li>
 				<li>
-					<a href={`tel:${contact.phone}`}>{contact.phone}</a>
+					<a href={`tel:${settings.phone}`}>{settings.phone}</a>
 				</li>
 				<li>
-					<a href={`mailto:${contact.email}`}>{contact.email}</a>
+					<a href={`mailto:${settings.email}`}>{settings.email}</a>
 				</li>
 			</ul>
 		</div>
@@ -112,7 +115,7 @@ const year = new Date().getFullYear();
 
 	<div class="shell site-footer__base">
 		<p>
-			© {year} {siteTitle}. Seluruh hak cipta dilindungi.
+			© {year} {settings.companyName}. Seluruh hak cipta dilindungi.
 		</p>
 	</div>
 </footer>
