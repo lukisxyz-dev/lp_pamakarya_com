@@ -13,12 +13,17 @@ import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
 const portfolioImageFiles = import.meta.glob<{ default: ImageMetadata }>(
-	"../assets/portfolio/*.webp",
+	"../assets/portfolio/**/*.webp",
 	{ eager: true },
 );
-const portfolioImageByBasename: Record<string, ImageMetadata> = Object.fromEntries(
+/**
+ * Keystatic stores a standalone image field as
+ * `<directory>/<slug>/<field>.<ext>` (see its recipe for Astro images), so the
+ * lookup is by path under src/assets/portfolio, not by bare filename.
+ */
+const portfolioImageByPath: Record<string, ImageMetadata> = Object.fromEntries(
 	Object.entries(portfolioImageFiles).map(([path, mod]) => [
-		path.split("/").pop() ?? "",
+		path.replace(/^.*\/assets\/portfolio\//, ""),
 		mod.default,
 	]),
 );
@@ -89,20 +94,22 @@ export async function getSettings(): Promise<Settings> {
 
 /**
  * Portfolio photos as the grid wants them: the stored
- * `/src/assets/portfolio/<file>.webp` path resolved to real ImageMetadata, so
- * the picture keeps going through Astro's image pipeline. A reference to a
- * file that is gone throws -- a broken photo must fail the build, not vanish.
- * `landingOnly` applies the "Tampilkan di beranda" filter for the homepage.
+ * `/src/assets/portfolio/<slug>/image.webp` path resolved to real
+ * ImageMetadata, so the picture keeps going through Astro's image pipeline. A
+ * reference to a file that is gone throws -- a broken photo must fail the
+ * build, not vanish. `landingOnly` applies the "Tampilkan di beranda" filter
+ * for the homepage.
  */
 export async function getPortfolioGridItems(options: { landingOnly?: boolean } = {}) {
 	const entries = (await getAllPortfolio()).filter(
 		(entry) => !options.landingOnly || entry.data.landing !== false,
 	);
 	return entries.map((entry) => {
-		const src = portfolioImageByBasename[entry.data.image.split("/").pop() ?? ""];
+		const relative = entry.data.image.replace(/^\/src\/assets\/portfolio\//, "");
+		const src = portfolioImageByPath[relative];
 		if (!src) {
 			throw new Error(
-				`Foto tidak ditemukan di src/assets/portfolio: ${entry.data.image} (entry ${entry.id})`,
+				`Foto tidak ditemukan di src/assets/portfolio/${relative} (entry ${entry.id})`,
 			);
 		}
 		return {
