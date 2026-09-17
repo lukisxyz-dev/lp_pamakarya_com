@@ -1,0 +1,110 @@
+---
+/**
+ * /blog -- the index of the Keystatic-managed "blog" collection.
+ *
+ * Newest first, one row per post: date, title, ringkasan. The collection is
+ * empty until the client writes the first article, so the empty state tells
+ * the truth ("Belum ada tulisan") instead of rendering an empty list.
+ */
+import Base from "../../layouts/Base.astro";
+import Cta from "../../components/Cta.astro";
+import { getAllPosts } from "../../utils/content";
+
+const description =
+	"Catatan dan kabar dari Pamakarya soal laser cutting, laser marking, dan fabrikasi custom.";
+
+const posts = await getAllPosts();
+
+const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+---
+
+<Base title="Blog" description={description}>
+	<section class="band band--paper">
+		<div class="shell">
+			<header class="band__head">
+				<h1 class="band__title">Blog</h1>
+				<p class="band__lede">
+					Catatan pengerjaan, tips material, dan kabar terbaru dari workshop Pamakarya.
+				</p>
+			</header>
+
+			{posts.length === 0 ? (
+				<p class="posts__empty">Belum ada tulisan.</p>
+			) : (
+				<ul class="posts" role="list">
+					{posts.map((post) => (
+						<li class="posts__row">
+							<a class="posts__link" href={`/blog/${post.id}`}>
+								<time class="posts__date" datetime={post.data.publishedAt.toISOString()}>
+									{dateFormatter.format(post.data.publishedAt)}
+								</time>
+								<h2 class="posts__title">{post.data.title}</h2>
+								<p class="posts__excerpt">{post.data.excerpt}</p>
+							</a>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	</section>
+
+	<Cta />
+</Base>
+
+<style>
+	.posts {
+		display: grid;
+		gap: 1px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		background: var(--rule);
+	}
+
+	.posts__row {
+		background: var(--paper);
+	}
+
+	.posts__link {
+		display: grid;
+		gap: var(--space-8);
+		padding: clamp(20px, 2.2vw, 28px);
+		text-decoration: none;
+	}
+
+	.posts__link:hover .posts__title {
+		color: var(--orange-deep);
+	}
+
+	.posts__date {
+		color: var(--ink-3);
+		font-size: var(--fs-label);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.posts__title {
+		margin: 0;
+		color: var(--ink);
+		font-size: var(--fs-body);
+		line-height: var(--lh-tight);
+		transition: color var(--dur-control) var(--ease-out);
+	}
+
+	.posts__excerpt {
+		margin: 0;
+		max-width: 68ch;
+		color: var(--ink-2);
+		font-size: var(--fs-body-s);
+		line-height: var(--lh-body);
+	}
+
+	.posts__empty {
+		margin: 0;
+		color: var(--ink-2);
+	}
+</style>

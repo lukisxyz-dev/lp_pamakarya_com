@@ -1,0 +1,129 @@
+---
+/**
+ * /blog/<slug> -- one Keystatic article, rendered from its .mdoc body.
+ *
+ * The body is Markdoc (fields.markdoc in keystatic.config.ts), so the
+ * @astrojs/markdoc integration is what turns it into HTML; <Content /> is
+ * Astro's own renderer for the entry. Prose styles live here rather than in
+ * theme.css because this is the only page with long-form text.
+ */
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Cta from "../../components/Cta.astro";
+import { getAllPosts } from "../../utils/content";
+
+export async function getStaticPaths() {
+	const posts = await getAllPosts();
+	return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+---
+
+<Base
+	title={post.data.title}
+	description={post.data.excerpt}
+	image={post.data.cover ? `${Astro.site ?? ""}${post.data.cover}` : null}
+>
+	<article class="band band--paper post">
+		<div class="shell post__shell">
+			<header class="band__head">
+				<time class="post__date" datetime={post.data.publishedAt.toISOString()}>
+					{dateFormatter.format(post.data.publishedAt)}
+				</time>
+				<h1 class="band__title">{post.data.title}</h1>
+				<p class="band__lede">{post.data.excerpt}</p>
+			</header>
+
+			{post.data.cover && (
+				<img class="post__cover" src={post.data.cover} alt="" width="1200" height="675" />
+			)}
+
+			<div class="post__body">
+				<Content />
+			</div>
+		</div>
+	</article>
+
+	<Cta />
+</Base>
+
+<style>
+	.post__shell {
+		max-width: 76ch;
+	}
+
+	.post__date {
+		color: var(--ink-3);
+		font-size: var(--fs-label);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.post__cover {
+		display: block;
+		width: 100%;
+		height: auto;
+		margin: clamp(24px, 3vw, 40px) 0 0;
+	}
+
+	.post__body {
+		margin-top: clamp(24px, 3vw, 40px);
+		color: var(--ink-2);
+		font-size: var(--fs-body);
+		line-height: var(--lh-body);
+	}
+
+	.post__body :global(h2) {
+		margin: var(--space-48) 0 var(--space-12);
+		color: var(--ink);
+		font-size: 1.25rem;
+		line-height: var(--lh-tight);
+	}
+
+	.post__body :global(h3) {
+		margin: var(--space-32) 0 var(--space-8);
+		color: var(--ink);
+		font-size: 1.0625rem;
+		line-height: var(--lh-tight);
+	}
+
+	.post__body :global(p) {
+		margin: 0 0 var(--space-16);
+	}
+
+	.post__body :global(ul),
+	.post__body :global(ol) {
+		margin: 0 0 var(--space-16);
+		padding-left: 1.25em;
+	}
+
+	.post__body :global(li) {
+		margin-bottom: var(--space-8);
+	}
+
+	.post__body :global(a) {
+		color: var(--orange-deep);
+	}
+
+	.post__body :global(img) {
+		display: block;
+		max-width: 100%;
+		height: auto;
+		margin: var(--space-24) 0;
+	}
+
+	.post__body :global(blockquote) {
+		margin: var(--space-24) 0;
+		padding-left: var(--space-16);
+		border-left: 2px solid var(--orange);
+		color: var(--ink-2);
+	}
+</style>

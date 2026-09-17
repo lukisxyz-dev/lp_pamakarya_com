@@ -25,6 +25,7 @@ const portfolioImageByBasename: Record<string, ImageMetadata> = Object.fromEntri
 
 export type ServiceEntry = CollectionEntry<"services">;
 export type PortfolioEntry = CollectionEntry<"portfolio">;
+export type PostEntry = CollectionEntry<"blog">;
 
 export async function getAllServices(): Promise<ServiceEntry[]> {
 	const entries = await getCollection("services");
@@ -42,6 +43,13 @@ export async function getLandingServices(): Promise<ServiceEntry[]> {
 export async function getAllPortfolio(): Promise<PortfolioEntry[]> {
 	const entries = await getCollection("portfolio");
 	return entries.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+}
+
+export async function getAllPosts(): Promise<PostEntry[]> {
+	const entries = await getCollection("blog");
+	return entries.sort(
+		(a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+	);
 }
 
 /**

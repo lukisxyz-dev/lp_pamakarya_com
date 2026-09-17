@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders, passthroughImageService } from 'astro/config';
 import react from '@astrojs/react';
+import markdoc from '@astrojs/markdoc';
 import keystatic from '@keystatic/astro';
 import cloudflare from '@astrojs/cloudflare';
 
@@ -12,7 +13,7 @@ export default defineConfig({
 		service: passthroughImageService(),
 		layout: "constrained",
 	},
-	integrations: [react(), keystatic()],
+	integrations: [react(), markdoc(), keystatic()],
 	fonts: [
 		{
 			provider: fontProviders.local(),

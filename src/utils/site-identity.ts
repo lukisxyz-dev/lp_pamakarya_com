@@ -14,6 +14,7 @@ export const primaryMenu: MenuItem[] = [
 	{ label: "Tentang Kami", url: "/#tentang-kami" },
 	{ label: "Jasa", url: "/#jasa" },
 	{ label: "Portofolio", url: "/#portofolio" },
+	{ label: "Blog", url: "/blog" },
 	{ label: "Kontak", url: "/#kontak" },
 ];
 
