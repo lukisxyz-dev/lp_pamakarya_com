@@ -2,13 +2,15 @@
 import { defineConfig, fontProviders, passthroughImageService } from 'astro/config';
 import react from '@astrojs/react';
 import keystatic from '@keystatic/astro';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
+	output: "static",
+	adapter: cloudflare(),
 	image: {
 		service: passthroughImageService(),
 		layout: "constrained",
-		responsiveStyles: true,
 	},
 	integrations: [react(), keystatic()],
 	fonts: [
