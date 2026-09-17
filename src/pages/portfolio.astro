@@ -3,18 +3,18 @@
  * /portfolio -- the full gallery, and the target of the hero's "Lihat
  * Portofolio Kami" link.
  *
- * The homepage band shows eight; this page shows all twelve and nothing else,
- * so it is a wall of work rather than another pitch. The photos come from
- * src/data/portfolio.ts, which documents where they are from and why their alt
- * text is written the way it is.
+ * This page shows every entry of the Keystatic-managed "portfolio"
+ * collection, including the ones kept off the homepage band, so it is a wall
+ * of work rather than another pitch. Alt text falls back to the entry title.
  */
 import Base from "../layouts/Base.astro";
 import Cta from "../components/Cta.astro";
 import WorkGrid from "../components/WorkGrid.astro";
-import { portfolio } from "../data/portfolio";
+import { getPortfolioGridItems } from "../utils/content";
 
 const description =
 	"Contoh hasil pengerjaan Pamakarya: laser cutting, laser marking, dan fabrikasi custom untuk kebutuhan industri maupun satuan.";
+const items = await getPortfolioGridItems();
 ---
 
 <Base title="Portofolio" description={description}>
@@ -29,7 +29,7 @@ const description =
 			</header>
 
 			<WorkGrid
-				items={portfolio}
+				items={items}
 				sizes="(max-width: 399px) 92vw, (max-width: 719px) 45vw, (max-width: 1023px) 30vw, 260px"
 			/>
 		</div>

@@ -2,21 +2,19 @@
 /**
  * Portfolio.astro -- the homepage's work band, anchored #portofolio.
  *
- * It shows the first `limit` photos and links to /portfolio for the rest; the
- * grid itself lives in WorkGrid.astro, which the full page also renders. The
- * photos and the reasoning behind their alt text are in src/data/portfolio.ts.
+ * It shows the portfolio entries whose "Tampilkan di beranda" checkbox is on
+ * (see src/utils/content.ts) and links to /portfolio for the rest; the grid
+ * itself lives in WorkGrid.astro, which the full page also renders. Alt text
+ * falls back to the entry title, which Keystatic makes mandatory.
  */
-import { portfolio } from "../data/portfolio";
+import { getAllPortfolio, getPortfolioGridItems } from "../utils/content";
 import WorkGrid from "./WorkGrid.astro";
 
-interface Props {
-	/** How many photos to show before deferring to /portfolio. */
-	limit?: number;
-}
-
-const { limit } = Astro.props;
-const items = typeof limit === "number" ? portfolio.slice(0, limit) : portfolio;
-const hasMore = items.length < portfolio.length;
+const [items, all] = await Promise.all([
+	getPortfolioGridItems({ landingOnly: true }),
+	getAllPortfolio(),
+]);
+const hasMore = items.length < all.length;
 ---
 
 <section class="band band--paper portfolio" id="portofolio">

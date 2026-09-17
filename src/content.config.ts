@@ -12,31 +12,12 @@ import type { ImageMetadata } from "astro";
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
-const portfolioImageFiles = import.meta.glob<{ default: ImageMetadata }>(
-	"./assets/portfolio/*.webp",
-	{ eager: true },
-);
-const portfolioImageByBasename: Record<string, ImageMetadata> = Object.fromEntries(
-	Object.entries(portfolioImageFiles).map(([path, mod]) => [path.split("/").pop() ?? "", mod.default]),
-);
-
 const portfolio = defineCollection({
 	loader: glob({ pattern: "*.yaml", base: "./src/content/portfolio" }),
 	schema: z.object({
 		title: z.string(),
-		image: z
-			.string()
-			.transform((value, ctx) => {
-				const meta = portfolioImageByBasename[value.split("/").pop() ?? ""];
-				if (!meta) {
-					ctx.addIssue({
-						code: "custom",
-						message: `Foto tidak ditemukan di src/assets/portfolio: ${value}`,
-					});
-					return z.NEVER;
-				}
-				return meta;
-			}),
+		/** A path under src/assets/portfolio; resolved to ImageMetadata at render. */
+		image: z.string(),
 		caption: z.string().optional(),
 		landing: z.boolean().optional(),
 	}),

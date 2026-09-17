@@ -1,5 +1,6 @@
 ---
 import { business, companyName, contact, faqs } from "../data/site";
+import { getAllServices } from "../utils/content";
 import { siteUrl } from "../utils/site-identity";
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const { fullTitle, description, canonical, image, noindex, faqSchema } = Astro.props;
+
+const services = await getAllServices();
 
 const areaServed = { "@type": "Country", name: "Indonesia" };
 const organizationId = `${siteUrl}/#organization`;
@@ -60,16 +63,16 @@ const graph = {
 			],
 			sameAs: [contact.instagramUrl, contact.tokopediaUrl],
 			areaServed,
-			knowsAbout: [...business.serviceUnits.map((unit) => unit.name), ...business.materials],
+			knowsAbout: [...services.map((entry) => entry.data.title), ...business.materials],
 			hasOfferCatalog: {
 				"@type": "OfferCatalog",
 				name: `Layanan ${companyName}`,
-				itemListElement: business.serviceUnits.map((unit) => ({
+				itemListElement: services.map((entry) => ({
 					"@type": "Offer",
 					itemOffered: {
 						"@type": "Service",
-						name: unit.name,
-						...(unit.description ? { description: unit.description } : {}),
+						name: entry.data.title,
+						...(entry.data.description ? { description: entry.data.description } : {}),
 						provider: { "@id": organizationId },
 						areaServed,
 						serviceAudience: {

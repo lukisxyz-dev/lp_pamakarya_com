@@ -7,7 +7,13 @@
  * assets with a known intrinsic size, not CMS media references, so the Astro
  * component is what emits the responsive srcset the config asks for.
  */
-import type { PortfolioItem } from "../data/portfolio";
+import type { ImageMetadata } from "astro";
+
+interface PortfolioItem {
+	src: ImageMetadata;
+	alt: string;
+	caption?: string;
+}
 
 interface Props {
 	items: PortfolioItem[];

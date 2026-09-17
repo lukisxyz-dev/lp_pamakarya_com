@@ -4,26 +4,28 @@
  *
  * This is the detailed half of what the homepage's Services band summarises:
  * each unit one to a row with its own number and sentence, then the material
- * and industry ledgers About already uses, then the ordering flow.
+ * and industry ledgers About already uses, then the ordering flow. Every
+ * entry of the Keystatic "services" collection shows here -- including the
+ * ones kept off the homepage band -- numbered by their Urutan field.
  *
- * The eight units are business.serviceUnits in src/data/site.ts. Two of them
- * carry a name and no description, because the live site publishes none -- they
- * render as a name with an em dash rather than a sentence nobody wrote.
+ * Two entries carry a name and no description, because the live site
+ * publishes none -- they render as a name with an em dash rather than a
+ * sentence nobody wrote.
  */
 import Base from "../layouts/Base.astro";
 import Process from "../components/Process.astro";
 import Cta from "../components/Cta.astro";
-import { slugify } from "../utils/site-identity";
+import { getAllServices } from "../utils/content";
 import { business, fileFormats } from "../data/site";
-
-const services = business.serviceUnits.map((unit, index) => ({
-	...unit,
-	index: String(index + 1).padStart(2, "0"),
-	anchor: slugify(unit.name),
-}));
 
 const description =
 	"Jasa laser cutting plat, akrilik, dan metal, laser marking, CNC routing, serta fabrikasi custom. Material akrilik, MDF, kayu, stainless steel, dan aluminium.";
+const services = (await getAllServices()).map((entry, index) => ({
+	index: String(index + 1).padStart(2, "0"),
+	name: entry.data.title,
+	description: entry.data.description,
+	anchor: entry.id,
+}));
 ---
 
 <Base title="Layanan" description={description}>

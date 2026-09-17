@@ -48,35 +48,11 @@ export const contact = {
 export const whatsappLink = (message: string): string =>
 	`${contact.whatsappBaseUrl}?text=${encodeURIComponent(message)}`;
 
-/** One service line ("unit usaha"). */
-export interface ServiceUnit {
-	name: string;
-	/** Absent where the live site names the unit but never describes it. */
-	description?: string;
-	/** The live site's own card media for this unit, where it publishes one. */
-	image?: { animated: string; still: string };
-}
-
 /**
- * business -- what the company is, in the live site's own words, and what it
- * sells. The live site publishes it in two places and they do not agree:
+ * business -- what the company is, in the live site's own words.
  *
- *   - the "Layanan" menu lists five units: Laser Cutting, Laser CO2, Laser
- *     Marking, CNC Routing, Cutting Akrilik. Three of the five pages behind
- *     those links are 404 and the other two say "System Is Under Maintenance",
- *     so the menu proves the names and nothing else.
- *   - the homepage's "Layanan Kami" cards describe six: Laser Cutting Plat /
- *     Metal, Laser Cutting Akrilik, Laser Marking, Jasa Pembuatan Pagar, Jasa
- *     Pembuatan Fasad, Pembuatan Mesin Tepat Guna.
- *
- * The three that appear in both are merged once below, described with the
- * homepage's own sentence. Laser CO2 and CNC Routing have no description
- * anywhere on the live site, so they carry their name only: a written-out
- * capability nothing published would be an invented one.
- *
- * The six card images are the live homepage's own per-service media. Laser CO2
- * and CNC Routing have none there, so their cells stay flat navy.
- *
+ * The service lines ("unit usaha") used to live here; they are Keystatic
+ * entries now (src/content/services), because the client edits them.
  * `materials` and `sectors` are the FAQ's own answers and the about page's own
  * list. Nothing here is a claim the client has not already made.
  */
@@ -84,58 +60,6 @@ export const business = {
 	/** Meta description. One sentence, services first, because that is the query. */
 	description:
 		"Jasa laser cutting, laser marking, CNC routing, dan fabrikasi custom untuk kebutuhan industri dengan hasil presisi.",
-	serviceUnits: [
-		{
-			name: "Laser Cutting",
-			description: "Jasa laser cutting plat dan metal dengan hasil presisi tinggi.",
-			image: {
-				animated: "/services/laser-cutting.webp",
-				still: "/services/laser-cutting-still.webp",
-			},
-		},
-		{
-			name: "Laser Cutting Akrilik",
-			description: "Jasa laser cutting akrilik dengan hasil yang estetik.",
-			image: {
-				animated: "/services/laser-cutting-akrilik.webp",
-				still: "/services/laser-cutting-akrilik-still.webp",
-			},
-		},
-		{ name: "Laser CO2" },
-		{
-			name: "Laser Marking",
-			description: "Jasa laser marking dengan ketelitian dan hasil yang presisi.",
-			image: {
-				animated: "/services/laser-marking.webp",
-				still: "/services/laser-marking-still.webp",
-			},
-		},
-		{ name: "CNC Routing" },
-		{
-			name: "Jasa Pembuatan Pagar",
-			description: "Jasa pembuatan pagar yang kokoh untuk melindungi rumah.",
-			image: {
-				animated: "/services/jasa-pembuatan-pagar.webp",
-				still: "/services/jasa-pembuatan-pagar-still.webp",
-			},
-		},
-		{
-			name: "Jasa Pembuatan Fasad",
-			description: "Jasa pembuatan fasad yang estetik.",
-			image: {
-				animated: "/services/jasa-pembuatan-fasad.webp",
-				still: "/services/jasa-pembuatan-fasad-still.webp",
-			},
-		},
-		{
-			name: "Pembuatan Mesin Tepat Guna",
-			description: "Pembuatan mesin tepat guna dan manufaktur custom sesuai kebutuhan.",
-			image: {
-				animated: "/services/pembuatan-mesin-tepat-guna.webp",
-				still: "/services/pembuatan-mesin-tepat-guna-still.webp",
-			},
-		},
-	] satisfies ServiceUnit[],
 	/** The FAQ's own answer to "material apa saja yang bisa diproses?". */
 	materials: ["Akrilik", "MDF", "Kayu", "Stainless steel", "Aluminium", "Plastik", "Karet"],
 	/** The about page's own list of industries served. */

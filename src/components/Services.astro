@@ -2,24 +2,28 @@
 /**
  * Services.astro -- the "Layanan Kami" band, anchored #jasa.
  *
- * Every unit comes from business.serviceUnits, which holds the live site's own
- * names, its own sentences, and its own card media. Two units (Laser CO2, CNC
- * Routing) have no description and no image anywhere on the live site, so their
- * cells carry the name over a flat navy tile: an absence, not a substitute.
+ * Every unit comes from the Keystatic-managed "services" collection via
+ * getLandingServices(): entries without "Tampilkan di beranda" are skipped
+ * here while /jasa and the footer still list them. Two units (Laser CO2, CNC
+ * Routing) have no description and no image anywhere on the live site, so
+ * their cells carry the name over a flat navy tile: an absence, not a
+ * substitute -- their entries fail Keystatic's required-photo validation the
+ * next time an editor touches them.
  *
  * Look: tiles of the work itself. The photo is the cell's background, the index
  * number and the sentence sit on a scrim at the bottom, and the 1px grid gap
  * lets the band show through instead of drawing hairlines over photographs.
  */
-import { business } from "../data/site";
+import { getLandingServices } from "../utils/content";
 
-const services = business.serviceUnits.map((unit, index) => ({
-	...unit,
+const services = (await getLandingServices()).map((entry, index) => ({
 	/** The index printed on the cell: 01, 02, ... */
 	index: String(index + 1).padStart(2, "0"),
-	/** Background layers, absent where the live site publishes no image. */
-	media: unit.image
-		? `--anim: url(${unit.image.animated}); --still: url(${unit.image.still})`
+	name: entry.data.title,
+	description: entry.data.description,
+	/** Background layers, absent where the entry has no media yet. */
+	media: entry.data.image
+		? `--still: url(${entry.data.image}); --anim: url(${entry.data.imageAnimated ?? entry.data.image})`
 		: undefined,
 }));
 ---
