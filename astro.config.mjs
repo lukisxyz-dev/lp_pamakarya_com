@@ -1,5 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders, passthroughImageService } from 'astro/config';
+import react from '@astrojs/react';
+import keystatic from '@keystatic/astro';
 
 // https://astro.build/config
 export default defineConfig({
@@ -8,6 +10,7 @@ export default defineConfig({
 		layout: "constrained",
 		responsiveStyles: true,
 	},
+	integrations: [react(), keystatic()],
 	fonts: [
 		{
 			provider: fontProviders.local(),
