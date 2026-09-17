@@ -3,10 +3,11 @@
  *
  * Keystatic is the editor only: it writes the files under src/content/ and
  * the build reads them back through src/content.config.ts. Storage is local
- * while developing (writes straight to the working tree) and GitHub mode in
- * production builds (commits through the GitHub API), so the same file
- * serves both; import.meta.env is what lets Vite inline the switch on the
- * client, where process.env does not exist.
+ * while developing (writes straight to the working tree) and Keystatic Cloud
+ * in production builds, where commits are made by Keystatic's service on the
+ * editor's behalf -- editors sign in with an email and password there, so
+ * they need no GitHub account. import.meta.env is what lets Vite inline the
+ * switch on the client, where process.env does not exist.
  *
  * Labels and help text are in Bahasa Indonesia because the editor is the
  * client, not a developer. "Tampilkan di beranda" defaults to true: an
@@ -14,12 +15,12 @@
  */
 import { collection, config, fields } from "@keystatic/core";
 
-/** The GitHub repo GitHub mode commits to -- the repo must live on GitHub. */
-const GITHUB_REPO = "lukisxyz-dev/lp_pamakarya_com";
+/** team/project from the Keystatic Cloud project settings. */
+const CLOUD_PROJECT = "pamakarya/pamakarya";
 
 const storage = import.meta.env.DEV
 	? ({ kind: "local" } as const)
-	: ({ kind: "github", repo: GITHUB_REPO } as const);
+	: ({ kind: "cloud" } as const);
 
 const landingField = () =>
 	fields.checkbox({
@@ -38,6 +39,7 @@ const servicesImage = (label: string, description?: string) =>
 
 export default config({
 	storage,
+	cloud: { project: CLOUD_PROJECT },
 	collections: {
 		portfolio: collection({
 			label: "Portofolio",
