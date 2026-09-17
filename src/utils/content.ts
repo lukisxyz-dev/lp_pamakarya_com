@@ -82,7 +82,7 @@ export async function getAllFaqs(): Promise<FaqEntry[]> {
 export async function getSettings(): Promise<Settings> {
 	const [entry] = await getCollection("settings");
 	if (!entry) {
-		throw new Error("Entry 'Pengaturan situs' tidak ditemukan di src/content/settings/.");
+		throw new Error("Entry 'Pengaturan situs' tidak ditemukan di src/content/settings.yaml.");
 	}
 	return entry.data;
 }
