@@ -15,7 +15,7 @@
 import { collection, config, fields } from "@keystatic/core";
 
 /** The GitHub repo GitHub mode commits to -- the repo must live on GitHub. */
-const GITHUB_REPO = "OWNER/REPO";
+const GITHUB_REPO = "lukisxyz-dev/lp_pamakarya_com";
 
 const storage = import.meta.env.DEV
 	? ({ kind: "local" } as const)
